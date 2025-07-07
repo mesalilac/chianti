@@ -170,14 +170,11 @@ async fn create_watch_history(
 
     let channel = Channel::new(payload.channel_id.clone(), payload.channel_name.clone());
 
-    if let Err(e) = insert_into(channels)
+    insert_into(channels)
         .values(&channel)
         .on_conflict_do_nothing()
         .execute(&mut conn)
-    {
-        tracing::error!("Failed to insert new channel: {}", e);
-        return Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()));
-    }
+        .map_err(internal_error)?;
 
     let video = Video::new(
         payload.video_id,
@@ -188,14 +185,11 @@ async fn create_watch_history(
         payload.published_at,
     );
 
-    if let Err(e) = insert_into(videos)
+    insert_into(videos)
         .values(&video)
         .on_conflict_do_nothing()
         .execute(&mut conn)
-    {
-        tracing::error!("Failed to insert new video: {e}");
-        return Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()));
-    }
+        .map_err(internal_error)?;
 
     let new_watch_history = WatchHistory::new(
         video.id,
@@ -204,14 +198,11 @@ async fn create_watch_history(
         payload.session_end_time,
     );
 
-    if let Err(e) = insert_into(watch_history)
+    insert_into(watch_history)
         .values(&new_watch_history)
         .on_conflict_do_nothing()
         .execute(&mut conn)
-    {
-        tracing::error!("Failed to insert new watch history: {e}");
-        return Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()));
-    }
+        .map_err(internal_error)?;
 
     Ok(StatusCode::CREATED)
 }
@@ -222,5 +213,6 @@ fn internal_error<E>(err: E) -> (StatusCode, String)
 where
     E: std::error::Error,
 {
+    tracing::error!("Unhandled internal error: {}", err);
     (StatusCode::INTERNAL_SERVER_ERROR, err.to_string())
 }
