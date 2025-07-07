@@ -1,16 +1,10 @@
-use axum::{
-    Json, Router,
-    http::StatusCode,
-    response::IntoResponse,
-    routing::{get, post},
-};
+use axum::{Router, routing::get};
 use axum::{
     body::Bytes,
     extract::MatchedPath,
     http::{HeaderMap, Request},
     response::Response,
 };
-use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tower_http::{classify::ServerErrorsFailureClass, trace::TraceLayer};
 use tracing::{Span, info_span};
