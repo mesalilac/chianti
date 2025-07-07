@@ -1,3 +1,10 @@
+mod database;
+mod schema;
+
+use axum::Json;
+use axum::extract::State;
+use axum::http::StatusCode;
+use axum::routing::post;
 use axum::{Router, routing::get};
 use axum::{
     body::Bytes,
@@ -5,13 +12,42 @@ use axum::{
     http::{HeaderMap, Request},
     response::Response,
 };
+use database::models::{Channel, Video, WatchHistory};
+use diesel::RunQueryDsl;
+use diesel::dsl::insert_into;
+use serde::Deserialize;
 use std::time::Duration;
 use tower_http::{classify::ServerErrorsFailureClass, trace::TraceLayer};
 use tracing::{Span, info_span};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
+use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
+
+const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
+
+#[derive(Clone)]
+struct AppState {
+    pool: database::connection::DbPool,
+}
+
 #[tokio::main]
 async fn main() {
+    let app_state = AppState {
+        pool: database::connection::create_connection_pool(),
+    };
+
+    if let Ok(mut conn) = app_state.pool.get() {
+        match conn.run_pending_migrations(MIGRATIONS) {
+            Ok(_) => {
+                tracing::debug!("Successfully ran migrations");
+            }
+            Err(e) => {
+                tracing::error!("Failed to run migrations: {}", e);
+                std::process::exit(1);
+            }
+        }
+    }
+
     // initialize tracing
     tracing_subscriber::registry()
         .with(
@@ -32,6 +68,10 @@ async fn main() {
     let app = Router::new()
         // `GET /` goes to `WebUI`
         .route("/", get(root))
+        .route("/api/ping", get(ping))
+        .route("/api/watch_history", post(create_watch_history))
+        .fallback(handle_404)
+        .with_state(app_state)
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(|request: &Request<_>| {
@@ -87,7 +127,104 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
+async fn handle_404() -> (StatusCode, String) {
+    (
+        StatusCode::NOT_FOUND,
+        "The requested resource was not found".to_string(),
+    )
+}
+
+/// check if the server is online
+async fn ping() -> (StatusCode, String) {
+    (StatusCode::OK, "Server is online".to_string())
+}
+
 async fn root() -> &'static str {
     // TODO: Serve the WebUI
     "Hello, World!"
+}
+
+#[derive(Deserialize)]
+struct CreateWatchHistory {
+    // For channel
+    channel_id: String,
+    channel_name: String,
+
+    // For video
+    video_id: String,
+    video_title: String,
+    video_duration: i64,
+    published_at: i64,
+    view_count: i64,
+
+    // For watch history
+    session_start_time: i64,
+    session_end_time: i64,
+}
+
+async fn create_watch_history(
+    State(state): State<AppState>,
+    Json(payload): Json<CreateWatchHistory>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    use schema::channels::dsl::*;
+    use schema::videos::dsl::*;
+    use schema::watch_history::dsl::*;
+
+    let mut conn = state.pool.get().map_err(internal_error)?;
+
+    let channel = Channel::new(payload.channel_id.clone(), payload.channel_name.clone());
+
+    if let Err(e) = insert_into(channels)
+        .values(&channel)
+        .on_conflict_do_nothing()
+        .execute(&mut conn)
+    {
+        tracing::error!("Failed to insert new channel: {}", e);
+        return Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()));
+    }
+
+    let video = Video::new(
+        payload.video_id,
+        payload.channel_id,
+        payload.video_title,
+        payload.video_duration,
+        payload.view_count,
+        payload.published_at,
+    );
+
+    if let Err(e) = insert_into(videos)
+        .values(&video)
+        .on_conflict_do_nothing()
+        .execute(&mut conn)
+    {
+        tracing::error!("Failed to insert new video: {e}");
+        return Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()));
+    }
+
+    let new_watch_history = WatchHistory::new(
+        video.id,
+        channel.id,
+        payload.session_start_time,
+        payload.session_end_time,
+    );
+
+    if let Err(e) = insert_into(watch_history)
+        .values(&new_watch_history)
+        .on_conflict_do_nothing()
+        .execute(&mut conn)
+    {
+        tracing::error!("Failed to insert new watch history: {e}");
+        return Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()));
+    }
+
+    Ok(StatusCode::CREATED)
+}
+
+/// Utility function for mapping any error into a `500 Internal Server Error`
+/// response.
+fn internal_error<E>(err: E) -> (StatusCode, String)
+where
+    E: std::error::Error,
+{
+    (StatusCode::INTERNAL_SERVER_ERROR, err.to_string())
 }
