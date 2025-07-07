@@ -1,20 +1,16 @@
 mod database;
 mod schema;
 
-use axum::Json;
-use axum::extract::State;
-use axum::http::StatusCode;
-use axum::routing::post;
-use axum::{Router, routing::get};
 use axum::{
+    Json, Router,
     body::Bytes,
-    extract::MatchedPath,
-    http::{HeaderMap, Request},
+    extract::{MatchedPath, State},
+    http::{HeaderMap, Request, StatusCode},
     response::Response,
+    routing::{get, post},
 };
 use database::models::{Channel, Video, WatchHistory};
-use diesel::RunQueryDsl;
-use diesel::dsl::insert_into;
+use diesel::{RunQueryDsl, dsl::insert_into};
 use serde::Deserialize;
 use std::time::Duration;
 use tower_http::{classify::ServerErrorsFailureClass, trace::TraceLayer};
