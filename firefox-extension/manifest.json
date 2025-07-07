@@ -1,0 +1,20 @@
+{
+    "manifest_version": 2,
+    "name": "chianti",
+    "version": "0.1",
+    "description": "Youtube watch time tracking",
+    "browser_action": {
+        "default_popup": "src/popup.html",
+        "default_title": "Chianti - Youtube watch time tracker"
+    },
+    "permissions": ["activeTab", "alarms", "https://www.youtube.com/*"],
+    "background": {
+        "scripts": ["src/background.js"]
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://www.youtube.com/watch*"],
+            "js": ["content.js"]
+        }
+    ]
+}
