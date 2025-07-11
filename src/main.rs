@@ -152,10 +152,6 @@ struct CreateWatchHistory {
     video_duration: i64,
     published_at: i64,
     view_count: i64,
-
-    // For watch history
-    session_start_time: i64,
-    session_end_time: i64,
 }
 
 async fn create_watch_history(
@@ -191,12 +187,7 @@ async fn create_watch_history(
         .execute(&mut conn)
         .map_err(internal_error)?;
 
-    let new_watch_history = WatchHistory::new(
-        video.id,
-        channel.id,
-        payload.session_start_time,
-        payload.session_end_time,
-    );
+    let new_watch_history = WatchHistory::new(video.id, channel.id);
 
     insert_into(watch_history)
         .values(&new_watch_history)

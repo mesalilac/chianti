@@ -23,9 +23,6 @@ CREATE TABLE watch_history (
     id                      TEXT    NOT NULL PRIMARY KEY,
     video_id                TEXT    NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
     channel_id              TEXT    NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
-    watch_duration_seconds  BIGINT NOT NULL,
-    session_start_time      BIGINT NOT NULL,
-    session_end_time        BIGINT NOT NULL,
 
     added_at                BIGINT NOT NULL
 );

@@ -28,9 +28,6 @@ diesel::table! {
         id -> Text,
         video_id -> Text,
         channel_id -> Text,
-        watch_duration_seconds -> BigInt,
-        session_start_time -> BigInt,
-        session_end_time -> BigInt,
         added_at -> BigInt,
     }
 }
@@ -39,4 +36,8 @@ diesel::joinable!(videos -> channels (channel_id));
 diesel::joinable!(watch_history -> channels (channel_id));
 diesel::joinable!(watch_history -> videos (video_id));
 
-diesel::allow_tables_to_appear_in_same_query!(channels, videos, watch_history,);
+diesel::allow_tables_to_appear_in_same_query!(
+    channels,
+    videos,
+    watch_history,
+);

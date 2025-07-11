@@ -87,33 +87,20 @@ pub struct WatchHistory {
     pub id: String,
     pub video_id: String,
     pub channel_id: String,
-    pub watch_duration_seconds: i64,
-    pub session_start_time: i64,
-    pub session_end_time: i64,
     pub added_at: i64,
 }
 
 impl WatchHistory {
-    pub fn new(
-        video_id: String,
-        channel_id: String,
-        session_start_time: i64,
-        session_end_time: i64,
-    ) -> Self {
+    pub fn new(video_id: String, channel_id: String) -> Self {
         let Ok(added_at) = time::SystemTime::now().duration_since(time::UNIX_EPOCH) else {
             tracing::error!("Failed to get current time");
             std::process::exit(1);
         };
 
-        let watch_duration_seconds = session_end_time - session_start_time;
-
         Self {
             id: nanoid!(),
             video_id,
             channel_id,
-            watch_duration_seconds,
-            session_start_time,
-            session_end_time,
             added_at: added_at.as_secs() as i64,
         }
     }
