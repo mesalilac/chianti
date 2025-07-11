@@ -13,7 +13,7 @@ use database::models::{Channel, Video, WatchHistory};
 use diesel::{RunQueryDsl, dsl::insert_into};
 use serde::Deserialize;
 use std::time::Duration;
-use tower_http::{classify::ServerErrorsFailureClass, trace::TraceLayer};
+use tower_http::{classify::ServerErrorsFailureClass, cors::CorsLayer, trace::TraceLayer};
 use tracing::{Span, info_span};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -68,6 +68,7 @@ async fn main() {
         .route("/api/watch_history", post(create_watch_history))
         .fallback(handle_404)
         .with_state(app_state)
+        .layer(CorsLayer::permissive())
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(|request: &Request<_>| {
