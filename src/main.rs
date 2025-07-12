@@ -126,9 +126,7 @@ async fn main() {
         );
 
     // run our app with hyper
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3241")
-        .await
-        .unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3241").await.unwrap();
     tracing::debug!("listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
 }
