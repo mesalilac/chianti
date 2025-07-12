@@ -33,8 +33,8 @@ struct AppState {
 
 #[tokio::main]
 async fn main() {
-    let webui_html_file = get_service(ServeFile::new("app/dist/index.html"));
-    let webui_assets = get_service(ServeDir::new("app/dist/assets"));
+    let webui_html_file = get_service(ServeFile::new("/app/dist/index.html"));
+    let webui_assets = get_service(ServeDir::new("/app/dist/assets"));
 
     let app_state = AppState {
         pool: database::connection::create_connection_pool(),
