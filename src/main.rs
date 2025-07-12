@@ -7,13 +7,18 @@ use axum::{
     extract::{MatchedPath, State},
     http::{HeaderMap, Request, StatusCode},
     response::Response,
-    routing::{get, post},
+    routing::{get, get_service, post},
 };
 use database::models::{Channel, Video, WatchHistory};
 use diesel::{RunQueryDsl, dsl::insert_into};
 use serde::Deserialize;
 use std::time::Duration;
-use tower_http::{classify::ServerErrorsFailureClass, cors::CorsLayer, trace::TraceLayer};
+use tower_http::{
+    classify::ServerErrorsFailureClass,
+    cors::CorsLayer,
+    services::{ServeDir, ServeFile},
+    trace::TraceLayer,
+};
 use tracing::{Span, info_span};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -28,6 +33,9 @@ struct AppState {
 
 #[tokio::main]
 async fn main() {
+    let webui_html_file = get_service(ServeFile::new("./web-dist/index.html"));
+    let webui_assets = get_service(ServeDir::new("./web-dist/assets"));
+
     let app_state = AppState {
         pool: database::connection::create_connection_pool(),
     };
@@ -62,8 +70,9 @@ async fn main() {
 
     // build our application with a route
     let app = Router::new()
-        // `GET /` goes to `WebUI`
         .route("/", get(root))
+        .nest_service("/stats", webui_html_file)
+        .nest_service("/assets", webui_assets)
         .route("/api/ping", get(ping))
         .route("/api/watch_history", post(create_watch_history))
         .fallback(handle_404)
@@ -124,6 +133,10 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
+async fn root() -> &'static str {
+    "Hello, World!"
+}
+
 async fn handle_404() -> (StatusCode, String) {
     (
         StatusCode::NOT_FOUND,
@@ -134,11 +147,6 @@ async fn handle_404() -> (StatusCode, String) {
 /// check if the server is online
 async fn ping() -> (StatusCode, String) {
     (StatusCode::OK, "Server is online".to_string())
-}
-
-async fn root() -> &'static str {
-    // TODO: Serve the WebUI
-    "Hello, World!"
 }
 
 #[derive(Deserialize)]
