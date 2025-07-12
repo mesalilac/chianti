@@ -1,0 +1,9 @@
+.git/
+target/
+web/node_modules/
+web-dist/
+firefox-extension/
+dev.db
+dockerfile
+.dockerignore
+build.sh
