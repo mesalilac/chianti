@@ -5,6 +5,13 @@ export default defineConfig({
     plugins: [solidPlugin()],
     server: {
         port: 3010,
+        proxy: {
+            '/api': {
+                target: 'http://localhost:3241',
+                changeOrigin: true,
+                secure: false,
+            },
+        },
     },
     build: {
         outDir: '../web-dist',
