@@ -21,5 +21,6 @@ COPY --from=rust_builder /src/target/release/chianti /app/
 COPY --from=node_builder /src/dist /app/dist
 
 EXPOSE 3241
+VOLUME /app/data
 
 CMD ["./chianti"]
