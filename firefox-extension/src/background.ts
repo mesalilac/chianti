@@ -29,7 +29,9 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const payload = message.payload;
 
     if (type === 'recordHistory') {
-        const data = payload as WatchHistoryBody;
+        const data = payload as WatchHistoryBody | null;
+        if (!data) return;
+
         console.debug(data);
 
         browser.storage.local.get('apiURL').then((storage) => {
