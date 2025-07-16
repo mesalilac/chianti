@@ -193,12 +193,9 @@ async fn create_watch_history(
         payload.video_id,
         payload.channel_id,
         payload.video_title,
-        payload.watch_duration_seconds,
         payload.video_duration,
         payload.view_count,
         payload.published_at,
-        payload.session_start_date,
-        payload.session_end_date,
     );
 
     insert_into(videos_dsl::videos)
@@ -209,7 +206,13 @@ async fn create_watch_history(
         .execute(&mut conn)
         .map_err(internal_error)?;
 
-    let new_watch_history = WatchHistory::new(video.id, channel.id);
+    let new_watch_history = WatchHistory::new(
+        video.id,
+        channel.id,
+        payload.watch_duration_seconds,
+        payload.session_start_date,
+        payload.session_end_date,
+    );
 
     insert_into(watch_history_dsl::watch_history)
         .values(&new_watch_history)

@@ -17,12 +17,9 @@ diesel::table! {
         url -> Text,
         title -> Text,
         watch_counter -> BigInt,
-        watch_duration_seconds -> BigInt,
         duration_seconds -> BigInt,
         view_count -> BigInt,
         published_at -> BigInt,
-        session_start_date -> BigInt,
-        session_end_date -> BigInt,
         added_at -> BigInt,
     }
 }
@@ -32,6 +29,9 @@ diesel::table! {
         id -> Text,
         video_id -> Text,
         channel_id -> Text,
+        watch_duration_seconds -> BigInt,
+        session_start_date -> BigInt,
+        session_end_date -> BigInt,
         added_at -> BigInt,
     }
 }

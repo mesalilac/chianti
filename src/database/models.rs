@@ -44,12 +44,9 @@ pub struct Video {
     pub url: String,
     pub title: String,
     pub watch_counter: i64,
-    pub watch_duration_seconds: i64,
     pub duration_seconds: i64,
     pub view_count: i64,
     pub published_at: i64,
-    pub session_start_date: i64,
-    pub session_end_date: i64,
     pub added_at: i64,
 }
 
@@ -58,12 +55,9 @@ impl Video {
         id: String,
         channel_id: String,
         title: String,
-        watch_duration_seconds: i64,
         duration_seconds: i64,
         view_count: i64,
         published_at: i64,
-        session_start_date: i64,
-        session_end_date: i64,
     ) -> Self {
         let Ok(added_at) = time::SystemTime::now().duration_since(time::UNIX_EPOCH) else {
             tracing::error!("Failed to get current time");
@@ -78,12 +72,9 @@ impl Video {
             url,
             title,
             watch_counter: 0,
-            watch_duration_seconds,
             duration_seconds,
             view_count,
             published_at,
-            session_start_date,
-            session_end_date,
             added_at: added_at.as_secs() as i64,
         }
     }
@@ -98,11 +89,20 @@ pub struct WatchHistory {
     pub id: String,
     pub video_id: String,
     pub channel_id: String,
+    pub watch_duration_seconds: i64,
+    pub session_start_date: i64,
+    pub session_end_date: i64,
     pub added_at: i64,
 }
 
 impl WatchHistory {
-    pub fn new(video_id: String, channel_id: String) -> Self {
+    pub fn new(
+        video_id: String,
+        channel_id: String,
+        watch_duration_seconds: i64,
+        session_start_date: i64,
+        session_end_date: i64,
+    ) -> Self {
         let Ok(added_at) = time::SystemTime::now().duration_since(time::UNIX_EPOCH) else {
             tracing::error!("Failed to get current time");
             std::process::exit(1);
@@ -112,6 +112,9 @@ impl WatchHistory {
             id: nanoid!(),
             video_id,
             channel_id,
+            watch_duration_seconds,
+            session_start_date,
+            session_end_date,
             added_at: added_at.as_secs() as i64,
         }
     }
