@@ -3,6 +3,10 @@ import { WatchHistoryBody, MessageType } from './types.d';
 let lastProcessedUrl: string | null = null;
 
 // https://medium.com/@softvar/making-chrome-extension-smart-by-supporting-spa-websites-1f76593637e8
+// NOTE: Message `page-rendered` is sent twice
+//       - When you load a fresh page on /watch?=
+//       - And click on a new video
+//       - The `main` function runs twice for that new video
 browser.webNavigation.onHistoryStateUpdated.addListener((e) => {
     if (e.frameId !== 0) return;
     if (e.transitionType !== 'link') return;

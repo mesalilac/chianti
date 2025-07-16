@@ -138,8 +138,9 @@ async function main() {
     }
 
     const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
     await delay(4000);
+
+    if (document.readyState !== 'complete') return;
 
     const videoInfo = getVideoInfo();
     if (!videoInfo) return;
@@ -186,38 +187,36 @@ browser.runtime.onMessage.addListener((message: Message<undefined>) => {
     if (message.type === 'page-rendered') {
         if (payload) {
             payload.session_end_date = Math.round(Number(Date.now() / 1000));
-            browser.runtime
-                .sendMessage({
-                    type: 'recordHistory',
-                    payload: payload,
-                })
-                .finally(() => {
-                    if (intervalId) {
-                        clearInterval(intervalId);
-                        intervalId = null;
-                    }
-                    payload = null;
-                });
+            browser.runtime.sendMessage({
+                type: 'recordHistory',
+                payload: payload,
+            });
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            payload = null;
         }
 
         main();
     }
 });
 
+if (document.readyState === 'complete') {
+    main();
+}
+
 window.addEventListener('beforeunload', () => {
     if (payload) {
         payload.session_end_date = Math.round(Number(Date.now() / 1000));
-        browser.runtime
-            .sendMessage({
-                type: 'recordHistory',
-                payload: payload,
-            })
-            .finally(() => {
-                if (intervalId) {
-                    clearInterval(intervalId);
-                    intervalId = null;
-                }
-                payload = null;
-            });
+        browser.runtime.sendMessage({
+            type: 'recordHistory',
+            payload: payload,
+        });
+        if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+        }
+        payload = null;
     }
 });
