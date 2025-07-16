@@ -95,8 +95,9 @@ function getVideoInfo(): {
 
     if (tempVideoPublishDate.startsWith('Premiered ')) {
         tempVideoPublishDate = tempVideoPublishDate.replace('Premiered ', '');
-        videoPublishDate = parseRelativeDate(tempVideoPublishDate);
-    } else if (tempVideoPublishDate.includes('ago')) {
+    }
+
+    if (tempVideoPublishDate.includes('ago')) {
         videoPublishDate = parseRelativeDate(tempVideoPublishDate);
     } else {
         videoPublishDate = Number(
