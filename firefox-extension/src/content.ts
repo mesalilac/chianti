@@ -3,6 +3,54 @@ import { Message, WatchHistoryBody } from './types.d';
 let payload: WatchHistoryBody | null = null;
 let intervalId: number | null = null;
 
+function parseRelativeDate(dateString: string): number {
+    const parts = dateString.split(' ');
+    if (parts.length < 3 || parts[2].toLowerCase() !== 'ago') return NaN;
+
+    const value: number = Number(parts[0]);
+    let unit: string = parts[1].toLowerCase();
+    if (isNaN(value)) return NaN;
+
+    if (unit.endsWith('s') && value === 1) unit = unit.slice(0, -1);
+
+    const resultDate = new Date();
+
+    switch (unit) {
+        case 'second':
+        case 'seconds':
+            resultDate.setSeconds(resultDate.getSeconds() - value);
+            break;
+        case 'minute':
+        case 'minutes':
+            resultDate.setMinutes(resultDate.getMinutes() - value);
+            break;
+        case 'hour':
+        case 'hours':
+            resultDate.setHours(resultDate.getHours() - value);
+            break;
+        case 'day':
+        case 'days':
+            resultDate.setDate(resultDate.getDate() - value);
+            break;
+        case 'week':
+        case 'weeks':
+            resultDate.setDate(resultDate.getDate() - value * 7);
+            break;
+        case 'month':
+        case 'months':
+            resultDate.setMonth(resultDate.getMonth() - value);
+            break;
+        case 'year':
+        case 'years':
+            resultDate.setFullYear(resultDate.getFullYear() - value);
+            break;
+        default:
+            return NaN;
+    }
+
+    return Math.floor(resultDate.getTime() / 1000);
+}
+
 function getVideoInfo(): {
     title: string;
     duration: number;
@@ -42,11 +90,19 @@ function getVideoInfo(): {
         return null;
 
     const tempVideoViews = descriptionInfoContainer.children[0].textContent;
-    const tempVideoPublishDate =
-        descriptionInfoContainer.children[
-            descriptionInfoContainer.children.length - 1
-        ].textContent;
-    if (!tempVideoPublishDate) return null;
+    let tempVideoPublishDate = descriptionInfoContainer.children[2].textContent;
+    let videoPublishDate: number = 0;
+
+    if (tempVideoPublishDate.startsWith('Premiered ')) {
+        tempVideoPublishDate = tempVideoPublishDate.replace('Premiered ', '');
+        videoPublishDate = parseRelativeDate(tempVideoPublishDate);
+    } else if (tempVideoPublishDate.includes('ago')) {
+        videoPublishDate = parseRelativeDate(tempVideoPublishDate);
+    } else {
+        videoPublishDate = Number(
+            new Date(tempVideoPublishDate).getTime() / 1000,
+        );
+    }
 
     // Collapse description
     const collapseElement = document.querySelector(
@@ -66,7 +122,7 @@ function getVideoInfo(): {
                     0,
                 ),
         ),
-        published_at: Number(new Date(tempVideoPublishDate).getTime() / 1000),
+        published_at: videoPublishDate,
         view_count: Number(tempVideoViews.split(' ')[0].replaceAll(',', '')),
     };
 }
