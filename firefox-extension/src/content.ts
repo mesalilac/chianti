@@ -148,6 +148,8 @@ async function main() {
     const channelInfo = getChannelInfo();
     if (!channelInfo) return;
 
+    const thumbnail_url = `https://i.ytimg.com/vi/${videoID}/maxresdefault.jpg`;
+
     payload = {
         // For channel
         channel_id: channelInfo.id,
@@ -162,6 +164,7 @@ async function main() {
         watch_duration_seconds: 0,
         session_start_date: Math.round(Number(Date.now() / 1000)),
         session_end_date: Math.round(Number(Date.now() / 1000)),
+        video_thumbnail_url: thumbnail_url,
     };
 
     console.log(payload);

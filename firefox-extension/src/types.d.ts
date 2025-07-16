@@ -21,4 +21,5 @@ export interface WatchHistoryBody {
     watch_duration_seconds: number;
     session_start_date: number;
     session_end_date: number;
+    video_thumbnail_url: string;
 }

@@ -131,6 +131,48 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
+fn get_images_directory() -> std::path::PathBuf {
+    let mut path = if cfg!(debug_assertions) {
+        std::path::PathBuf::from("./dev-cache")
+    } else {
+        std::path::PathBuf::from("/app/data")
+    };
+
+    path.push("images");
+
+    if !path.exists() {
+        std::fs::create_dir_all(&path).unwrap();
+    }
+
+    path
+}
+
+fn get_channel_avaters_directory() -> std::path::PathBuf {
+    let mut path = get_images_directory();
+    path.push("channel-avatars");
+
+    if !path.exists() {
+        std::fs::create_dir_all(&path).unwrap();
+    }
+
+    path
+}
+
+fn get_video_thumbnails_directory() -> std::path::PathBuf {
+    let mut path = get_images_directory();
+    path.push("video-thumbnails");
+
+    if !path.exists() {
+        std::fs::create_dir_all(&path).unwrap();
+    }
+
+    path
+}
+
+fn cache_image_filename(filename: &String) -> String {
+    format!("{filename}.webp")
+}
+
 async fn root() -> &'static str {
     "Hello, World!"
 }
@@ -163,6 +205,7 @@ struct CreateWatchHistory {
     watch_duration_seconds: i64,
     session_start_date: i64,
     session_end_date: i64,
+    video_thumbnail_url: String,
 }
 
 async fn create_watch_history(
@@ -174,6 +217,26 @@ async fn create_watch_history(
     use schema::watch_history::dsl as watch_history_dsl;
 
     let mut conn = state.pool.get().map_err(internal_error)?;
+
+    // let channel_avater_file_path =
+    //     get_channel_avaters_directory().join(cache_image_filename(&payload.channel_id));
+    let video_thumbnail_file_path =
+        get_video_thumbnails_directory().join(cache_image_filename(&payload.video_id));
+
+    if !video_thumbnail_file_path.exists() {
+        tracing::info!("Downloading video thumbnail for video {}", payload.video_id);
+        let response = reqwest::get(&payload.video_thumbnail_url)
+            .await
+            .map_err(internal_error)?
+            .bytes()
+            .await
+            .map_err(internal_error)?;
+
+        image::load_from_memory(&response)
+            .map_err(internal_error)?
+            .save_with_format(&video_thumbnail_file_path, image::ImageFormat::WebP)
+            .map_err(internal_error)?;
+    }
 
     let channel = Channel::new(
         payload.channel_id.clone(),
