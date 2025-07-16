@@ -122,6 +122,7 @@ async function main() {
         video_duration: videoInfo.duration,
         published_at: videoInfo.published_at,
         view_count: videoInfo.view_count,
+        watch_duration_seconds: 0,
     };
 
     console.log(payload);
@@ -136,7 +137,7 @@ async function main() {
 
     setInterval(() => {
         if (!videoElement.paused) {
-            console.log('video playing');
+            if (payload) payload.watch_duration_seconds += 1;
         }
     }, 1000);
 }

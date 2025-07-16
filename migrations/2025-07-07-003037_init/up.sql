@@ -12,6 +12,7 @@ CREATE TABLE videos (
     url                     TEXT    NOT NULL,
     title                   TEXT    NOT NULL,
     watch_counter           BIGINT NOT NULL,
+    watch_duration_seconds  BIGINT NOT NULL,
     duration_seconds        BIGINT NOT NULL,
     view_count              BIGINT NOT NULL,
     published_at            BIGINT NOT NULL,

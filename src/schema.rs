@@ -16,6 +16,7 @@ diesel::table! {
         url -> Text,
         title -> Text,
         watch_counter -> BigInt,
+        watch_duration_seconds -> BigInt,
         duration_seconds -> BigInt,
         view_count -> BigInt,
         published_at -> BigInt,

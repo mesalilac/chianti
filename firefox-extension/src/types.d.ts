@@ -17,4 +17,5 @@ export interface WatchHistoryBody {
     video_duration: number;
     published_at: number;
     view_count: number;
+    watch_duration_seconds: number;
 }

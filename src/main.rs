@@ -159,6 +159,7 @@ struct CreateWatchHistory {
     video_duration: i64,
     published_at: i64,
     view_count: i64,
+    watch_duration_seconds: i64,
 }
 
 async fn create_watch_history(
@@ -184,6 +185,7 @@ async fn create_watch_history(
         payload.channel_id,
         payload.video_title,
         payload.video_duration,
+        payload.watch_duration_seconds,
         payload.view_count,
         payload.published_at,
     );
