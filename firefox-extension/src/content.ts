@@ -43,7 +43,10 @@ function getVideoInfo(): {
 
     const tempVideoViews = descriptionInfoContainer.children[0].textContent;
     const tempVideoPublishDate =
-        descriptionInfoContainer.children[2].textContent;
+        descriptionInfoContainer.children[
+            descriptionInfoContainer.children.length - 1
+        ].textContent;
+    if (!tempVideoPublishDate) return null;
 
     // Collapse description
     const collapseElement = document.querySelector(
