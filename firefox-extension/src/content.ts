@@ -124,7 +124,7 @@ function getChannelInfo(): {
     return {
         id: channelID,
         name: channelName,
-        subscribersCount: subscribersCount,
+        subscribersCount: Math.round(subscribersCount),
     };
 }
 
@@ -151,16 +151,16 @@ async function main() {
         // For channel
         channel_id: channelInfo.id,
         channel_name: channelInfo.name,
-        channel_subscribers_count: channelInfo.subscribersCount,
+        channel_subscribers_count: Math.round(channelInfo.subscribersCount),
         // For video
         video_id: videoID,
         video_title: videoInfo.title,
-        video_duration: videoInfo.duration,
-        published_at: videoInfo.published_at,
-        view_count: videoInfo.view_count,
+        video_duration: Math.round(videoInfo.duration),
+        published_at: Math.round(videoInfo.published_at),
+        view_count: Math.round(videoInfo.view_count),
         watch_duration_seconds: 0,
-        session_start_date: Number(Date.now() / 1000),
-        session_end_date: Number(Date.now() / 1000),
+        session_start_date: Math.round(Number(Date.now() / 1000)),
+        session_end_date: Math.round(Number(Date.now() / 1000)),
     };
 
     console.log(payload);
@@ -185,7 +185,7 @@ async function main() {
 browser.runtime.onMessage.addListener((message: Message<undefined>) => {
     if (message.type === 'page-rendered') {
         if (payload) {
-            payload.session_end_date = Number(Date.now() / 1000);
+            payload.session_end_date = Math.round(Number(Date.now() / 1000));
             browser.runtime
                 .sendMessage({
                     type: 'recordHistory',
@@ -206,7 +206,7 @@ browser.runtime.onMessage.addListener((message: Message<undefined>) => {
 
 window.addEventListener('beforeunload', () => {
     if (payload) {
-        payload.session_end_date = Number(Date.now() / 1000);
+        payload.session_end_date = Math.round(Number(Date.now() / 1000));
         browser.runtime
             .sendMessage({
                 type: 'recordHistory',
