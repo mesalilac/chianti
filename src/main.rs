@@ -10,7 +10,7 @@ use axum::{
     routing::{get, get_service, post},
 };
 use database::models::{Channel, Video, WatchHistory};
-use diesel::{RunQueryDsl, dsl::insert_into};
+use diesel::{ExpressionMethods, RunQueryDsl, dsl::insert_into, upsert::excluded};
 use serde::Deserialize;
 use std::time::Duration;
 use tower_http::{
@@ -169,9 +169,9 @@ async fn create_watch_history(
     State(state): State<AppState>,
     Json(payload): Json<CreateWatchHistory>,
 ) -> Result<StatusCode, (StatusCode, String)> {
-    use schema::channels::dsl::*;
-    use schema::videos::dsl::*;
-    use schema::watch_history::dsl::*;
+    use schema::channels::dsl as channels_dsl;
+    use schema::videos::dsl as videos_dsl;
+    use schema::watch_history::dsl as watch_history_dsl;
 
     let mut conn = state.pool.get().map_err(internal_error)?;
 
@@ -181,9 +181,11 @@ async fn create_watch_history(
         payload.channel_subscribers_count,
     );
 
-    insert_into(channels)
+    insert_into(channels_dsl::channels)
         .values(&channel)
-        .on_conflict_do_nothing()
+        .on_conflict(channels_dsl::id)
+        .do_update()
+        .set(channels_dsl::subscribers_count.eq(payload.channel_subscribers_count))
         .execute(&mut conn)
         .map_err(internal_error)?;
 
@@ -199,15 +201,17 @@ async fn create_watch_history(
         payload.session_end_date,
     );
 
-    insert_into(videos)
+    insert_into(videos_dsl::videos)
         .values(&video)
-        .on_conflict_do_nothing()
+        .on_conflict(videos_dsl::id)
+        .do_update()
+        .set(videos_dsl::view_count.eq(payload.view_count))
         .execute(&mut conn)
         .map_err(internal_error)?;
 
     let new_watch_history = WatchHistory::new(video.id, channel.id);
 
-    insert_into(watch_history)
+    insert_into(watch_history_dsl::watch_history)
         .values(&new_watch_history)
         .on_conflict_do_nothing()
         .execute(&mut conn)
