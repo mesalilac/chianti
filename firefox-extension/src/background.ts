@@ -1,3 +1,5 @@
+import { WatchHistoryBody, MessageType } from './types.d';
+
 let lastProcessedUrl: string | null = null;
 
 // https://medium.com/@softvar/making-chrome-extension-smart-by-supporting-spa-websites-1f76593637e8
@@ -23,30 +25,30 @@ browser.webNavigation.onHistoryStateUpdated.addListener((e) => {
 });
 
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    const type = message.type;
-    const data = message.payload;
+    const type: MessageType = message.type;
+    const payload = message.payload;
 
-    switch (type) {
-        case 'recordHistory':
-            browser.storage.local.get('apiURL').then((storage) => {
-                const apiURL = storage.apiURL;
-                if (apiURL === null) return;
+    if (type === 'recordHistory') {
+        const data = payload as WatchHistoryBody;
+        console.debug(data);
 
-                const fullUrl = new URL('/api/watch_history', apiURL);
-                fetch(fullUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                });
+        browser.storage.local.get('apiURL').then((storage) => {
+            const apiURL = storage.apiURL;
+            if (apiURL === null) return;
+
+            const fullUrl = new URL('/api/watch_history', apiURL);
+            fetch(fullUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
             });
-            break;
-        case 'setApiURL':
-            browser.storage.local.set({ apiURL: data });
-            break;
-        case 'getApiURL':
-            sendResponse(browser.storage.local.get('apiURL'));
-            break;
+        });
+    } else if (type === 'setApiURL') {
+        const data = payload as string;
+        browser.storage.local.set({ apiURL: data });
+    } else if (type === 'getApiURL') {
+        sendResponse(browser.storage.local.get('apiURL'));
     }
 });

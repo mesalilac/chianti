@@ -1,4 +1,6 @@
-import { Message } from './types.d';
+import { Message, WatchHistoryBody } from './types.d';
+
+let payload: WatchHistoryBody | null = null;
 
 function getVideoInfo(): {
     title: string;
@@ -110,7 +112,7 @@ async function main() {
     const channelInfo = getChannelInfo();
     if (!channelInfo) return;
 
-    const payload = {
+    payload = {
         // For channel
         channel_id: channelInfo.id,
         channel_name: channelInfo.name,
@@ -123,16 +125,32 @@ async function main() {
     };
 
     console.log(payload);
-
-    // browser.runtime.sendMessage({
-    //     type: 'recordHistory',
-    //     payload: payload,
-    // });
 }
 
 browser.runtime.onMessage.addListener((message: Message<undefined>) => {
     if (message.type === 'page-rendered') {
-        console.log('page-rendered');
+        if (payload) {
+            browser.runtime
+                .sendMessage({
+                    type: 'recordHistory',
+                    payload: payload,
+                })
+                .finally(() => {
+                    payload = null;
+                });
+        }
+
         main();
     }
+});
+
+window.addEventListener('beforeunload', () => {
+    browser.runtime
+        .sendMessage({
+            type: 'recordHistory',
+            payload: payload,
+        })
+        .finally(() => {
+            payload = null;
+        });
 });
