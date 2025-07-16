@@ -5,6 +5,7 @@ diesel::table! {
         id -> Text,
         name -> Text,
         url -> Text,
+        subscribers_count -> BigInt,
         added_at -> BigInt,
     }
 }

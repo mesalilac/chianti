@@ -11,11 +11,12 @@ pub struct Channel {
     pub id: String,
     pub name: String,
     pub url: String,
+    pub subscribers_count: i64,
     pub added_at: i64,
 }
 
 impl Channel {
-    pub fn new(id: String, name: String) -> Self {
+    pub fn new(id: String, name: String, subscribers_count: i64) -> Self {
         let Ok(added_at) = time::SystemTime::now().duration_since(time::UNIX_EPOCH) else {
             tracing::error!("Failed to get current time");
             std::process::exit(1);
@@ -27,6 +28,7 @@ impl Channel {
             id,
             name,
             url,
+            subscribers_count,
             added_at: added_at.as_secs() as i64,
         }
     }

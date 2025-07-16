@@ -152,6 +152,7 @@ struct CreateWatchHistory {
     // For channel
     channel_id: String,
     channel_name: String,
+    channel_subscribers_count: i64,
 
     // For video
     video_id: String,
@@ -174,7 +175,11 @@ async fn create_watch_history(
 
     let mut conn = state.pool.get().map_err(internal_error)?;
 
-    let channel = Channel::new(payload.channel_id.clone(), payload.channel_name.clone());
+    let channel = Channel::new(
+        payload.channel_id.clone(),
+        payload.channel_name.clone(),
+        payload.channel_subscribers_count,
+    );
 
     insert_into(channels)
         .values(&channel)

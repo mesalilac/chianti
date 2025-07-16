@@ -12,6 +12,7 @@ export interface Message<T> {
 export interface WatchHistoryBody {
     channel_id: string;
     channel_name: string;
+    channel_subscribers_count: number;
     video_id: string;
     video_title: string;
     video_duration: number;

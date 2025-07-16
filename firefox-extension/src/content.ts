@@ -68,7 +68,11 @@ function getVideoInfo(): {
     };
 }
 
-function getChannelInfo(): { name: string; id: string } | null {
+function getChannelInfo(): {
+    name: string;
+    id: string;
+    subscribersCount: number;
+} | null {
     const channelInfoElement = document.querySelector('#upload-info');
     if (!channelInfoElement) return null;
 
@@ -88,9 +92,39 @@ function getChannelInfo(): { name: string; id: string } | null {
         channelID = channelID.replace('/@', '');
     }
 
+    const ownerSubCount = channelInfoElement.querySelector('#owner-sub-count');
+    if (!ownerSubCount?.textContent) return null;
+
+    const subscribersCountChars = ownerSubCount.textContent
+        .split(' ')[0]
+        .toLowerCase()
+        .split('');
+    if (subscribersCountChars.length === 0) return null;
+
+    let subscribersCount = 0;
+
+    switch (subscribersCountChars[subscribersCountChars.length - 1]) {
+        case 'k':
+            subscribersCountChars.pop();
+            subscribersCount = Number(subscribersCountChars.join('')) * 1e3;
+            break;
+        case 'm':
+            subscribersCountChars.pop();
+            subscribersCount = Number(subscribersCountChars.join('')) * 1e6;
+            break;
+        case 'b':
+            subscribersCountChars.pop();
+            subscribersCount = Number(subscribersCountChars.join('')) * 1e9;
+            break;
+        default:
+            subscribersCount = Number(subscribersCountChars.join(''));
+            break;
+    }
+
     return {
         id: channelID,
         name: channelName,
+        subscribersCount: subscribersCount,
     };
 }
 
@@ -117,6 +151,7 @@ async function main() {
         // For channel
         channel_id: channelInfo.id,
         channel_name: channelInfo.name,
+        channel_subscribers_count: channelInfo.subscribersCount,
         // For video
         video_id: videoID,
         video_title: videoInfo.title,
