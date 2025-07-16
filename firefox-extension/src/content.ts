@@ -125,6 +125,20 @@ async function main() {
     };
 
     console.log(payload);
+
+    const moviePlayerElement = document.querySelector('#movie_player');
+    if (!moviePlayerElement) return;
+
+    const videoElement = moviePlayerElement.querySelector(
+        'video',
+    ) as HTMLVideoElement | null;
+    if (!videoElement) return;
+
+    setInterval(() => {
+        if (!videoElement.paused) {
+            console.log('video playing');
+        }
+    }, 1000);
 }
 
 browser.runtime.onMessage.addListener((message: Message<undefined>) => {
