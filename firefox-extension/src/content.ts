@@ -139,9 +139,6 @@ async function main() {
     intervalId = setInterval(() => {
         if (!videoElement.paused) {
             if (payload) {
-                console.log(
-                    `video: ${videoID}, watch_duration_seconds: ${payload.watch_duration_seconds}`,
-                );
                 payload.watch_duration_seconds += 1;
             }
         }
