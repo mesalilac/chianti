@@ -131,6 +131,7 @@ function getChannelInfo(): {
     name: string;
     id: string;
     subscribersCount: number;
+    avaterUrl: string;
 } | null {
     const channelInfoElement = document.querySelector('#upload-info');
     if (!channelInfoElement) return null;
@@ -180,10 +181,19 @@ function getChannelInfo(): {
             break;
     }
 
+    const avaterElement = document.querySelector(
+        '#avatar #img',
+    ) as HTMLImageElement | null;
+    if (!avaterElement) return null;
+
+    const avaterUrl = avaterElement.src.replace('=s48', '=s280');
+    if (!avaterUrl) return null;
+
     return {
         id: channelID,
         name: channelName,
         subscribersCount: Math.round(subscribersCount),
+        avaterUrl: avaterUrl,
     };
 }
 
@@ -213,6 +223,7 @@ async function main() {
         // For channel
         channel_id: channelInfo.id,
         channel_name: channelInfo.name,
+        channel_avater_url: channelInfo.avaterUrl,
         channel_subscribers_count: Math.round(channelInfo.subscribersCount),
         // For video
         video_id: videoID,

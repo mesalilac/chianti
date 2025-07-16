@@ -194,6 +194,7 @@ struct CreateWatchHistory {
     // For channel
     channel_id: String,
     channel_name: String,
+    channel_avater_url: String,
     channel_subscribers_count: i64,
 
     // For video
@@ -218,10 +219,28 @@ async fn create_watch_history(
 
     let mut conn = state.pool.get().map_err(internal_error)?;
 
-    // let channel_avater_file_path =
-    //     get_channel_avaters_directory().join(cache_image_filename(&payload.channel_id));
+    let channel_avater_file_path =
+        get_channel_avaters_directory().join(cache_image_filename(&payload.channel_id));
     let video_thumbnail_file_path =
         get_video_thumbnails_directory().join(cache_image_filename(&payload.video_id));
+
+    if !channel_avater_file_path.exists() {
+        tracing::info!(
+            "Downloading channel avater for channel {}",
+            payload.channel_id
+        );
+        let response = reqwest::get(&payload.channel_avater_url)
+            .await
+            .map_err(internal_error)?
+            .bytes()
+            .await
+            .map_err(internal_error)?;
+
+        image::load_from_memory(&response)
+            .map_err(internal_error)?
+            .save_with_format(&channel_avater_file_path, image::ImageFormat::WebP)
+            .map_err(internal_error)?;
+    }
 
     if !video_thumbnail_file_path.exists() {
         tracing::info!("Downloading video thumbnail for video {}", payload.video_id);
