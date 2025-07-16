@@ -4,30 +4,23 @@
     "version": "0.1",
     "description": "Youtube watch time tracking",
     "browser_action": {
-        "default_popup": "src/popup.html",
+        "default_popup": "popup.html",
         "default_title": "Chianti - Youtube watch time tracker"
     },
     "permissions": [
         "storage",
         "webNavigation",
+        "tabs",
         "https://www.youtube.com/*"
     ],
-    "optional_permissions": [
-        "<all_urls>"
-    ],
+    "optional_permissions": ["<all_urls>"],
     "background": {
-        "scripts": [
-            "src/background.js"
-        ]
+        "scripts": ["background.js"]
     },
     "content_scripts": [
         {
-            "matches": [
-                "*://*.youtube.com/*"
-            ],
-            "js": [
-                "src/content.js"
-            ],
+            "matches": ["*://*.youtube.com/*"],
+            "js": ["content.js"],
             "run_at": "document_idle"
         }
     ]

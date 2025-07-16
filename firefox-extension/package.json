@@ -1,0 +1,25 @@
+{
+    "name": "firefox-extension",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
+        "copyfiles": "cp src/manifest.json src/popup.html dist/",
+        "build": "npm run lint && tsc && npm run copyfiles",
+        "dev": "tsc-watch --onSuccess \"npm run copyfiles\""
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "packageManager": "pnpm@10.11.0",
+    "devDependencies": {
+        "@types/firefox-webext-browser": "^120.0.4",
+        "eslint": "^9.31.0",
+        "eslint-config-prettier": "^10.1.5",
+        "globals": "^16.3.0",
+        "tsc-watch": "^7.1.1",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.37.0"
+    }
+}
