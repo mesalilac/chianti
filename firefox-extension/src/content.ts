@@ -1,6 +1,7 @@
 import { Message, WatchHistoryBody } from './types.d';
 
 let payload: WatchHistoryBody | null = null;
+let intervalId: number | null = null;
 
 function getVideoInfo(): {
     title: string;
@@ -135,9 +136,14 @@ async function main() {
     ) as HTMLVideoElement | null;
     if (!videoElement) return;
 
-    setInterval(() => {
+    intervalId = setInterval(() => {
         if (!videoElement.paused) {
-            if (payload) payload.watch_duration_seconds += 1;
+            if (payload) {
+                console.log(
+                    `video: ${videoID}, watch_duration_seconds: ${payload.watch_duration_seconds}`,
+                );
+                payload.watch_duration_seconds += 1;
+            }
         }
     }, 1000);
 }
@@ -151,6 +157,10 @@ browser.runtime.onMessage.addListener((message: Message<undefined>) => {
                     payload: payload,
                 })
                 .finally(() => {
+                    if (intervalId) {
+                        clearInterval(intervalId);
+                        intervalId = null;
+                    }
                     payload = null;
                 });
         }
@@ -166,6 +176,10 @@ window.addEventListener('beforeunload', () => {
             payload: payload,
         })
         .finally(() => {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
             payload = null;
         });
 });
