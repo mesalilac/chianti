@@ -20,6 +20,8 @@ diesel::table! {
         duration_seconds -> BigInt,
         view_count -> BigInt,
         published_at -> BigInt,
+        session_start_date -> BigInt,
+        session_end_date -> BigInt,
         added_at -> BigInt,
     }
 }

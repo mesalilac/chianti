@@ -124,6 +124,8 @@ async function main() {
         published_at: videoInfo.published_at,
         view_count: videoInfo.view_count,
         watch_duration_seconds: 0,
+        session_start_date: Number(Date.now() / 1000),
+        session_end_date: Number(Date.now() / 1000),
     };
 
     console.log(payload);
@@ -148,6 +150,7 @@ async function main() {
 browser.runtime.onMessage.addListener((message: Message<undefined>) => {
     if (message.type === 'page-rendered') {
         if (payload) {
+            payload.session_end_date = Number(Date.now() / 1000);
             browser.runtime
                 .sendMessage({
                     type: 'recordHistory',
@@ -167,16 +170,19 @@ browser.runtime.onMessage.addListener((message: Message<undefined>) => {
 });
 
 window.addEventListener('beforeunload', () => {
-    browser.runtime
-        .sendMessage({
-            type: 'recordHistory',
-            payload: payload,
-        })
-        .finally(() => {
-            if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = null;
-            }
-            payload = null;
-        });
+    if (payload) {
+        payload.session_end_date = Number(Date.now() / 1000);
+        browser.runtime
+            .sendMessage({
+                type: 'recordHistory',
+                payload: payload,
+            })
+            .finally(() => {
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+                payload = null;
+            });
+    }
 });

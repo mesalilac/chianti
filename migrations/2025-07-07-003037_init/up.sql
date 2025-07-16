@@ -16,6 +16,8 @@ CREATE TABLE videos (
     duration_seconds        BIGINT NOT NULL,
     view_count              BIGINT NOT NULL,
     published_at            BIGINT NOT NULL,
+    session_start_date      BIGINT NOT NULL,
+    session_end_date        BIGINT NOT NULL,
 
     added_at                BIGINT NOT NULL
 );

@@ -46,6 +46,8 @@ pub struct Video {
     pub duration_seconds: i64,
     pub view_count: i64,
     pub published_at: i64,
+    pub session_start_date: i64,
+    pub session_end_date: i64,
     pub added_at: i64,
 }
 
@@ -58,6 +60,8 @@ impl Video {
         duration_seconds: i64,
         view_count: i64,
         published_at: i64,
+        session_start_date: i64,
+        session_end_date: i64,
     ) -> Self {
         let Ok(added_at) = time::SystemTime::now().duration_since(time::UNIX_EPOCH) else {
             tracing::error!("Failed to get current time");
@@ -76,6 +80,8 @@ impl Video {
             duration_seconds,
             view_count,
             published_at,
+            session_start_date,
+            session_end_date,
             added_at: added_at.as_secs() as i64,
         }
     }

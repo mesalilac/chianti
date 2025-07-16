@@ -160,6 +160,8 @@ struct CreateWatchHistory {
     published_at: i64,
     view_count: i64,
     watch_duration_seconds: i64,
+    session_start_date: i64,
+    session_end_date: i64,
 }
 
 async fn create_watch_history(
@@ -188,6 +190,8 @@ async fn create_watch_history(
         payload.watch_duration_seconds,
         payload.view_count,
         payload.published_at,
+        payload.session_start_date,
+        payload.session_end_date,
     );
 
     insert_into(videos)
