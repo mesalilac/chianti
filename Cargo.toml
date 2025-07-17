@@ -6,6 +6,7 @@ edition = "2024"
 
 [dependencies]
 axum = { version = "0.8.4", features = ["tracing"] }
+base32 = "0.5.1"
 diesel = { version = "2.2.11", features = [
     "r2d2",
     "returning_clauses_for_sqlite_3_35",

@@ -170,7 +170,9 @@ fn get_video_thumbnails_directory() -> std::path::PathBuf {
 }
 
 fn cache_image_filename(filename: &String) -> String {
-    format!("{filename}.webp")
+    let base = base32::encode(base32::Alphabet::Crockford, filename.as_bytes());
+
+    format!("{base}.webp")
 }
 
 async fn root() -> &'static str {
