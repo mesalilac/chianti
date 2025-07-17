@@ -272,7 +272,7 @@ async function main() {
         return;
     }
 
-    const thumbnail_url = `https://i.ytimg.com/vi/${videoID}/maxresdefault.jpg`;
+    const thumbnail_url = `https://img.youtube.com/vi/${videoID}/hqdefault.jpg`;
 
     payload = {
         // For channel
