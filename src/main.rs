@@ -10,7 +10,7 @@ use axum::{
     routing::{get, get_service, post},
 };
 use database::models::{Channel, Video, WatchHistory};
-use diesel::{ExpressionMethods, RunQueryDsl, dsl::insert_into, upsert::excluded};
+use diesel::{ExpressionMethods, RunQueryDsl, dsl::insert_into};
 use serde::Deserialize;
 use std::time::Duration;
 use tower_http::{
