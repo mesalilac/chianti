@@ -14,10 +14,12 @@ diesel = { version = "2.2.11", features = [
 ] }
 diesel_migrations = { version = "2.2.0", features = ["sqlite"] }
 image = "0.25.6"
+mime_guess = "2.0.5"
 nanoid = "0.4.0"
 reqwest = "0.12.22"
 serde = { version = "1.0.219", features = ["derive"] }
 tokio = { version = "1.46.1", features = ["full"] }
+tokio-util = { version = "0.7.15", features = ["io"] }
 tower-http = { version = "0.6.6", features = ["cors", "fs", "trace"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }

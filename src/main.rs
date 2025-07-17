@@ -3,10 +3,10 @@ mod schema;
 
 use axum::{
     Json, Router,
-    body::Bytes,
-    extract::{MatchedPath, State},
+    body::{Body, Bytes},
+    extract::{MatchedPath, Path, State},
     http::{HeaderMap, Request, StatusCode},
-    response::Response,
+    response::{IntoResponse, Response},
     routing::{get, get_service, post},
 };
 use database::models::{Channel, Video, WatchHistory};
@@ -73,6 +73,7 @@ async fn main() {
         .route("/", get(root))
         .nest_service("/stats", webui_html_file)
         .nest_service("/assets", webui_assets)
+        .route("/api/images/avater/{channel_id}", get(get_channel_avater))
         .route("/api/ping", get(ping))
         .route("/api/watch_history", post(create_watch_history))
         .fallback(handle_404)
@@ -184,6 +185,32 @@ async fn handle_404() -> (StatusCode, String) {
         StatusCode::NOT_FOUND,
         "The requested resource was not found".to_string(),
     )
+}
+
+async fn get_channel_avater(Path(channel_id): Path<String>) -> impl IntoResponse {
+    let avater_file_path = get_channel_avaters_directory().join(cache_image_filename(&channel_id));
+
+    let Ok(file) = tokio::fs::File::open(&avater_file_path).await else {
+        return (StatusCode::NOT_FOUND).into_response();
+    };
+
+    let Some(content_type) = mime_guess::from_path(&avater_file_path).first_raw() else {
+        return (StatusCode::INTERNAL_SERVER_ERROR).into_response();
+    };
+
+    let stream = tokio_util::io::ReaderStream::new(file);
+    let body = Body::from_stream(stream);
+
+    match Response::builder()
+        .header("Content-Type", content_type)
+        .body(body)
+    {
+        Ok(response) => response.into_response(),
+        Err(err) => {
+            tracing::error!("Failed to create response: {err}");
+            (StatusCode::INTERNAL_SERVER_ERROR).into_response()
+        }
+    }
 }
 
 /// check if the server is online
