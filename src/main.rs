@@ -206,7 +206,7 @@ async fn get_channel_avater(Path(channel_id): Path<String>) -> impl IntoResponse
         .header("Content-Type", content_type)
         .body(body)
     {
-        Ok(response) => response.into_response(),
+        Ok(response) => response,
         Err(err) => {
             tracing::error!("Failed to create response: {err}");
             (StatusCode::INTERNAL_SERVER_ERROR).into_response()
@@ -233,7 +233,7 @@ async fn get_video_thumbnail(Path(video_id): Path<String>) -> impl IntoResponse 
         .header("Content-Type", content_type)
         .body(body)
     {
-        Ok(response) => response.into_response(),
+        Ok(response) => response,
         Err(err) => {
             tracing::error!("Failed to create response: {err}");
             (StatusCode::INTERNAL_SERVER_ERROR).into_response()
