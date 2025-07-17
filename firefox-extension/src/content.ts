@@ -3,6 +3,8 @@ import { Message, WatchHistoryBody } from './types.d';
 let payload: WatchHistoryBody | null = null;
 let intervalId: number | null = null;
 
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
 function parseRelativeDate(dateString: string): number {
     const parts = dateString.split(' ');
     if (parts.length < 3 || parts[2].toLowerCase() !== 'ago') return NaN;
@@ -60,25 +62,40 @@ function getVideoInfo(): {
     const videoTitleHeadingelement = document.querySelector(
         '#title>h1',
     ) as HTMLHeadingElement;
-    if (!videoTitleHeadingelement.textContent) return null;
+    if (!videoTitleHeadingelement.textContent) {
+        console.error('[chianti] Video title not found');
+        return null;
+    }
 
     const videoDurationElement = document.querySelector('.ytp-time-duration');
-    if (!videoDurationElement?.textContent) return null;
+    if (!videoDurationElement?.textContent) {
+        console.error('[chianti] Video duration not found');
+        return null;
+    }
 
     // Expand description
     const bottomRowElement = document.querySelector('#bottom-row');
-    if (!bottomRowElement) return null;
+    if (!bottomRowElement) {
+        console.error('[chianti] Bottom row not found');
+        return null;
+    }
 
     const descriptionElement = bottomRowElement.querySelector(
         '#description',
     ) as HTMLButtonElement;
-    if (!descriptionElement) return null;
+    if (!descriptionElement) {
+        console.error('[chianti] Description button not found');
+        return null;
+    }
 
     descriptionElement.click();
 
     const descriptionInnerElement =
         document.querySelector('#description-inner');
-    if (!descriptionInnerElement) return null;
+    if (!descriptionInnerElement) {
+        console.error('[chianti] Description inner element not found');
+        return null;
+    }
 
     const descriptionInfoContainer =
         descriptionInnerElement.querySelector('#info');
@@ -86,8 +103,10 @@ function getVideoInfo(): {
         !descriptionInfoContainer ||
         !descriptionInfoContainer.children[0].textContent ||
         !descriptionInfoContainer.children[2].textContent
-    )
+    ) {
+        console.error('[chianti] Description info not found');
         return null;
+    }
 
     const tempVideoViews = descriptionInfoContainer.children[0].textContent;
     let tempVideoPublishDate = descriptionInfoContainer.children[2].textContent;
@@ -109,7 +128,10 @@ function getVideoInfo(): {
     const collapseElement = document.querySelector(
         '#collapse',
     ) as HTMLButtonElement;
-    if (!collapseElement) return null;
+    if (!collapseElement) {
+        console.error('[chianti] Collapse button not found');
+        return null;
+    }
     collapseElement.click();
 
     return {
@@ -135,32 +157,49 @@ function getChannelInfo(): {
     avaterUrl: string;
 } | null {
     const channelInfoElement = document.querySelector('#upload-info');
-    if (!channelInfoElement) return null;
+    if (!channelInfoElement) {
+        console.error('[chianti] Channel info not found');
+        return null;
+    }
 
     const channelATag = channelInfoElement.querySelector(
         '#text>a',
     ) as HTMLLinkElement | null;
-    if (!channelATag?.textContent) return null;
+    if (!channelATag?.textContent) {
+        console.error('[chianti] Channel name not found');
+        return null;
+    }
 
     const channelName = channelATag.textContent.trim();
 
     let channelID = channelATag.getAttribute('href');
-    if (!channelID) return null;
+    if (!channelID) {
+        console.error('[chianti] Channel ID not found');
+        return null;
+    }
 
     if (channelID.startsWith('/channel/')) {
+        console.debug('[chianti] Channel ID starts with /channel/');
         channelID = channelID.replace('/channel/', '');
     } else {
+        console.debug('[chianti] Channel ID starts with /@');
         channelID = channelID.replace('/@', '');
     }
 
     const ownerSubCount = channelInfoElement.querySelector('#owner-sub-count');
-    if (!ownerSubCount?.textContent) return null;
+    if (!ownerSubCount?.textContent) {
+        console.error('[chianti] Channel subscribers count not found');
+        return null;
+    }
 
     const subscribersCountChars = ownerSubCount.textContent
         .split(' ')[0]
         .toLowerCase()
         .split('');
-    if (subscribersCountChars.length === 0) return null;
+    if (subscribersCountChars.length === 0) {
+        console.error('[chianti] Channel subscribers count not found');
+        return null;
+    }
 
     let subscribersCount = 0;
 
@@ -185,10 +224,16 @@ function getChannelInfo(): {
     const avaterElement = document.querySelector(
         '#avatar #img',
     ) as HTMLImageElement | null;
-    if (!avaterElement) return null;
+    if (!avaterElement) {
+        console.error('[chianti] Channel avater not found');
+        return null;
+    }
 
     const avaterUrl = avaterElement.src.replace('=s48', '=s280');
-    if (!avaterUrl) return null;
+    if (!avaterUrl) {
+        console.error('[chianti] Channel avater URL not found');
+        return null;
+    }
 
     return {
         id: channelID,
@@ -204,19 +249,28 @@ async function main() {
     const videoID = urlParams.get('v');
 
     if (!videoID) {
+        console.error('[chianti] Video ID not found');
         return;
     }
 
-    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+    console.log('[chianti] Waiting for page to load');
     await delay(4000);
 
-    if (document.readyState !== 'complete') return;
-
+    if (document.readyState !== 'complete') {
+        console.error('[chianti] Page not fully loaded');
+        return;
+    }
     const videoInfo = getVideoInfo();
-    if (!videoInfo) return;
+    if (!videoInfo) {
+        console.error('[chianti] Failed to collect video info');
+        return;
+    }
 
     const channelInfo = getChannelInfo();
-    if (!channelInfo) return;
+    if (!channelInfo) {
+        console.error('[chianti] Failed to collect channel info');
+        return;
+    }
 
     const thumbnail_url = `https://i.ytimg.com/vi/${videoID}/maxresdefault.jpg`;
 
@@ -241,12 +295,18 @@ async function main() {
     console.log(payload);
 
     const moviePlayerElement = document.querySelector('#movie_player');
-    if (!moviePlayerElement) return;
+    if (!moviePlayerElement) {
+        console.error('[chianti] Movie player not found');
+        return;
+    }
 
     const videoElement = moviePlayerElement.querySelector(
         'video',
     ) as HTMLVideoElement | null;
-    if (!videoElement) return;
+    if (!videoElement) {
+        console.error('[chianti] Video element not found');
+        return;
+    }
 
     intervalId = setInterval(() => {
         if (!videoElement.paused) {
