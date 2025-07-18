@@ -14,7 +14,7 @@ use database::models::{Channel, Tag, Video, VideoTags, WatchHistory};
 use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl, dsl::insert_into};
 use serde::Deserialize;
-use std::time::Duration;
+use std::{path::PathBuf, time::Duration};
 use tower_http::{
     classify::ServerErrorsFailureClass,
     cors::CorsLayer,
@@ -38,14 +38,20 @@ struct AppState {
 struct Args {
     #[arg(short, long, default_value_t = 8080)]
     port: u16,
+
+    #[arg(short, long, default_value = "/app/dist")]
+    frontend_path: String,
 }
 
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
 
-    let webui_html_file = get_service(ServeFile::new("/app/dist/index.html"));
-    let webui_assets = get_service(ServeDir::new("/app/dist/assets"));
+    let html_path = PathBuf::from(&args.frontend_path).join("index.html");
+    let assets_path = PathBuf::from(&args.frontend_path).join("assets");
+
+    let webui_html_file = get_service(ServeFile::new(html_path));
+    let webui_assets = get_service(ServeDir::new(assets_path));
 
     let app_state = AppState {
         pool: database::connection::create_connection_pool(),
