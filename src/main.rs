@@ -9,6 +9,7 @@ use axum::{
     response::{IntoResponse, Response},
     routing::{get, get_service, post},
 };
+use clap::Parser;
 use database::models::{Channel, Tag, Video, VideoTags, WatchHistory};
 use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl, dsl::insert_into};
@@ -32,8 +33,17 @@ struct AppState {
     pool: database::connection::DbPool,
 }
 
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    #[arg(short, long, default_value_t = 8080)]
+    port: u16,
+}
+
 #[tokio::main]
 async fn main() {
+    let args = Args::parse();
+
     let webui_html_file = get_service(ServeFile::new("/app/dist/index.html"));
     let webui_assets = get_service(ServeDir::new("/app/dist/assets"));
 
@@ -129,7 +139,9 @@ async fn main() {
         );
 
     // run our app with hyper
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3241").await.unwrap();
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", args.port))
+        .await
+        .unwrap();
     tracing::debug!("listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
 }
