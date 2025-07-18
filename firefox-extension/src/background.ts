@@ -48,6 +48,15 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                     'text/html',
                 );
 
+                const videoDescription = videoPageDOM.querySelector(
+                    "meta[property='og:description']",
+                );
+
+                if (videoDescription) {
+                    data.video_description =
+                        videoDescription.getAttribute('content') || '';
+                }
+
                 videoPageDOM
                     .querySelectorAll("meta[property='og:video:tag']")
                     .forEach((meta) => {

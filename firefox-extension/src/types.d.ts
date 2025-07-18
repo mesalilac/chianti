@@ -16,6 +16,7 @@ export interface WatchHistoryBody {
     channel_subscribers_count: number;
     video_id: string;
     video_title: string;
+    video_description: string;
     video_duration: number;
     video_tags: string[];
     published_at: number;

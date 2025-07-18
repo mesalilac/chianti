@@ -31,6 +31,7 @@ diesel::table! {
         channel_id -> Text,
         url -> Text,
         title -> Text,
+        description -> Text,
         watch_counter -> BigInt,
         duration_seconds -> BigInt,
         view_count -> BigInt,

@@ -12,6 +12,7 @@ CREATE TABLE videos (
     channel_id              TEXT    NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
     url                     TEXT    NOT NULL,
     title                   TEXT    NOT NULL,
+    description             TEXT    NOT NULL,
     watch_counter           BIGINT NOT NULL,
     duration_seconds        BIGINT NOT NULL,
     view_count              BIGINT NOT NULL,

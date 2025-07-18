@@ -258,6 +258,7 @@ struct CreateWatchHistory {
     // For video
     video_id: String,
     video_title: String,
+    video_description: String,
     video_duration: i64,
     video_tags: Vec<String>,
     published_at: i64,
@@ -348,6 +349,7 @@ async fn create_watch_history(
         payload.video_id,
         payload.channel_id,
         payload.video_title,
+        payload.video_description,
         payload.video_duration,
         payload.view_count,
         payload.published_at,
