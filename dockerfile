@@ -23,4 +23,4 @@ COPY --from=node_builder /src/dist /app/dist
 EXPOSE 8080
 VOLUME /app/data
 
-CMD ["./chianti"]
+CMD ["./chianti", "--data-dir", "/app/data", "--frontend-dir", "/app/dist"]

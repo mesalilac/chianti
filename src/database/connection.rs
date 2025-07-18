@@ -1,5 +1,5 @@
 use diesel::{RunQueryDsl, SqliteConnection, r2d2};
-use std::path::Path;
+use std::path::PathBuf;
 
 pub type DbPool = r2d2::Pool<r2d2::ConnectionManager<SqliteConnection>>;
 
@@ -15,32 +15,9 @@ impl r2d2::CustomizeConnection<SqliteConnection, r2d2::Error> for EnableForeignK
     }
 }
 
-fn get_database_url() -> String {
-    if cfg!(debug_assertions) {
-        tracing::debug!("Using in-memory database");
-        "dev.db".to_string()
-    } else {
-        let db_path = Path::new("/app/data");
-        if !db_path.exists() {
-            match std::fs::create_dir_all(db_path) {
-                Ok(_) => {
-                    tracing::debug!("Created database directory");
-                }
-                Err(e) => {
-                    tracing::error!("Failed to create database directory: {}", e);
-                    std::process::exit(1);
-                }
-            }
-        }
-
-        // Inside docker container
-        "/app/data/chianti.db".to_string()
-    }
-}
-
-pub fn create_connection_pool() -> DbPool {
-    let url = get_database_url();
-    let manager = r2d2::ConnectionManager::<SqliteConnection>::new(url);
+pub fn create_connection_pool(data_path: PathBuf) -> DbPool {
+    let url = data_path.join("chianti.db");
+    let manager = r2d2::ConnectionManager::<SqliteConnection>::new(url.to_string_lossy());
     // Refer to the `r2d2` documentation for more methods to use
     // when building a connection pool
     let pool = r2d2::Pool::builder()

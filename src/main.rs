@@ -31,6 +31,8 @@ const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
 #[derive(Clone)]
 struct AppState {
     pool: database::connection::DbPool,
+    channel_avaters_directory: std::path::PathBuf,
+    video_thumbnails_directory: std::path::PathBuf,
 }
 
 #[derive(Parser, Debug)]
@@ -39,22 +41,80 @@ struct Args {
     #[arg(short, long, default_value_t = 8080)]
     port: u16,
 
-    #[arg(short, long, default_value = "/app/dist")]
-    frontend_path: String,
+    #[arg(short, long)]
+    data_dir: Option<String>,
+
+    #[arg(short, long)]
+    frontend_dir: Option<String>,
 }
 
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
+    let local_dir = match std::env::var("XDG_DATA_HOME") {
+        Ok(p) => PathBuf::from(p).join("chianti"),
+        Err(_) => PathBuf::from("/usr").join("share").join("chianti"),
+    };
 
-    let html_path = PathBuf::from(&args.frontend_path).join("index.html");
-    let assets_path = PathBuf::from(&args.frontend_path).join("assets");
+    let data_dir: PathBuf = match args.data_dir {
+        Some(p) => PathBuf::from(p),
+        None => local_dir.join("data"),
+    };
+
+    let frontend_dir: PathBuf = match args.frontend_dir {
+        Some(p) => PathBuf::from(p),
+        None => local_dir.join("frontend"),
+    };
+
+    let data_path = if cfg!(debug_assertions) {
+        PathBuf::from("./dev-data")
+    } else {
+        data_dir
+    };
+
+    let frontend_path = if cfg!(debug_assertions) {
+        PathBuf::from("./web/dist")
+    } else {
+        frontend_dir
+    };
+
+    let html_path = frontend_path.join("index.html");
+    let assets_path = frontend_path.join("assets");
+
+    if !data_path.exists() {
+        if let Err(e) = std::fs::create_dir_all(&data_path) {
+            tracing::error!("Failed to create data directory: {}", e);
+            std::process::exit(1);
+        }
+    }
+
+    tracing::debug!("Data directory: {}", data_path.display());
+    tracing::debug!("Frontend directory: {}", frontend_path.display());
 
     let webui_html_file = get_service(ServeFile::new(html_path));
     let webui_assets = get_service(ServeDir::new(assets_path));
 
+    let images_directory = data_path.join("images");
+
+    let channel_avaters_directory = images_directory.join("channel-avatars");
+    let video_thumbnails_directory = images_directory.join("video-thumbnails");
+
+    if !channel_avaters_directory.exists() {
+        if let Err(e) = std::fs::create_dir_all(&channel_avaters_directory) {
+            tracing::error!("Failed to create channel avaters directory: {}", e);
+        }
+    }
+
+    if !video_thumbnails_directory.exists() {
+        if let Err(e) = std::fs::create_dir_all(&video_thumbnails_directory) {
+            tracing::error!("Failed to create video thumbnails directory: {}", e);
+        }
+    }
+
     let app_state = AppState {
-        pool: database::connection::create_connection_pool(),
+        pool: database::connection::create_connection_pool(data_path),
+        channel_avaters_directory,
+        video_thumbnails_directory,
     };
 
     if let Ok(mut conn) = app_state.pool.get() {
@@ -152,44 +212,6 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-fn get_images_directory() -> std::path::PathBuf {
-    let mut path = if cfg!(debug_assertions) {
-        std::path::PathBuf::from("./dev-cache")
-    } else {
-        std::path::PathBuf::from("/app/data")
-    };
-
-    path.push("images");
-
-    if !path.exists() {
-        std::fs::create_dir_all(&path).unwrap();
-    }
-
-    path
-}
-
-fn get_channel_avaters_directory() -> std::path::PathBuf {
-    let mut path = get_images_directory();
-    path.push("channel-avatars");
-
-    if !path.exists() {
-        std::fs::create_dir_all(&path).unwrap();
-    }
-
-    path
-}
-
-fn get_video_thumbnails_directory() -> std::path::PathBuf {
-    let mut path = get_images_directory();
-    path.push("video-thumbnails");
-
-    if !path.exists() {
-        std::fs::create_dir_all(&path).unwrap();
-    }
-
-    path
-}
-
 fn cache_image_filename(filename: &String) -> String {
     let base = base32::encode(base32::Alphabet::Crockford, filename.as_bytes());
 
@@ -207,8 +229,13 @@ async fn handle_404() -> (StatusCode, String) {
     )
 }
 
-async fn get_channel_avater(Path(channel_id): Path<String>) -> impl IntoResponse {
-    let avater_file_path = get_channel_avaters_directory().join(cache_image_filename(&channel_id));
+async fn get_channel_avater(
+    State(state): State<AppState>,
+    Path(channel_id): Path<String>,
+) -> impl IntoResponse {
+    let avater_file_path = state
+        .channel_avaters_directory
+        .join(cache_image_filename(&channel_id));
 
     let Ok(file) = tokio::fs::File::open(&avater_file_path).await else {
         return (StatusCode::NOT_FOUND).into_response();
@@ -233,9 +260,13 @@ async fn get_channel_avater(Path(channel_id): Path<String>) -> impl IntoResponse
     }
 }
 
-async fn get_video_thumbnail(Path(video_id): Path<String>) -> impl IntoResponse {
-    let thumbnail_file_path =
-        get_video_thumbnails_directory().join(cache_image_filename(&video_id));
+async fn get_video_thumbnail(
+    State(state): State<AppState>,
+    Path(video_id): Path<String>,
+) -> impl IntoResponse {
+    let thumbnail_file_path = state
+        .video_thumbnails_directory
+        .join(cache_image_filename(&video_id));
 
     let Ok(file) = tokio::fs::File::open(&thumbnail_file_path).await else {
         return (StatusCode::NOT_FOUND).into_response();
@@ -299,10 +330,12 @@ async fn create_watch_history(
 
     let mut conn = state.pool.get().map_err(internal_error)?;
 
-    let channel_avater_file_path =
-        get_channel_avaters_directory().join(cache_image_filename(&payload.channel_id));
-    let video_thumbnail_file_path =
-        get_video_thumbnails_directory().join(cache_image_filename(&payload.video_id));
+    let channel_avater_file_path = state
+        .channel_avaters_directory
+        .join(cache_image_filename(&payload.channel_id));
+    let video_thumbnail_file_path = state
+        .video_thumbnails_directory
+        .join(cache_image_filename(&payload.video_id));
 
     if !channel_avater_file_path.exists() {
         tracing::info!(

@@ -1,6 +1,4 @@
 /target
-dev.db
 node_modules/
 dist/
-web-dist
-dev-cache
+dev-data
