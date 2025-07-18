@@ -37,4 +37,3 @@ elif [[ "$1" == "uninstall" ]]; then
 else
     echo "Usage: $0 [install|uninstall]"
 fi
-
