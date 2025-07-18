@@ -20,6 +20,21 @@ CREATE TABLE videos (
     added_at                BIGINT NOT NULL
 );
 
+CREATE TABLE tags (
+    id                      TEXT    NOT NULL PRIMARY KEY,
+    name                    TEXT    NOT NULL UNIQUE,
+
+    added_at                BIGINT NOT NULL
+);
+
+-- Junction table
+CREATE TABLE video_tags (
+    video_id                TEXT    NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
+    tag_id                  TEXT    NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+
+    PRIMARY KEY (video_id, tag_id)
+);
+
 CREATE TABLE watch_history (
     id                      TEXT    NOT NULL PRIMARY KEY,
     video_id                TEXT    NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
