@@ -11,6 +11,21 @@ diesel::table! {
 }
 
 diesel::table! {
+    tags (id) {
+        id -> Text,
+        name -> Text,
+        added_at -> BigInt,
+    }
+}
+
+diesel::table! {
+    video_tags (video_id, tag_id) {
+        video_id -> Text,
+        tag_id -> Text,
+    }
+}
+
+diesel::table! {
     videos (id) {
         id -> Text,
         channel_id -> Text,
@@ -36,12 +51,16 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(video_tags -> tags (tag_id));
+diesel::joinable!(video_tags -> videos (video_id));
 diesel::joinable!(videos -> channels (channel_id));
 diesel::joinable!(watch_history -> channels (channel_id));
 diesel::joinable!(watch_history -> videos (video_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     channels,
+    tags,
+    video_tags,
     videos,
     watch_history,
 );

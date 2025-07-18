@@ -17,6 +17,7 @@ export interface WatchHistoryBody {
     video_id: string;
     video_title: string;
     video_duration: number;
+    video_tags: string[];
     published_at: number;
     view_count: number;
     watch_duration_seconds: number;
