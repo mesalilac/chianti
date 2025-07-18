@@ -9,7 +9,8 @@ use axum::{
     response::{IntoResponse, Response},
     routing::{get, get_service, post},
 };
-use database::models::{Channel, Video, WatchHistory};
+use database::models::{Channel, Tag, Video, VideoTags, WatchHistory};
+use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl, dsl::insert_into};
 use serde::Deserialize;
 use std::time::Duration;
@@ -258,6 +259,7 @@ struct CreateWatchHistory {
     video_id: String,
     video_title: String,
     video_duration: i64,
+    video_tags: Vec<String>,
     published_at: i64,
     view_count: i64,
     watch_duration_seconds: i64,
@@ -271,6 +273,8 @@ async fn create_watch_history(
     Json(payload): Json<CreateWatchHistory>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     use schema::channels::dsl as channels_dsl;
+    use schema::tags::dsl as tags_dsl;
+    use schema::video_tags::dsl as video_tags_dsl;
     use schema::videos::dsl as videos_dsl;
     use schema::watch_history::dsl as watch_history_dsl;
 
@@ -356,6 +360,34 @@ async fn create_watch_history(
         .set(videos_dsl::view_count.eq(payload.view_count))
         .execute(&mut conn)
         .map_err(internal_error)?;
+
+    for tag_name in payload.video_tags {
+        let tag = match tags_dsl::tags
+            .filter(tags_dsl::name.eq(&tag_name))
+            .get_result::<Tag>(&mut conn)
+        {
+            Ok(r) => r,
+            Err(_) => {
+                let new_tag = Tag::new(tag_name);
+
+                insert_into(tags_dsl::tags)
+                    .values(&new_tag)
+                    .on_conflict_do_nothing()
+                    .execute(&mut conn)
+                    .map_err(internal_error)?;
+
+                new_tag
+            }
+        };
+
+        let video_tag = VideoTags::new(video.id.clone(), tag.id);
+
+        insert_into(video_tags_dsl::video_tags)
+            .values(&video_tag)
+            .on_conflict_do_nothing()
+            .execute(&mut conn)
+            .map_err(internal_error)?;
+    }
 
     let new_watch_history = WatchHistory::new(
         video.id,
