@@ -28,13 +28,34 @@ browser.webNavigation.onHistoryStateUpdated.addListener((e) => {
     });
 });
 
-browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     const type: MessageType = message.type;
     const payload = message.payload;
 
     if (type === 'recordHistory') {
         const data = payload as WatchHistoryBody | null;
         if (!data) return;
+
+        try {
+            const res = await fetch(
+                `https://www.youtube.com/watch?v=${data.video_id}`,
+            );
+
+            if (res.status === 200) {
+                const videoPageText = await res.text();
+                const videoPageDOM = new DOMParser().parseFromString(
+                    videoPageText,
+                    'text/html',
+                );
+
+                videoPageDOM
+                    .querySelectorAll("meta[property='og:video:tag']")
+                    .forEach((meta) => {
+                        const tag = meta.getAttribute('content');
+                        if (tag) data.video_tags.push(tag);
+                    });
+            }
+        } catch {}
 
         console.debug(data);
 

@@ -284,6 +284,7 @@ async function main() {
         video_id: videoID,
         video_title: videoInfo.title,
         video_duration: Math.round(videoInfo.duration),
+        video_tags: [],
         published_at: Math.round(videoInfo.published_at),
         view_count: Math.round(videoInfo.view_count),
         watch_duration_seconds: 0,
