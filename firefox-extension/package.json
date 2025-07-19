@@ -14,7 +14,7 @@
     "license": "ISC",
     "packageManager": "pnpm@10.11.0",
     "devDependencies": {
-        "@chianti/common": "file:../common",
+        "@chianti/bindings": "file:../ts-bindings",
         "@types/firefox-webext-browser": "^120.0.4",
         "eslint": "^9.31.0",
         "eslint-config-prettier": "^10.1.5",
