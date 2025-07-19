@@ -1,1 +1,1 @@
-export * from './bindings/CreateWatchHistory';
+export * from './bindings/CreateWatchHistory.ts';
