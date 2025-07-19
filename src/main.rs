@@ -25,6 +25,7 @@ use tracing::{Span, info_span};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
+use ts_rs::TS;
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
 
@@ -296,7 +297,8 @@ async fn ping() -> (StatusCode, String) {
     (StatusCode::OK, "Server is online".to_string())
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, TS)]
+#[ts(export)]
 struct CreateWatchHistory {
     // For channel
     channel_id: String,

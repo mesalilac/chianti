@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@chianti/common':
+        specifier: file:../common
+        version: file:../common
       '@types/firefox-webext-browser':
         specifier: ^120.0.4
         version: 120.0.4
@@ -31,6 +34,9 @@ importers:
         version: 8.37.0(eslint@9.31.0)(typescript@5.8.3)
 
 packages:
+
+  '@chianti/common@file:../common':
+    resolution: {directory: ../common, type: directory}
 
   '@eslint-community/eslint-utils@4.7.0':
     resolution: {integrity: sha512-dyybb3AcajC7uha6CvhdVRJqaKyn7w2YKqKyAN37NKYgZT36w+iRb0Dymmc5qEJ549c/S31cMMSFd75bteCpCw==}
@@ -583,6 +589,8 @@ packages:
     engines: {node: '>=10'}
 
 snapshots:
+
+  '@chianti/common@file:../common': {}
 
   '@eslint-community/eslint-utils@4.7.0(eslint@9.31.0)':
     dependencies:
