@@ -1,4 +1,4 @@
-import { WatchHistoryBody, MessageType } from './types.d';
+import { MessageType, WatchHistoryBody } from './types.d';
 
 let lastProcessedUrl: string | null = null;
 
@@ -70,7 +70,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
         browser.storage.local.get('apiURL').then((storage) => {
             const apiURL = storage.apiURL;
-            if (apiURL === null) return;
+            if (apiURL == null) return;
 
             const fullUrl = new URL('/api/watch_history', apiURL);
             fetch(fullUrl, {
