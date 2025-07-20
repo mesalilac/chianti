@@ -2,10 +2,4 @@
 import type { CreateWatchHistoryChannel } from "./CreateWatchHistoryChannel";
 import type { CreateWatchHistoryVideo } from "./CreateWatchHistoryVideo";
 
-export type CreateWatchHistoryRequest = {
-    watchDurationSeconds: bigint;
-    sessionStartDate: bigint;
-    sessionEndDate: bigint;
-    channel: CreateWatchHistoryChannel;
-    video: CreateWatchHistoryVideo;
-};
+export type CreateWatchHistoryRequest = { watchDurationSeconds: bigint, sessionStartDate: bigint, sessionEndDate: bigint, channel: CreateWatchHistoryChannel, video: CreateWatchHistoryVideo, };
