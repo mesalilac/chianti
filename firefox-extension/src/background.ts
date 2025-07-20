@@ -12,9 +12,7 @@ function pendingDataAdd(data: CreateWatchHistoryRequest[]) {
             browser.storage.local.set({ pendingData });
         })
         .catch(() => {
-            console.error(
-                '[background] Failed to get pendingData from storage',
-            );
+            console.error('Failed to get pendingData from storage');
             browser.storage.local.set({ pendingData: [data] });
         });
 }
@@ -31,7 +29,7 @@ async function sendData(endpoint: URL, data: CreateWatchHistoryRequest[]) {
 
         console.debug(res);
     } catch {
-        console.error('failed to send data');
+        console.error('Failed to send data');
         pendingDataAdd(data);
     }
 }
@@ -45,7 +43,7 @@ async function sendPendingData(endpoint: URL) {
         try {
             await browser.storage.local.remove('pendingData');
         } catch {
-            console.error('[background] Failed to remove `pendingData`');
+            console.error('Failed to remove `pendingData`');
         }
 
         if (storage.pendingData.length === 0) return;
@@ -65,12 +63,12 @@ function sendNotifications(message: string) {
 browser.storage.local
     .get('apiURL')
     .then((storage) => {
-        console.debug('[background] apiURL:', storage.apiURL);
+        console.debug('apiURL:', storage.apiURL);
         const pingUrl = new URL('/api/ping', storage.apiURL);
         fetch(pingUrl)
             .then((response) => {
                 if (response.ok) {
-                    console.log('[background] Connected to api');
+                    console.log('Connected to api');
                     const endpoint = new URL(
                         '/api/watch_history',
                         storage.apiURL,
@@ -79,13 +77,13 @@ browser.storage.local
                 }
             })
             .catch(() => {
-                console.error('[background] Failed to ping api');
+                console.error('Failed to ping api');
 
                 sendNotifications(`Server is offline ${storage.apiURL}`);
             });
     })
     .catch(() => {
-        console.error('[background] Failed to get apiURL from storage');
+        console.error('Failed to get apiURL from storage');
 
         sendNotifications(`Please set a base api url`);
     });
