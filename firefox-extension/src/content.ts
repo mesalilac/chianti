@@ -223,7 +223,7 @@ function getChannelInfo(): CreateWatchHistoryChannel | null {
     }
 
     const avaterElement = document.querySelector(
-        '#avatar #img',
+        '#owner #avatar #img',
     ) as HTMLImageElement | null;
     if (!avaterElement) {
         console.error('[chianti] Channel avater not found');
