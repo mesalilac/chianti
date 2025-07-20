@@ -3,12 +3,12 @@ import { MessageType } from './types.d';
 
 let lastProcessedUrl: string | null = null;
 
-function pendingDataAdd(data: CreateWatchHistoryRequest) {
+function pendingDataAdd(data: CreateWatchHistoryRequest[]) {
     browser.storage.local
         .get('pendingData')
         .then((storage) => {
             const pendingData = storage.pendingData || [];
-            pendingData.push(data);
+            data.forEach((x) => pendingData.push(x));
             browser.storage.local.set({ pendingData });
         })
         .catch(() => {
@@ -19,7 +19,7 @@ function pendingDataAdd(data: CreateWatchHistoryRequest) {
         });
 }
 
-async function sendData(endpoint: URL, data: CreateWatchHistoryRequest) {
+async function sendData(endpoint: URL, data: CreateWatchHistoryRequest[]) {
     try {
         const res = await fetch(endpoint, {
             method: 'POST',
@@ -48,11 +48,9 @@ async function sendPendingData(endpoint: URL) {
             console.error('[background] Failed to remove `pendingData`');
         }
 
-        storage.pendingData.forEach((data) => {
-            console.log('[background] Sending pending data:', data);
+        if (storage.pendingData.length === 0) return;
 
-            sendData(endpoint, data);
-        });
+        sendData(endpoint, storage.pendingData);
     } catch {}
 }
 
@@ -155,7 +153,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
             const endpoint = new URL('/api/watch_history', apiURL);
 
-            sendData(endpoint, data);
+            sendData(endpoint, [data]);
         });
     } else if (type === 'setApiURL') {
         const data = payload as string;

@@ -339,7 +339,7 @@ struct CreateWatchHistoryRequest {
 
 async fn create_watch_history(
     State(state): State<AppState>,
-    Json(payload): Json<CreateWatchHistoryRequest>,
+    Json(payload_list): Json<Vec<CreateWatchHistoryRequest>>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     use schema::channels::dsl as channels_dsl;
     use schema::tags::dsl as tags_dsl;
@@ -349,131 +349,133 @@ async fn create_watch_history(
 
     let mut conn = state.pool.get().map_err(internal_error)?;
 
-    let channel_avater_file_path = state
-        .channel_avaters_directory
-        .join(cache_image_filename(&payload.channel.id));
-    let video_thumbnail_file_path = state
-        .video_thumbnails_directory
-        .join(cache_image_filename(&payload.video.id));
+    for payload in payload_list {
+        let channel_avater_file_path = state
+            .channel_avaters_directory
+            .join(cache_image_filename(&payload.channel.id));
+        let video_thumbnail_file_path = state
+            .video_thumbnails_directory
+            .join(cache_image_filename(&payload.video.id));
 
-    if !channel_avater_file_path.exists() {
-        tracing::info!(
-            "Downloading channel avater for channel {}",
-            payload.channel.id
-        );
-        let res = reqwest::get(&payload.channel.avater_url)
-            .await
-            .map_err(internal_error)?;
-
-        if res.status() == reqwest::StatusCode::OK {
-            let image = res.bytes().await.map_err(internal_error)?;
-
-            image::load_from_memory(&image)
-                .map_err(internal_error)?
-                .save_with_format(&channel_avater_file_path, image::ImageFormat::WebP)
-                .map_err(internal_error)?;
-        } else {
-            tracing::warn!(
-                "Failed to download channel avater for channel {}",
+        if !channel_avater_file_path.exists() {
+            tracing::info!(
+                "Downloading channel avater for channel {}",
                 payload.channel.id
             );
-        }
-    }
+            let res = reqwest::get(&payload.channel.avater_url)
+                .await
+                .map_err(internal_error)?;
 
-    if !video_thumbnail_file_path.exists() {
-        tracing::info!("Downloading video thumbnail for video {}", payload.video.id);
-        let res = reqwest::get(&payload.video.thumbnail_url)
-            .await
+            if res.status() == reqwest::StatusCode::OK {
+                let image = res.bytes().await.map_err(internal_error)?;
+
+                image::load_from_memory(&image)
+                    .map_err(internal_error)?
+                    .save_with_format(&channel_avater_file_path, image::ImageFormat::WebP)
+                    .map_err(internal_error)?;
+            } else {
+                tracing::warn!(
+                    "Failed to download channel avater for channel {}",
+                    payload.channel.id
+                );
+            }
+        }
+
+        if !video_thumbnail_file_path.exists() {
+            tracing::info!("Downloading video thumbnail for video {}", payload.video.id);
+            let res = reqwest::get(&payload.video.thumbnail_url)
+                .await
+                .map_err(internal_error)?;
+
+            if res.status() == reqwest::StatusCode::OK {
+                let image = res.bytes().await.map_err(internal_error)?;
+
+                image::load_from_memory(&image)
+                    .map_err(internal_error)?
+                    .save_with_format(&video_thumbnail_file_path, image::ImageFormat::WebP)
+                    .map_err(internal_error)?;
+            } else {
+                tracing::warn!(
+                    "Failed to download video thumbnail for video {}",
+                    payload.video.id
+                );
+            }
+        }
+
+        let channel = Channel::new(
+            payload.channel.id.clone(),
+            payload.channel.name.clone(),
+            payload.channel.subscribers_count,
+        );
+
+        insert_into(channels_dsl::channels)
+            .values(&channel)
+            .on_conflict(channels_dsl::id)
+            .do_update()
+            .set(channels_dsl::subscribers_count.eq(payload.channel.subscribers_count))
+            .execute(&mut conn)
             .map_err(internal_error)?;
 
-        if res.status() == reqwest::StatusCode::OK {
-            let image = res.bytes().await.map_err(internal_error)?;
+        let video = Video::new(
+            payload.video.id,
+            payload.channel.id,
+            payload.video.title,
+            payload.video.description,
+            payload.video.duration,
+            payload.video.view_count,
+            payload.video.published_at,
+        );
 
-            image::load_from_memory(&image)
-                .map_err(internal_error)?
-                .save_with_format(&video_thumbnail_file_path, image::ImageFormat::WebP)
+        insert_into(videos_dsl::videos)
+            .values(&video)
+            .on_conflict(videos_dsl::id)
+            .do_update()
+            .set(videos_dsl::view_count.eq(payload.video.view_count))
+            .execute(&mut conn)
+            .map_err(internal_error)?;
+
+        for tag_name in payload.video.tags {
+            let tag = match tags_dsl::tags
+                .filter(tags_dsl::name.eq(&tag_name))
+                .get_result::<Tag>(&mut conn)
+            {
+                Ok(r) => r,
+                Err(_) => {
+                    let new_tag = Tag::new(tag_name);
+
+                    insert_into(tags_dsl::tags)
+                        .values(&new_tag)
+                        .on_conflict_do_nothing()
+                        .execute(&mut conn)
+                        .map_err(internal_error)?;
+
+                    new_tag
+                }
+            };
+
+            let video_tag = VideoTags::new(video.id.clone(), tag.id);
+
+            insert_into(video_tags_dsl::video_tags)
+                .values(&video_tag)
+                .on_conflict_do_nothing()
+                .execute(&mut conn)
                 .map_err(internal_error)?;
-        } else {
-            tracing::warn!(
-                "Failed to download video thumbnail for video {}",
-                payload.video.id
-            );
         }
-    }
 
-    let channel = Channel::new(
-        payload.channel.id.clone(),
-        payload.channel.name.clone(),
-        payload.channel.subscribers_count,
-    );
+        let new_watch_history = WatchHistory::new(
+            video.id,
+            channel.id,
+            payload.watch_duration_seconds,
+            payload.session_start_date,
+            payload.session_end_date,
+        );
 
-    insert_into(channels_dsl::channels)
-        .values(&channel)
-        .on_conflict(channels_dsl::id)
-        .do_update()
-        .set(channels_dsl::subscribers_count.eq(payload.channel.subscribers_count))
-        .execute(&mut conn)
-        .map_err(internal_error)?;
-
-    let video = Video::new(
-        payload.video.id,
-        payload.channel.id,
-        payload.video.title,
-        payload.video.description,
-        payload.video.duration,
-        payload.video.view_count,
-        payload.video.published_at,
-    );
-
-    insert_into(videos_dsl::videos)
-        .values(&video)
-        .on_conflict(videos_dsl::id)
-        .do_update()
-        .set(videos_dsl::view_count.eq(payload.video.view_count))
-        .execute(&mut conn)
-        .map_err(internal_error)?;
-
-    for tag_name in payload.video.tags {
-        let tag = match tags_dsl::tags
-            .filter(tags_dsl::name.eq(&tag_name))
-            .get_result::<Tag>(&mut conn)
-        {
-            Ok(r) => r,
-            Err(_) => {
-                let new_tag = Tag::new(tag_name);
-
-                insert_into(tags_dsl::tags)
-                    .values(&new_tag)
-                    .on_conflict_do_nothing()
-                    .execute(&mut conn)
-                    .map_err(internal_error)?;
-
-                new_tag
-            }
-        };
-
-        let video_tag = VideoTags::new(video.id.clone(), tag.id);
-
-        insert_into(video_tags_dsl::video_tags)
-            .values(&video_tag)
+        insert_into(watch_history_dsl::watch_history)
+            .values(&new_watch_history)
             .on_conflict_do_nothing()
             .execute(&mut conn)
             .map_err(internal_error)?;
     }
-
-    let new_watch_history = WatchHistory::new(
-        video.id,
-        channel.id,
-        payload.watch_duration_seconds,
-        payload.session_start_date,
-        payload.session_end_date,
-    );
-
-    insert_into(watch_history_dsl::watch_history)
-        .values(&new_watch_history)
-        .on_conflict_do_nothing()
-        .execute(&mut conn)
-        .map_err(internal_error)?;
 
     Ok(StatusCode::CREATED)
 }
