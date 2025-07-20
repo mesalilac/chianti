@@ -303,6 +303,7 @@ struct CreateWatchHistoryChannel {
     id: String,
     name: String,
     avater_url: String,
+    #[ts(type = "number")]
     subscribers_count: i64,
 }
 
@@ -314,16 +315,22 @@ struct CreateWatchHistoryVideo {
     description: String,
     thumbnail_url: String,
     tags: Vec<String>,
+    #[ts(type = "number")]
     view_count: i64,
+    #[ts(type = "number")]
     duration: i64,
+    #[ts(type = "number")]
     published_at: i64,
 }
 
 #[derive(Deserialize, TS)]
 #[ts(export, rename_all = "camelCase")]
 struct CreateWatchHistoryRequest {
+    #[ts(type = "number")]
     watch_duration_seconds: i64,
+    #[ts(type = "number")]
     session_start_date: i64,
+    #[ts(type = "number")]
     session_end_date: i64,
 
     channel: CreateWatchHistoryChannel,
