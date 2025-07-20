@@ -156,6 +156,13 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         data.session_end_date = Math.round(Number(Date.now() / 1000));
 
         console.debug(data);
+        browser.storage.session.get('watchedVideosCount').then((storage) => {
+            if (!storage) return;
+
+            browser.storage.session.set({
+                watchedVideosCount: storage.watchedVideosCount + 1,
+            });
+        });
 
         browser.storage.local.get('apiURL').then((storage) => {
             const apiURL = storage.apiURL;

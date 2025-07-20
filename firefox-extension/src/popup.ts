@@ -65,4 +65,24 @@ window.onload = () => {
             type: 'sendPendingData',
         });
     });
+
+    const watched_video_count = document.getElementById(
+        'watched-video-count',
+    ) as HTMLSpanElement;
+
+    browser.storage.session
+        .get('watchedVideosCount')
+        .then((storage) => {
+            console.log(storage);
+
+            if (!storage.watchedVideosCount) {
+                browser.storage.session.set({ watchedVideosCount: 0 });
+                return;
+            }
+
+            watched_video_count.textContent = storage.watchedVideosCount;
+        })
+        .catch(() => {
+            browser.storage.session.set({ watchedVideosCount: 0 });
+        });
 };
