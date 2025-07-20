@@ -298,26 +298,36 @@ async fn ping() -> (StatusCode, String) {
 }
 
 #[derive(Deserialize, TS)]
-#[ts(export)]
-struct CreateWatchHistoryRequest {
-    // For channel
-    channel_id: String,
-    channel_name: String,
-    channel_avater_url: String,
-    channel_subscribers_count: i64,
+#[ts(export, rename_all = "camelCase")]
+struct CreateWatchHistoryChannel {
+    id: String,
+    name: String,
+    avater_url: String,
+    subscribers_count: i64,
+}
 
-    // For video
-    video_id: String,
-    video_title: String,
-    video_description: String,
-    video_duration: i64,
-    video_tags: Vec<String>,
-    published_at: i64,
+#[derive(Deserialize, TS)]
+#[ts(export, rename_all = "camelCase")]
+struct CreateWatchHistoryVideo {
+    id: String,
+    title: String,
+    description: String,
+    thumbnail_url: String,
+    tags: Vec<String>,
     view_count: i64,
+    duration: i64,
+    published_at: i64,
+}
+
+#[derive(Deserialize, TS)]
+#[ts(export, rename_all = "camelCase")]
+struct CreateWatchHistoryRequest {
     watch_duration_seconds: i64,
     session_start_date: i64,
     session_end_date: i64,
-    video_thumbnail_url: String,
+
+    channel: CreateWatchHistoryChannel,
+    video: CreateWatchHistoryVideo,
 }
 
 async fn create_watch_history(
@@ -334,17 +344,17 @@ async fn create_watch_history(
 
     let channel_avater_file_path = state
         .channel_avaters_directory
-        .join(cache_image_filename(&payload.channel_id));
+        .join(cache_image_filename(&payload.channel.id));
     let video_thumbnail_file_path = state
         .video_thumbnails_directory
-        .join(cache_image_filename(&payload.video_id));
+        .join(cache_image_filename(&payload.video.id));
 
     if !channel_avater_file_path.exists() {
         tracing::info!(
             "Downloading channel avater for channel {}",
-            payload.channel_id
+            payload.channel.id
         );
-        let res = reqwest::get(&payload.channel_avater_url)
+        let res = reqwest::get(&payload.channel.avater_url)
             .await
             .map_err(internal_error)?;
 
@@ -358,14 +368,14 @@ async fn create_watch_history(
         } else {
             tracing::warn!(
                 "Failed to download channel avater for channel {}",
-                payload.channel_id
+                payload.channel.id
             );
         }
     }
 
     if !video_thumbnail_file_path.exists() {
-        tracing::info!("Downloading video thumbnail for video {}", payload.video_id);
-        let res = reqwest::get(&payload.video_thumbnail_url)
+        tracing::info!("Downloading video thumbnail for video {}", payload.video.id);
+        let res = reqwest::get(&payload.video.thumbnail_url)
             .await
             .map_err(internal_error)?;
 
@@ -379,44 +389,44 @@ async fn create_watch_history(
         } else {
             tracing::warn!(
                 "Failed to download video thumbnail for video {}",
-                payload.video_id
+                payload.video.id
             );
         }
     }
 
     let channel = Channel::new(
-        payload.channel_id.clone(),
-        payload.channel_name.clone(),
-        payload.channel_subscribers_count,
+        payload.channel.id.clone(),
+        payload.channel.name.clone(),
+        payload.channel.subscribers_count,
     );
 
     insert_into(channels_dsl::channels)
         .values(&channel)
         .on_conflict(channels_dsl::id)
         .do_update()
-        .set(channels_dsl::subscribers_count.eq(payload.channel_subscribers_count))
+        .set(channels_dsl::subscribers_count.eq(payload.channel.subscribers_count))
         .execute(&mut conn)
         .map_err(internal_error)?;
 
     let video = Video::new(
-        payload.video_id,
-        payload.channel_id,
-        payload.video_title,
-        payload.video_description,
-        payload.video_duration,
-        payload.view_count,
-        payload.published_at,
+        payload.video.id,
+        payload.channel.id,
+        payload.video.title,
+        payload.video.description,
+        payload.video.duration,
+        payload.video.view_count,
+        payload.video.published_at,
     );
 
     insert_into(videos_dsl::videos)
         .values(&video)
         .on_conflict(videos_dsl::id)
         .do_update()
-        .set(videos_dsl::view_count.eq(payload.view_count))
+        .set(videos_dsl::view_count.eq(payload.video.view_count))
         .execute(&mut conn)
         .map_err(internal_error)?;
 
-    for tag_name in payload.video_tags {
+    for tag_name in payload.video.tags {
         let tag = match tags_dsl::tags
             .filter(tags_dsl::name.eq(&tag_name))
             .get_result::<Tag>(&mut conn)
