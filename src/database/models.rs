@@ -22,7 +22,7 @@ impl Channel {
             std::process::exit(1);
         };
 
-        let url = format!("https://www.youtube.com/channel/{id}");
+        let url = format!("https://www.youtube.com/channel/@{id}");
 
         Self {
             id,
