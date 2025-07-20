@@ -3,15 +3,67 @@ import { MessageType } from './types.d';
 
 let lastProcessedUrl: string | null = null;
 
+async function sendPendingData(endpoint: URL) {
+    try {
+        const storage = (await browser.storage.local.get('pendingData')) as {
+            pendingData: CreateWatchHistoryRequest[];
+        };
+
+        try {
+            await browser.storage.local.remove('pendingData');
+        } catch {
+            console.error('[background] Failed to remove `pendingData`');
+        }
+
+        storage.pendingData.forEach((data) => {
+            console.log('[background] Sending pending data:', data);
+
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+                .then((res) => {
+                    console.debug(res);
+                })
+                .catch((err) => {
+                    console.error(`ERROR: Failed to send data data: ${err}`);
+                    pendingDataAdd(data);
+                });
+        });
+    } catch {}
+}
+
+function pendingDataAdd(data: CreateWatchHistoryRequest) {
+    browser.storage.local
+        .get('pendingData')
+        .then((storage) => {
+            const pendingData = storage.pendingData || [];
+            pendingData.push(data);
+            browser.storage.local.set({ pendingData });
+        })
+        .catch(() => {
+            console.log('[background] Failed to get pendingData from storage');
+            browser.storage.local.set({ pendingData: [data] });
+        });
+}
+
 browser.storage.local
     .get('apiURL')
     .then((storage) => {
         console.log('[background] apiURL:', storage.apiURL);
         const pingUrl = new URL('/api/ping', storage.apiURL);
         fetch(pingUrl)
-            .then((response) => {
+            .then(async (response) => {
                 if (response.ok) {
                     console.log('[background] Connected to api');
+                    const endpoint = new URL(
+                        '/api/watch_history',
+                        storage.apiURL,
+                    );
+                    await sendPendingData(endpoint);
                 }
             })
             .catch(() => {
@@ -108,6 +160,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                 })
                 .catch((err) => {
                     console.error(`ERROR: Failed to send data: ${err}`);
+                    pendingDataAdd(data);
                 });
         });
     } else if (type === 'setApiURL') {
