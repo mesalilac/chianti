@@ -7,8 +7,6 @@ window.onload = () => {
         'api-url-input',
     ) as HTMLInputElement;
 
-    if (api_url_input === null || api_connection_status === null) return;
-
     browser.storage.local
         .get('apiURL')
         .then((response) => {
@@ -38,5 +36,33 @@ window.onload = () => {
         ) as HTMLInputElement;
 
         browser.storage.local.set({ apiURL: api_url.value });
+    });
+
+    const pending_data_count = document.getElementById(
+        'pending-data-count',
+    ) as HTMLSpanElement;
+
+    browser.storage.local.get('pendingData').then((response) => {
+        pending_data_count.textContent = response.pendingData.length;
+    });
+
+    const clear_pending_data_button = document.getElementById(
+        'clear-pending-data-button',
+    ) as HTMLButtonElement;
+
+    clear_pending_data_button.addEventListener('click', () => {
+        browser.storage.local.remove('pendingData').then(() => {
+            pending_data_count.textContent = '0';
+        });
+    });
+
+    const send_pending_data_button = document.getElementById(
+        'send-pending-data-button',
+    ) as HTMLButtonElement;
+
+    send_pending_data_button.addEventListener('click', () => {
+        browser.runtime.sendMessage({
+            type: 'sendPendingData',
+        });
     });
 };

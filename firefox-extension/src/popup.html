@@ -13,6 +13,10 @@
         .status-not-connected {
             color: red;
         }
+
+        body>div {
+            margin: 5px;
+        }
     </style>
 </head>
 
@@ -22,6 +26,11 @@
         <input id="api-url-input" type="text" />
         <button id="save-button">Save</button>
         <span id="api-connection-status"></span>
+    </div>
+    <div>
+        <span>Pending data <span id="pending-data-count">0</span></span>
+        <button id="clear-pending-data-button">Clear</button>
+        <button id="send-pending-data-button">send data</button>
     </div>
     <script src="popup.js"></script>
 </body>
