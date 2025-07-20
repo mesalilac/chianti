@@ -298,7 +298,7 @@ async fn ping() -> (StatusCode, String) {
 }
 
 #[derive(Deserialize, TS)]
-#[ts(export, rename_all = "camelCase")]
+#[ts(export)]
 struct CreateWatchHistoryChannel {
     id: String,
     name: String,
@@ -308,7 +308,7 @@ struct CreateWatchHistoryChannel {
 }
 
 #[derive(Deserialize, TS)]
-#[ts(export, rename_all = "camelCase")]
+#[ts(export)]
 struct CreateWatchHistoryVideo {
     id: String,
     title: String,
@@ -324,7 +324,7 @@ struct CreateWatchHistoryVideo {
 }
 
 #[derive(Deserialize, TS)]
-#[ts(export, rename_all = "camelCase")]
+#[ts(export)]
 struct CreateWatchHistoryRequest {
     #[ts(type = "number")]
     watch_duration_seconds: i64,

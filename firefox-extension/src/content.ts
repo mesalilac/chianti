@@ -150,9 +150,9 @@ function getVideoInfo(videoId: string): CreateWatchHistoryVideo | null {
                 ),
         ),
         tags: [],
-        publishedAt: videoPublishDate,
-        viewCount: Number(tempVideoViews.split(' ')[0].replaceAll(',', '')),
-        thumbnailUrl: thumbnailUrl,
+        published_at: videoPublishDate,
+        view_count: Number(tempVideoViews.split(' ')[0].replaceAll(',', '')),
+        thumbnail_url: thumbnailUrl,
     };
 }
 
@@ -239,8 +239,8 @@ function getChannelInfo(): CreateWatchHistoryChannel | null {
     return {
         id: channelID,
         name: channelName,
-        subscribersCount: Math.round(subscribersCount),
-        avaterUrl: avaterUrl,
+        subscribers_count: Math.round(subscribersCount),
+        avater_url: avaterUrl,
     };
 }
 
@@ -274,9 +274,9 @@ async function main() {
     }
 
     payload = {
-        watchDurationSeconds: 0,
-        sessionStartDate: Math.round(Number(Date.now() / 1000)),
-        sessionEndDate: Math.round(Number(Date.now() / 1000)),
+        watch_duration_seconds: 0,
+        session_start_date: Math.round(Number(Date.now() / 1000)),
+        session_end_date: Math.round(Number(Date.now() / 1000)),
 
         channel: channelInfo,
         video: videoInfo,
@@ -301,7 +301,7 @@ async function main() {
     intervalId = setInterval(() => {
         if (!videoElement.paused) {
             if (payload) {
-                payload.watchDurationSeconds += 1;
+                payload.watch_duration_seconds += 1;
             }
         }
     }, 1000);

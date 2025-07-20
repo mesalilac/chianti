@@ -139,7 +139,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
             }
         } catch {}
 
-        data.sessionEndDate = Math.round(Number(Date.now() / 1000));
+        data.session_end_date = Math.round(Number(Date.now() / 1000));
 
         console.debug(data);
 
