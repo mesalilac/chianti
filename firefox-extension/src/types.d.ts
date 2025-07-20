@@ -1,4 +1,4 @@
-export type MessageType = 'recordHistory' | 'page-rendered';
+export type MessageType = 'recordHistory' | 'page-rendered' | 'sendPendingData';
 
 export interface Message<T> {
     type: MessageType;
