@@ -155,7 +155,8 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
         data.session_end_date = Math.round(Number(Date.now() / 1000));
 
-        console.debug(data);
+        console.dir(data);
+
         browser.storage.session.get('watchedVideosCount').then((storage) => {
             if (!storage) return;
 
