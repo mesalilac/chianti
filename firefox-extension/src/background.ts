@@ -165,10 +165,5 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
             sendData(endpoint, [data]);
         });
-    } else if (type === 'setApiURL') {
-        const data = payload as string;
-        browser.storage.local.set({ apiURL: data });
-    } else if (type === 'getApiURL') {
-        sendResponse(browser.storage.local.get('apiURL'));
     }
 });

@@ -9,10 +9,8 @@ window.onload = () => {
 
     if (api_url_input === null || api_connection_status === null) return;
 
-    browser.runtime
-        .sendMessage({
-            type: 'getApiURL',
-        })
+    browser.storage.local
+        .get('apiURL')
         .then((response) => {
             api_url_input.value = response.apiURL;
             const fullUrl = new URL('/api/ping', response.apiURL);
@@ -41,9 +39,6 @@ window.onload = () => {
             'api-url-input',
         ) as HTMLInputElement;
 
-        browser.runtime.sendMessage({
-            type: 'setApiURL',
-            payload: api_url.value,
-        });
+        browser.storage.local.set({ apiURL: api_url.value });
     });
 };

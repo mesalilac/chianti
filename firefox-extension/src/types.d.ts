@@ -1,8 +1,4 @@
-export type MessageType =
-    | 'recordHistory'
-    | 'page-rendered'
-    | 'setApiURL'
-    | 'getApiURL';
+export type MessageType = 'recordHistory' | 'page-rendered';
 
 export interface Message<T> {
     type: MessageType;
