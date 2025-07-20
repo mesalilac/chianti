@@ -1,4 +1,5 @@
-import { MessageType, WatchHistoryBody } from './types.d';
+import { CreateWatchHistoryRequest } from '@bindings';
+import { MessageType } from './types.d';
 
 let lastProcessedUrl: string | null = null;
 
@@ -33,12 +34,12 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     const payload = message.payload;
 
     if (type === 'recordHistory') {
-        const data = payload as WatchHistoryBody | null;
+        const data = payload as CreateWatchHistoryRequest | null;
         if (!data) return;
 
         try {
             const res = await fetch(
-                `https://www.youtube.com/watch?v=${data.video_id}`,
+                `https://www.youtube.com/watch?v=${data.video.id}`,
             );
 
             if (res.status === 200) {
@@ -53,7 +54,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                 );
 
                 if (videoDescription) {
-                    data.video_description =
+                    data.video.description =
                         videoDescription.getAttribute('content') || '';
                 }
 
@@ -61,7 +62,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                     .querySelectorAll("meta[property='og:video:tag']")
                     .forEach((meta) => {
                         const tag = meta.getAttribute('content');
-                        if (tag) data.video_tags.push(tag);
+                        if (tag) data.video.tags.push(tag);
                     });
             }
         } catch { }

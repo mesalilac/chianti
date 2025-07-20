@@ -11,9 +11,6 @@ importers:
       '@biomejs/biome':
         specifier: 2.1.2
         version: 2.1.2
-      '@chianti/bindings':
-        specifier: file:../ts-bindings
-        version: file:../ts-bindings
       '@types/firefox-webext-browser':
         specifier: ^120.0.4
         version: 120.0.4
@@ -84,9 +81,6 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
-
-  '@chianti/bindings@file:../ts-bindings':
-    resolution: {directory: ../ts-bindings, type: directory}
 
   '@eslint-community/eslint-utils@4.7.0':
     resolution: {integrity: sha512-dyybb3AcajC7uha6CvhdVRJqaKyn7w2YKqKyAN37NKYgZT36w+iRb0Dymmc5qEJ549c/S31cMMSFd75bteCpCw==}
@@ -668,8 +662,6 @@ snapshots:
 
   '@biomejs/cli-win32-x64@2.1.2':
     optional: true
-
-  '@chianti/bindings@file:../ts-bindings': {}
 
   '@eslint-community/eslint-utils@4.7.0(eslint@9.31.0)':
     dependencies:

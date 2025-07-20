@@ -6,7 +6,10 @@
         "strict": true,
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
-        "outDir": "dist"
+        "outDir": "dist",
+        "paths": {
+            "@bindings": ["../ts-bindings/"]
+        }
     },
     "include": ["src"]
 }

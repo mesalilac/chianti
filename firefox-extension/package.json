@@ -15,7 +15,6 @@
     "packageManager": "pnpm@10.11.0",
     "devDependencies": {
         "@biomejs/biome": "2.1.2",
-        "@chianti/bindings": "file:../ts-bindings",
         "@types/firefox-webext-browser": "^120.0.4",
         "globals": "^16.3.0",
         "tsc-watch": "^7.1.1",
