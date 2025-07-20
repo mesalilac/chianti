@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "lint": "biome check ./src",
-        "copyfiles": "cp src/manifest.json src/popup.html dist/",
+        "copyfiles": "cp -v src/manifest.json src/popup.html dist/",
         "build": "npm run lint && tsc && npm run copyfiles",
         "dev": "tsc-watch --onSuccess \"npm run copyfiles\""
     },
