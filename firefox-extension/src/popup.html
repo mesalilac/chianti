@@ -5,14 +5,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chianti - Youtube watch time tracker</title>
-    <link href="css/style.css" rel="stylesheet" />
+    <style>
+        .status-connected {
+            color: green;
+        }
+
+        .status-not-connected {
+            color: red;
+        }
+    </style>
 </head>
 
 <body>
-    <span>base api url</span>
-    <input id="api-url-input" type="text" />
-    <button id="save-button">Save</button>
-    <span id="api-connection-status"></span>
+    <div>
+        <span>base api url</span>
+        <input id="api-url-input" type="text" />
+        <button id="save-button">Save</button>
+        <span id="api-connection-status"></span>
+    </div>
     <script src="popup.js"></script>
 </body>
 

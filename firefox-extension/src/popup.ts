@@ -15,15 +15,13 @@ window.onload = () => {
             api_url_input.value = response.apiURL;
             const fullUrl = new URL('/api/ping', response.apiURL);
             fetch(fullUrl)
-                .then((response) => {
-                    if (response.ok) {
-                        api_connection_status.textContent = 'Connected';
-                    } else {
-                        api_connection_status.textContent = 'Not connected';
-                    }
+                .then(() => {
+                    api_connection_status.textContent = 'Connected';
+                    api_connection_status.classList.add('status-connected');
                 })
                 .catch(() => {
                     api_connection_status.textContent = 'Not connected';
+                    api_connection_status.classList.add('status-not-connected');
                 });
         })
         .catch(() => {
