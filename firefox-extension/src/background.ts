@@ -7,6 +7,16 @@ browser.storage.local
     .get('apiURL')
     .then((storage) => {
         console.log('[background] apiURL:', storage.apiURL);
+        const pingUrl = new URL('/api/ping', storage.apiURL);
+        fetch(pingUrl)
+            .then((response) => {
+                if (response.ok) {
+                    console.log('[background] Connected to api');
+                }
+            })
+            .catch(() => {
+                console.log('[background] Failed to ping api');
+            });
     })
     .catch(() => {
         console.log('[background] Failed to get apiURL from storage');
