@@ -21,5 +21,5 @@ TYPES_EXPORT_FILE="index.d.ts"
 printf "// Auto-generated file using export_bindings.sh\n\n" > "${TYPES_EXPORT_FILE}"
 
 for file in $(find ./bindings -name "*.ts"); do
-    printf "export type * from \'%s\';\n" "${file}" >> "${TYPES_EXPORT_FILE}"
+    printf "export * from \'%s\';\n" "${file}" >> "${TYPES_EXPORT_FILE}"
 done
