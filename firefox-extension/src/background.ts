@@ -3,6 +3,37 @@ import { MessageType } from './types.d';
 
 let lastProcessedUrl: string | null = null;
 
+function pendingDataAdd(data: CreateWatchHistoryRequest) {
+    browser.storage.local
+        .get('pendingData')
+        .then((storage) => {
+            const pendingData = storage.pendingData || [];
+            pendingData.push(data);
+            browser.storage.local.set({ pendingData });
+        })
+        .catch(() => {
+            console.log('[background] Failed to get pendingData from storage');
+            browser.storage.local.set({ pendingData: [data] });
+        });
+}
+
+function sendData(endpoint: URL, data: CreateWatchHistoryRequest) {
+    fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+        .then((res) => {
+            console.debug(res);
+        })
+        .catch((err) => {
+            console.error(err);
+            pendingDataAdd(data);
+        });
+}
+
 async function sendPendingData(endpoint: URL) {
     try {
         const storage = (await browser.storage.local.get('pendingData')) as {
@@ -18,36 +49,9 @@ async function sendPendingData(endpoint: URL) {
         storage.pendingData.forEach((data) => {
             console.log('[background] Sending pending data:', data);
 
-            fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-                .then((res) => {
-                    console.debug(res);
-                })
-                .catch((err) => {
-                    console.error(`ERROR: Failed to send data data: ${err}`);
-                    pendingDataAdd(data);
-                });
+            sendData(endpoint, data);
         });
     } catch {}
-}
-
-function pendingDataAdd(data: CreateWatchHistoryRequest) {
-    browser.storage.local
-        .get('pendingData')
-        .then((storage) => {
-            const pendingData = storage.pendingData || [];
-            pendingData.push(data);
-            browser.storage.local.set({ pendingData });
-        })
-        .catch(() => {
-            console.log('[background] Failed to get pendingData from storage');
-            browser.storage.local.set({ pendingData: [data] });
-        });
 }
 
 browser.storage.local
@@ -147,21 +151,9 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
             const apiURL = storage.apiURL;
             if (apiURL == null) return;
 
-            const fullUrl = new URL('/api/watch_history', apiURL);
-            fetch(fullUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-                .then((res) => {
-                    console.debug(res);
-                })
-                .catch((err) => {
-                    console.error(`ERROR: Failed to send data: ${err}`);
-                    pendingDataAdd(data);
-                });
+            const endpoint = new URL('/api/watch_history', apiURL);
+
+            sendData(endpoint, data);
         });
     } else if (type === 'setApiURL') {
         const data = payload as string;
