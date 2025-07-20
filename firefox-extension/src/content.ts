@@ -173,11 +173,13 @@ function getChannelInfo(): CreateWatchHistoryChannel | null {
 
     const channelName = channelATag.textContent.trim();
 
-    let channelID = channelATag.getAttribute('href');
-    if (!channelID) {
-        console.error('[chianti] Channel ID not found');
+    const channelHref = channelATag.getAttribute('href');
+    if (!channelHref) {
+        console.error('[chianti] Channel href not found');
         return null;
     }
+
+    let channelID = channelHref;
 
     if (channelID.startsWith('/channel/')) {
         console.debug('[chianti] Channel ID starts with /channel/');
@@ -239,6 +241,7 @@ function getChannelInfo(): CreateWatchHistoryChannel | null {
     return {
         id: channelID,
         name: channelName,
+        url: `https://www.youtube.com${channelHref}`,
         subscribers_count: Math.round(subscribersCount),
         avater_url: avaterUrl,
     };

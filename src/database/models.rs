@@ -16,13 +16,11 @@ pub struct Channel {
 }
 
 impl Channel {
-    pub fn new(id: String, name: String, subscribers_count: i64) -> Self {
+    pub fn new(id: String, name: String, url: String, subscribers_count: i64) -> Self {
         let Ok(added_at) = time::SystemTime::now().duration_since(time::UNIX_EPOCH) else {
             tracing::error!("Failed to get current time");
             std::process::exit(1);
         };
-
-        let url = format!("https://www.youtube.com/channel/@{id}");
 
         Self {
             id,

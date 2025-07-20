@@ -303,6 +303,7 @@ struct CreateWatchHistoryChannel {
     id: String,
     name: String,
     avater_url: String,
+    url: String,
     #[ts(type = "number")]
     subscribers_count: i64,
 }
@@ -405,6 +406,7 @@ async fn create_watch_history(
         let channel = Channel::new(
             payload.channel.id.clone(),
             payload.channel.name.clone(),
+            payload.channel.url,
             payload.channel.subscribers_count,
         );
 
