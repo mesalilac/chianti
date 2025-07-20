@@ -19,21 +19,21 @@ function pendingDataAdd(data: CreateWatchHistoryRequest) {
         });
 }
 
-function sendData(endpoint: URL, data: CreateWatchHistoryRequest) {
-    fetch(endpoint, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    })
-        .then((res) => {
-            console.debug(res);
-        })
-        .catch((err) => {
-            console.error(err);
-            pendingDataAdd(data);
+async function sendData(endpoint: URL, data: CreateWatchHistoryRequest) {
+    try {
+        const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
         });
+
+        console.debug(res);
+    } catch {
+        console.error('failed to send data');
+        pendingDataAdd(data);
+    }
 }
 
 async function sendPendingData(endpoint: URL) {
