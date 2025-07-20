@@ -299,7 +299,7 @@ async fn ping() -> (StatusCode, String) {
 
 #[derive(Deserialize, TS)]
 #[ts(export)]
-struct CreateWatchHistory {
+struct CreateWatchHistoryRequest {
     // For channel
     channel_id: String,
     channel_name: String,
@@ -322,7 +322,7 @@ struct CreateWatchHistory {
 
 async fn create_watch_history(
     State(state): State<AppState>,
-    Json(payload): Json<CreateWatchHistory>,
+    Json(payload): Json<CreateWatchHistoryRequest>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     use schema::channels::dsl as channels_dsl;
     use schema::tags::dsl as tags_dsl;
