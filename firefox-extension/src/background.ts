@@ -165,6 +165,15 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
             sendData(endpoint, [data]);
         });
+    } else if (type === 'sendPendingData') {
+        browser.storage.local.get('apiURL').then((storage) => {
+            const apiURL = storage.apiURL;
+            if (apiURL == null) return;
+
+            const endpoint = new URL('/api/watch_history', apiURL);
+
+            sendPendingData(endpoint);
+        });
     } else {
         console.error('Unknown message type:', type);
     }
