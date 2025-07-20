@@ -12,7 +12,9 @@ function pendingDataAdd(data: CreateWatchHistoryRequest) {
             browser.storage.local.set({ pendingData });
         })
         .catch(() => {
-            console.log('[background] Failed to get pendingData from storage');
+            console.error(
+                '[background] Failed to get pendingData from storage',
+            );
             browser.storage.local.set({ pendingData: [data] });
         });
 }
@@ -57,7 +59,7 @@ async function sendPendingData(endpoint: URL) {
 browser.storage.local
     .get('apiURL')
     .then((storage) => {
-        console.log('[background] apiURL:', storage.apiURL);
+        console.debug('[background] apiURL:', storage.apiURL);
         const pingUrl = new URL('/api/ping', storage.apiURL);
         fetch(pingUrl)
             .then(async (response) => {
@@ -71,11 +73,11 @@ browser.storage.local
                 }
             })
             .catch(() => {
-                console.log('[background] Failed to ping api');
+                console.error('[background] Failed to ping api');
             });
     })
     .catch(() => {
-        console.log('[background] Failed to get apiURL from storage');
+        console.error('[background] Failed to get apiURL from storage');
     });
 
 // https://medium.com/@softvar/making-chrome-extension-smart-by-supporting-spa-websites-1f76593637e8
