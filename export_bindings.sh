@@ -2,8 +2,9 @@
 
 set -e
 
-# Clear old bindings
-rm -v ./ts-bindings/bindings/*
+if [ -d "./ts-bindings/bindings" ]; then
+    rm -rv ./ts-bindings/bindings
+fi
 
 cargo test export_bindings
 
