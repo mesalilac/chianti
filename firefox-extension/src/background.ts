@@ -165,5 +165,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
             sendData(endpoint, [data]);
         });
+    } else {
+        console.error('Unknown message type:', type);
     }
 });
