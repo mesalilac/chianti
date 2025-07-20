@@ -29,7 +29,7 @@ window.onload = () => {
                 });
         })
         .catch(() => {
-            api_url_input.value = '';
+            api_url_input.value = 'http://localhost:8080';
         });
 
     const save_button = document.getElementById(
