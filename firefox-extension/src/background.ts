@@ -3,6 +3,15 @@ import { MessageType } from './types.d';
 
 let lastProcessedUrl: string | null = null;
 
+browser.storage.local
+    .get('apiURL')
+    .then((storage) => {
+        console.log('[background] apiURL:', storage.apiURL);
+    })
+    .catch(() => {
+        console.log('[background] Failed to get apiURL from storage');
+    });
+
 // https://medium.com/@softvar/making-chrome-extension-smart-by-supporting-spa-websites-1f76593637e8
 // NOTE: Message `page-rendered` is sent twice
 //       - When you load a fresh page on /watch?=
@@ -83,7 +92,13 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
-            });
+            })
+                .then((res) => {
+                    console.debug(res);
+                })
+                .catch((err) => {
+                    console.error(`ERROR: Failed to send data: ${err}`);
+                });
         });
     } else if (type === 'setApiURL') {
         const data = payload as string;
