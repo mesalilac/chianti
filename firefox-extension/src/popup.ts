@@ -61,9 +61,13 @@ window.onload = () => {
     ) as HTMLButtonElement;
 
     send_pending_data_button.addEventListener('click', () => {
-        browser.runtime.sendMessage({
-            type: 'sendPendingData',
-        });
+        browser.runtime
+            .sendMessage({
+                type: 'sendPendingData',
+            })
+            .then(() => {
+                pending_data_count.textContent = '0';
+            });
     });
 
     const watched_video_count = document.getElementById(
@@ -73,8 +77,6 @@ window.onload = () => {
     browser.storage.session
         .get('watchedVideosCount')
         .then((storage) => {
-            console.log(storage);
-
             if (!storage.watchedVideosCount) {
                 browser.storage.session.set({ watchedVideosCount: 0 });
                 return;
