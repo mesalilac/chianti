@@ -27,6 +27,8 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
 use ts_rs::TS;
 
+use crate::database::models::{NewChannelParams, NewVideoParams};
+
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
 
 #[derive(Clone)]
@@ -403,12 +405,12 @@ async fn create_watch_history(
             }
         }
 
-        let channel = Channel::new(
-            payload.channel.id.clone(),
-            payload.channel.name.clone(),
-            payload.channel.url,
-            payload.channel.subscribers_count,
-        );
+        let channel = Channel::new(NewChannelParams {
+            id: payload.channel.id.clone(),
+            name: payload.channel.name,
+            url: payload.channel.url,
+            subscribers_count: payload.channel.subscribers_count,
+        });
 
         insert_into(channels_dsl::channels)
             .values(&channel)
@@ -418,15 +420,15 @@ async fn create_watch_history(
             .execute(&mut conn)
             .map_err(internal_error)?;
 
-        let video = Video::new(
-            payload.video.id,
-            payload.channel.id,
-            payload.video.title,
-            payload.video.description,
-            payload.video.duration,
-            payload.video.view_count,
-            payload.video.published_at,
-        );
+        let video = Video::new(NewVideoParams {
+            id: payload.video.id,
+            channel_id: payload.channel.id,
+            title: payload.video.title,
+            description: payload.video.description,
+            duration_seconds: payload.video.duration,
+            view_count: payload.video.view_count,
+            published_at: payload.video.published_at,
+        });
 
         insert_into(videos_dsl::videos)
             .values(&video)

@@ -4,6 +4,13 @@ use nanoid::nanoid;
 use serde::Serialize;
 use std::time;
 
+pub struct NewChannelParams {
+    pub id: String,
+    pub name: String,
+    pub url: String,
+    pub subscribers_count: i64,
+}
+
 #[derive(Queryable, Identifiable, Insertable, Serialize, Debug, Clone)]
 #[diesel(table_name = schema::channels)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -16,20 +23,30 @@ pub struct Channel {
 }
 
 impl Channel {
-    pub fn new(id: String, name: String, url: String, subscribers_count: i64) -> Self {
+    pub fn new(p: NewChannelParams) -> Self {
         let Ok(added_at) = time::SystemTime::now().duration_since(time::UNIX_EPOCH) else {
             tracing::error!("Failed to get current time");
             std::process::exit(1);
         };
 
         Self {
-            id,
-            name,
-            url,
-            subscribers_count,
+            id: p.id,
+            name: p.name,
+            url: p.url,
+            subscribers_count: p.subscribers_count,
             added_at: added_at.as_secs() as i64,
         }
     }
+}
+
+pub struct NewVideoParams {
+    pub id: String,
+    pub channel_id: String,
+    pub title: String,
+    pub description: String,
+    pub duration_seconds: i64,
+    pub view_count: i64,
+    pub published_at: i64,
 }
 
 #[derive(Queryable, Identifiable, Associations, Insertable, Serialize, Debug, Clone)]
@@ -50,32 +67,24 @@ pub struct Video {
 }
 
 impl Video {
-    pub fn new(
-        id: String,
-        channel_id: String,
-        title: String,
-        description: String,
-        duration_seconds: i64,
-        view_count: i64,
-        published_at: i64,
-    ) -> Self {
+    pub fn new(p: NewVideoParams) -> Self {
         let Ok(added_at) = time::SystemTime::now().duration_since(time::UNIX_EPOCH) else {
             tracing::error!("Failed to get current time");
             std::process::exit(1);
         };
 
-        let url = format!("https://www.youtube.com/watch?v={id}");
+        let url = format!("https://www.youtube.com/watch?v={}", p.id);
 
         Self {
-            id,
-            channel_id,
+            id: p.id,
+            channel_id: p.channel_id,
             url,
-            title,
-            description,
+            title: p.title,
+            description: p.description,
             watch_counter: 0,
-            duration_seconds,
-            view_count,
-            published_at,
+            duration_seconds: p.duration_seconds,
+            view_count: p.view_count,
+            published_at: p.published_at,
             added_at: added_at.as_secs() as i64,
         }
     }
