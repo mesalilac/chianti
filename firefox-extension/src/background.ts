@@ -8,6 +8,7 @@ let lastProcessedUrl: string | null = null;
 //       - When you load a fresh page on /watch?=
 //       - And click on a new video
 //       - The `main` function runs twice for that new video
+//
 browser.webNavigation.onHistoryStateUpdated.addListener((e) => {
     if (e.frameId !== 0) return;
     if (e.transitionType !== 'link') return;
@@ -65,7 +66,9 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                         if (tag) data.video.tags.push(tag);
                     });
             }
-        } catch { }
+        } catch {}
+
+        data.sessionEndDate = Math.round(Number(Date.now() / 1000));
 
         console.debug(data);
 

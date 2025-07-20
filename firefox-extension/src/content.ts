@@ -1,6 +1,11 @@
-import { Message, WatchHistoryBody } from './types.d';
+import {
+    CreateWatchHistoryChannel,
+    CreateWatchHistoryRequest,
+    CreateWatchHistoryVideo,
+} from '@bindings';
+import { Message } from './types.d';
 
-let payload: WatchHistoryBody | null = null;
+let payload: CreateWatchHistoryRequest | null = null;
 let intervalId: number | null = null;
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
@@ -53,12 +58,7 @@ function parseRelativeDate(dateString: string): number {
     return Math.floor(resultDate.getTime() / 1000);
 }
 
-function getVideoInfo(): {
-    title: string;
-    duration: number;
-    published_at: number;
-    view_count: number;
-} | null {
+function getVideoInfo(videoId: string): CreateWatchHistoryVideo | null {
     const videoTitleHeadingelement = document.querySelector(
         '#title>h1',
     ) as HTMLHeadingElement;
@@ -134,8 +134,12 @@ function getVideoInfo(): {
     }
     collapseElement.click();
 
+    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
     return {
+        id: videoId,
         title: videoTitleHeadingelement.textContent.trim(),
+        description: '',
         duration: Number(
             videoDurationElement.textContent
                 .split(':')
@@ -145,17 +149,14 @@ function getVideoInfo(): {
                     0,
                 ),
         ),
-        published_at: videoPublishDate,
-        view_count: Number(tempVideoViews.split(' ')[0].replaceAll(',', '')),
+        tags: [],
+        publishedAt: videoPublishDate,
+        viewCount: Number(tempVideoViews.split(' ')[0].replaceAll(',', '')),
+        thumbnailUrl: thumbnailUrl,
     };
 }
 
-function getChannelInfo(): {
-    name: string;
-    id: string;
-    subscribersCount: number;
-    avaterUrl: string;
-} | null {
+function getChannelInfo(): CreateWatchHistoryChannel | null {
     const channelInfoElement = document.querySelector('#upload-info');
     if (!channelInfoElement) {
         console.error('[chianti] Channel info not found');
@@ -246,9 +247,9 @@ function getChannelInfo(): {
 async function main() {
     const urlParams = new URLSearchParams(window.location.search);
 
-    const videoID = urlParams.get('v');
+    const videoId = urlParams.get('v');
 
-    if (!videoID) {
+    if (!videoId) {
         console.error('[chianti] Video ID not found');
         return;
     }
@@ -260,38 +261,25 @@ async function main() {
         console.error('[chianti] Page not fully loaded');
         return;
     }
-    const videoInfo = getVideoInfo();
+    const videoInfo: CreateWatchHistoryVideo | null = getVideoInfo(videoId);
     if (!videoInfo) {
         console.error('[chianti] Failed to collect video info');
         return;
     }
 
-    const channelInfo = getChannelInfo();
+    const channelInfo: CreateWatchHistoryChannel | null = getChannelInfo();
     if (!channelInfo) {
         console.error('[chianti] Failed to collect channel info');
         return;
     }
 
-    const thumbnail_url = `https://img.youtube.com/vi/${videoID}/hqdefault.jpg`;
-
     payload = {
-        // For channel
-        channel_id: channelInfo.id,
-        channel_name: channelInfo.name,
-        channel_avater_url: channelInfo.avaterUrl,
-        channel_subscribers_count: Math.round(channelInfo.subscribersCount),
-        // For video
-        video_id: videoID,
-        video_title: videoInfo.title,
-        video_description: '',
-        video_duration: Math.round(videoInfo.duration),
-        video_tags: [],
-        published_at: Math.round(videoInfo.published_at),
-        view_count: Math.round(videoInfo.view_count),
-        watch_duration_seconds: 0,
-        session_start_date: Math.round(Number(Date.now() / 1000)),
-        session_end_date: Math.round(Number(Date.now() / 1000)),
-        video_thumbnail_url: thumbnail_url,
+        watchDurationSeconds: 0,
+        sessionStartDate: Math.round(Number(Date.now() / 1000)),
+        sessionEndDate: Math.round(Number(Date.now() / 1000)),
+
+        channel: channelInfo,
+        video: videoInfo,
     };
 
     console.log(payload);
@@ -313,7 +301,7 @@ async function main() {
     intervalId = setInterval(() => {
         if (!videoElement.paused) {
             if (payload) {
-                payload.watch_duration_seconds += 1;
+                payload.watchDurationSeconds += 1;
             }
         }
     }, 1000);
@@ -322,7 +310,6 @@ async function main() {
 browser.runtime.onMessage.addListener((message: Message<undefined>) => {
     if (message.type === 'page-rendered') {
         if (payload) {
-            payload.session_end_date = Math.round(Number(Date.now() / 1000));
             browser.runtime.sendMessage({
                 type: 'recordHistory',
                 payload: payload,
@@ -344,7 +331,6 @@ if (document.readyState === 'complete') {
 
 window.addEventListener('beforeunload', () => {
     if (payload) {
-        payload.session_end_date = Math.round(Number(Date.now() / 1000));
         browser.runtime.sendMessage({
             type: 'recordHistory',
             payload: payload,

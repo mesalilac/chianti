@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@bindings':
+        specifier: ../ts-bindings/
+        version: link:../ts-bindings
       '@biomejs/biome':
         specifier: 2.1.2
         version: 2.1.2
