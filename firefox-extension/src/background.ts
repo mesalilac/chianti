@@ -64,7 +64,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                         if (tag) data.video_tags.push(tag);
                     });
             }
-        } catch {}
+        } catch { }
 
         console.debug(data);
 
