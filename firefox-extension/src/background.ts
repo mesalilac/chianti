@@ -62,14 +62,14 @@ browser.storage.local
         console.debug('[background] apiURL:', storage.apiURL);
         const pingUrl = new URL('/api/ping', storage.apiURL);
         fetch(pingUrl)
-            .then(async (response) => {
+            .then((response) => {
                 if (response.ok) {
                     console.log('[background] Connected to api');
                     const endpoint = new URL(
                         '/api/watch_history',
                         storage.apiURL,
                     );
-                    await sendPendingData(endpoint);
+                    sendPendingData(endpoint);
                 }
             })
             .catch(() => {
