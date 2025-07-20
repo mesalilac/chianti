@@ -11,16 +11,25 @@
         "storage",
         "webNavigation",
         "tabs",
+        "notifications",
         "https://www.youtube.com/*"
     ],
-    "optional_permissions": ["<all_urls>"],
+    "optional_permissions": [
+        "<all_urls>"
+    ],
     "background": {
-        "scripts": ["background.js"]
+        "scripts": [
+            "background.js"
+        ]
     },
     "content_scripts": [
         {
-            "matches": ["*://*.youtube.com/*"],
-            "js": ["content.js"],
+            "matches": [
+                "*://*.youtube.com/*"
+            ],
+            "js": [
+                "content.js"
+            ],
             "run_at": "document_idle"
         }
     ]

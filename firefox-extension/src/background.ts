@@ -54,6 +54,14 @@ async function sendPendingData(endpoint: URL) {
     } catch {}
 }
 
+function sendNotifications(message: string) {
+    browser.notifications.create({
+        type: 'basic',
+        title: 'Chianti',
+        message,
+    });
+}
+
 browser.storage.local
     .get('apiURL')
     .then((storage) => {
@@ -72,10 +80,14 @@ browser.storage.local
             })
             .catch(() => {
                 console.error('[background] Failed to ping api');
+
+                sendNotifications(`Server is offline ${storage.apiURL}`);
             });
     })
     .catch(() => {
         console.error('[background] Failed to get apiURL from storage');
+
+        sendNotifications(`Please set a base api url`);
     });
 
 // https://medium.com/@softvar/making-chrome-extension-smart-by-supporting-spa-websites-1f76593637e8
