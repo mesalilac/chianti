@@ -409,7 +409,7 @@ async fn create_watch_history(
 
         let channel = Channel::new(NewChannelParams {
             id: payload.channel.id.clone(),
-            name: payload.channel.name,
+            name: payload.channel.name.clone(),
             url: payload.channel.url,
             subscribers_count: payload.channel.subscribers_count,
         });
@@ -418,7 +418,10 @@ async fn create_watch_history(
             .values(&channel)
             .on_conflict(channels_dsl::id)
             .do_update()
-            .set(channels_dsl::subscribers_count.eq(payload.channel.subscribers_count))
+            .set((
+                channels_dsl::name.eq(payload.channel.name),
+                channels_dsl::subscribers_count.eq(payload.channel.subscribers_count),
+            ))
             .execute(&mut conn)
             .map_err(internal_error)?;
 
