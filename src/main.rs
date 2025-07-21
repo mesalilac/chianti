@@ -306,6 +306,7 @@ struct CreateWatchHistoryChannel {
     name: String,
     avater_url: String,
     url: String,
+    is_subscribed: bool,
     #[ts(type = "number")]
     subscribers_count: i64,
 }
@@ -411,6 +412,7 @@ async fn create_watch_history(
             id: payload.channel.id.clone(),
             name: payload.channel.name.clone(),
             url: payload.channel.url,
+            is_subscribed: payload.channel.is_subscribed,
             subscribers_count: payload.channel.subscribers_count,
         });
 
@@ -420,6 +422,7 @@ async fn create_watch_history(
             .do_update()
             .set((
                 channels_dsl::name.eq(payload.channel.name),
+                channels_dsl::is_subscribed.eq(payload.channel.is_subscribed),
                 channels_dsl::subscribers_count.eq(payload.channel.subscribers_count),
             ))
             .execute(&mut conn)
