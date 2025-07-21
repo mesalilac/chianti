@@ -319,6 +319,8 @@ struct CreateWatchHistoryVideo {
     thumbnail_url: String,
     tags: Vec<String>,
     #[ts(type = "number")]
+    likes_count: i64,
+    #[ts(type = "number")]
     view_count: i64,
     #[ts(type = "number")]
     duration: i64,
@@ -426,6 +428,7 @@ async fn create_watch_history(
             title: payload.video.title,
             description: payload.video.description,
             duration_seconds: payload.video.duration,
+            likes_count: payload.video.likes_count,
             view_count: payload.video.view_count,
             published_at: payload.video.published_at,
         });
