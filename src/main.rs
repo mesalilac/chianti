@@ -324,6 +324,8 @@ struct CreateWatchHistoryVideo {
     #[ts(type = "number")]
     view_count: i64,
     #[ts(type = "number")]
+    comments_count: i64,
+    #[ts(type = "number")]
     duration: i64,
     #[ts(type = "number")]
     published_at: i64,
@@ -436,6 +438,7 @@ async fn create_watch_history(
             duration_seconds: payload.video.duration,
             likes_count: payload.video.likes_count,
             view_count: payload.video.view_count,
+            comments_count: payload.video.comments_count,
             published_at: payload.video.published_at,
         });
 
@@ -447,6 +450,7 @@ async fn create_watch_history(
                 videos_dsl::title.eq(payload.video.title),
                 videos_dsl::view_count.eq(payload.video.view_count),
                 videos_dsl::likes_count.eq(payload.video.likes_count),
+                videos_dsl::comments_count.eq(payload.video.comments_count),
             ))
             .execute(&mut conn)
             .map_err(internal_error)?;
