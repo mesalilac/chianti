@@ -86,6 +86,27 @@ function parseLikes(str: string): number {
     }
 }
 
+function parseCommentsCount(str: string): number {
+    str = str.toLowerCase();
+    str = str.replaceAll(',', '');
+
+    const chars = str.split('');
+
+    switch (chars[chars.length - 1]) {
+        case 'k':
+            chars.pop();
+            return Number(chars.join('')) * 1000;
+        case 'm':
+            chars.pop();
+            return Number(chars.join('')) * 1000000;
+        case 'b':
+            chars.pop();
+            return Number(chars.join('')) * 1000000000;
+        default:
+            return Number(chars.join(''));
+    }
+}
+
 function getVideoInfo(videoId: string): CreateWatchHistoryVideo | null {
     const videoTitleHeadingelement = document.querySelector(
         '#title>h1',
@@ -174,6 +195,18 @@ function getVideoInfo(videoId: string): CreateWatchHistoryVideo | null {
 
     const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
+    const commentsHeaderCountEle = document.querySelector(
+        '#comments>#sections>#header #count span',
+    );
+    if (!commentsHeaderCountEle || !commentsHeaderCountEle.textContent) {
+        console.error('[chianti] Comments count not found');
+        return null;
+    }
+
+    const commentsCount = parseCommentsCount(
+        commentsHeaderCountEle.textContent,
+    );
+
     return {
         id: videoId,
         title: videoTitleHeadingelement.textContent.trim(),
@@ -191,6 +224,7 @@ function getVideoInfo(videoId: string): CreateWatchHistoryVideo | null {
         published_at: videoPublishDate,
         likes_count: likesCount,
         view_count: Number(tempVideoViews.split(' ')[0].replaceAll(',', '')),
+        comments_count: commentsCount,
         thumbnail_url: thumbnailUrl,
     };
 }
@@ -310,7 +344,7 @@ async function main() {
     }
 
     console.log('[chianti] Waiting for page to load');
-    await delay(4000);
+    await delay(8000);
 
     if (document.readyState !== 'complete') {
         console.error('[chianti] Page not fully loaded');
