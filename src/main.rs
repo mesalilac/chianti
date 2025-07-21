@@ -437,7 +437,10 @@ async fn create_watch_history(
             .values(&video)
             .on_conflict(videos_dsl::id)
             .do_update()
-            .set(videos_dsl::view_count.eq(payload.video.view_count))
+            .set((
+                videos_dsl::view_count.eq(payload.video.view_count),
+                videos_dsl::likes_count.eq(payload.video.likes_count),
+            ))
             .execute(&mut conn)
             .map_err(internal_error)?;
 
