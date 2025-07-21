@@ -58,6 +58,34 @@ function parseRelativeDate(dateString: string): number {
     return Math.floor(resultDate.getTime() / 1000);
 }
 
+function parseLikes(str: string): number {
+    str = str.toLowerCase();
+
+    const arr: string[] = str.split('');
+    let multiplier = 1;
+
+    switch (arr[arr.length - 1]) {
+        case 'k':
+            arr.pop();
+            multiplier = 1000;
+            break;
+        case 'm':
+            arr.pop();
+            multiplier = 1000000;
+            break;
+        case 'b':
+            arr.pop();
+            multiplier = 1000000000;
+            break;
+    }
+
+    if (str.includes('.')) {
+        return parseFloat(arr.join('')) * multiplier;
+    } else {
+        return Number(arr.join('')) * multiplier;
+    }
+}
+
 function getVideoInfo(videoId: string): CreateWatchHistoryVideo | null {
     const videoTitleHeadingelement = document.querySelector(
         '#title>h1',
@@ -134,6 +162,16 @@ function getVideoInfo(videoId: string): CreateWatchHistoryVideo | null {
     }
     collapseElement.click();
 
+    const likesButtonText = document.querySelector(
+        'button-view-model .yt-spec-button-shape-next__button-text-content',
+    );
+    if (!likesButtonText?.textContent || likesButtonText.textContent === '') {
+        console.error('[chianti] Likes button text not found');
+        return null;
+    }
+
+    const likesCount = parseLikes(likesButtonText.textContent);
+
     const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
     return {
@@ -151,6 +189,7 @@ function getVideoInfo(videoId: string): CreateWatchHistoryVideo | null {
         ),
         tags: [],
         published_at: videoPublishDate,
+        likes_count: likesCount,
         view_count: Number(tempVideoViews.split(' ')[0].replaceAll(',', '')),
         thumbnail_url: thumbnailUrl,
     };
