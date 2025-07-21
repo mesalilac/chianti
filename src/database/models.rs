@@ -45,6 +45,7 @@ pub struct NewVideoParams {
     pub title: String,
     pub description: String,
     pub duration_seconds: i64,
+    pub likes_count: i64,
     pub view_count: i64,
     pub published_at: i64,
 }
@@ -61,6 +62,7 @@ pub struct Video {
     pub description: String,
     pub watch_counter: i64,
     pub duration_seconds: i64,
+    pub likes_count: i64,
     pub view_count: i64,
     pub published_at: i64,
     pub added_at: i64,
@@ -83,6 +85,7 @@ impl Video {
             description: p.description,
             watch_counter: 0,
             duration_seconds: p.duration_seconds,
+            likes_count: p.likes_count,
             view_count: p.view_count,
             published_at: p.published_at,
             added_at: added_at.as_secs() as i64,
