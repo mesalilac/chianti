@@ -425,7 +425,7 @@ async fn create_watch_history(
         let video = Video::new(NewVideoParams {
             id: payload.video.id,
             channel_id: payload.channel.id,
-            title: payload.video.title,
+            title: payload.video.title.clone(),
             description: payload.video.description,
             duration_seconds: payload.video.duration,
             likes_count: payload.video.likes_count,
@@ -438,6 +438,7 @@ async fn create_watch_history(
             .on_conflict(videos_dsl::id)
             .do_update()
             .set((
+                videos_dsl::title.eq(payload.video.title),
                 videos_dsl::view_count.eq(payload.video.view_count),
                 videos_dsl::likes_count.eq(payload.video.likes_count),
             ))
