@@ -34,6 +34,7 @@ diesel::table! {
         description -> Text,
         watch_counter -> BigInt,
         duration_seconds -> BigInt,
+        likes_count -> BigInt,
         view_count -> BigInt,
         published_at -> BigInt,
         added_at -> BigInt,
