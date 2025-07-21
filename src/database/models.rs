@@ -8,6 +8,7 @@ pub struct NewChannelParams {
     pub id: String,
     pub name: String,
     pub url: String,
+    pub is_subscribed: bool,
     pub subscribers_count: i64,
 }
 
@@ -18,6 +19,7 @@ pub struct Channel {
     pub id: String,
     pub name: String,
     pub url: String,
+    pub is_subscribed: bool,
     pub subscribers_count: i64,
     pub added_at: i64,
 }
@@ -33,6 +35,7 @@ impl Channel {
             id: p.id,
             name: p.name,
             url: p.url,
+            is_subscribed: p.is_subscribed,
             subscribers_count: p.subscribers_count,
             added_at: added_at.as_secs() as i64,
         }
