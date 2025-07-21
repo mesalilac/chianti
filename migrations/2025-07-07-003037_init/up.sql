@@ -2,6 +2,7 @@ CREATE TABLE channels (
     id                      TEXT    NOT NULL PRIMARY KEY UNIQUE,
     name                    TEXT    NOT NULL,
     url                     TEXT    NOT NULL,
+    is_subscribed           BOOLEAN NOT NULL,
     subscribers_count       BIGINT NOT NULL,
 
     added_at                BIGINT NOT NULL
