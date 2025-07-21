@@ -277,10 +277,23 @@ function getChannelInfo(): CreateWatchHistoryChannel | null {
         return null;
     }
 
+    const subscribeButton = document.querySelector('#subscribe-button-shape');
+    if (!subscribeButton) {
+        console.error('[chianti] Subscribe button not found');
+        return null;
+    }
+
+    let isSubscribed = false;
+
+    if (subscribeButton.textContent !== 'Subscribe') {
+        isSubscribed = true;
+    }
+
     return {
         id: channelID,
         name: channelName,
         url: `https://www.youtube.com${channelHref}`,
+        is_subscribed: isSubscribed,
         subscribers_count: Math.round(subscribersCount),
         avater_url: avaterUrl,
     };
