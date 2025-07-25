@@ -4,7 +4,7 @@ set -eo pipefail
 
 EXTENSION_PATH="${PWD}"/browser-extension
 FIREFOX_TARGET="${PWD}"/chianti-firefox.xpi
-CHROME_TARGET="${PWD}"/chianti-chrome.zip
+CHROME_TARGET="${PWD}"/chianti-chrome.crx
 NODE_PACKAGE_MANAGER="pnpm"
 
 if ! command -v "${NODE_PACKAGE_MANAGER}" >/dev/null 2>&1; then
