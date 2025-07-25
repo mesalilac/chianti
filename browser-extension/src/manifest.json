@@ -1,10 +1,22 @@
 {
-    "manifest_version": 2,
+    "{{chrome}}.manifest_version": 3,
+    "{{firefox}}.manifest_version": 2,
     "name": "chianti",
     "version": "0.1",
     "description": "Youtube watch time tracking",
-    "browser_action": {
-        "default_popup": "popup.html",
+    "icons": {
+        "16": "icon/16.png",
+        "32": "icon/32.png",
+        "48": "icon/48.png",
+        "96": "icon/96.png",
+        "128": "icon/128.png"
+    },
+    "{{chrome}}.action": {
+        "default_popup": "src/popup.html",
+        "default_title": "Chianti - Youtube watch time tracker"
+    },
+    "{{firefox}}.browser_action": {
+        "default_popup": "src/popup.html",
         "default_title": "Chianti - Youtube watch time tracker"
     },
     "permissions": [
@@ -12,14 +24,13 @@
         "webNavigation",
         "tabs",
         "notifications",
-        "https://www.youtube.com/*"
-    ],
-    "optional_permissions": [
+        "https://*.youtube.com/*",
         "<all_urls>"
     ],
     "background": {
-        "scripts": [
-            "background.js"
+        "{{chrome}}.service_worker": "src/background.ts",
+        "{{firefox}}.scripts": [
+            "src/background.ts"
         ]
     },
     "content_scripts": [
@@ -28,7 +39,7 @@
                 "*://*.youtube.com/*"
             ],
             "js": [
-                "content.js"
+                "src/content.ts"
             ],
             "run_at": "document_idle"
         }
