@@ -25,7 +25,9 @@ function build_firefox {
 
     TARGET_BROWSER=firefox "${NODE_PACKAGE_MANAGER}" build
     [[ -f "${FIREFOX_TARGET}" ]] && rm -v "${FIREFOX_TARGET}"
-    zip -r "${FIREFOX_TARGET}" firefox-dist
+
+    cd ./firefox-dist
+    zip -r "${FIREFOX_TARGET}" .
 }
 
 function build_chrome {
@@ -34,7 +36,9 @@ function build_chrome {
 
     TARGET_BROWSER=chrome "${NODE_PACKAGE_MANAGER}" build
     [[ -f "${CHROME_TARGET}" ]] && rm -v "${CHROME_TARGET}"
-    zip -r "${CHROME_TARGET}" chrome-dist
+
+    cd ./chrome-dist
+    zip -r "${CHROME_TARGET}" .
 }
 
 if [[ "$1" = "firefox" ]];
