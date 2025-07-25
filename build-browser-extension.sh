@@ -2,6 +2,7 @@
 
 set -eo pipefail
 
+EXTENSION_PATH="${PWD}"/browser-extension
 FIREFOX_TARGET="${PWD}"/chianti-firefox.xpi
 CHROME_TARGET="${PWD}"/chianti-chrome.zip
 NODE_PACKAGE_MANAGER="pnpm"
@@ -17,7 +18,7 @@ if ! command -v "zip" >/dev/null 2>&1; then
     exit 1
 fi
 
-cd ./browser-extension
+cd "${EXTENSION_PATH}"
 
 function build_firefox {
     echo "Building extension for Firefox"
@@ -26,7 +27,7 @@ function build_firefox {
     TARGET_BROWSER=firefox "${NODE_PACKAGE_MANAGER}" build
     [[ -f "${FIREFOX_TARGET}" ]] && rm -v "${FIREFOX_TARGET}"
 
-    cd ./firefox-dist
+    cd "${EXTENSION_PATH}/firefox-dist"
     zip -r "${FIREFOX_TARGET}" .
 }
 
@@ -37,7 +38,7 @@ function build_chrome {
     TARGET_BROWSER=chrome "${NODE_PACKAGE_MANAGER}" build
     [[ -f "${CHROME_TARGET}" ]] && rm -v "${CHROME_TARGET}"
 
-    cd ./chrome-dist
+    cd "${EXTENSION_PATH}/chrome-dist"
     zip -r "${CHROME_TARGET}" .
 }
 
