@@ -4,6 +4,11 @@
     "name": "chianti",
     "version": "0.1",
     "description": "Youtube watch time tracking",
+    "applications": {
+        "gecko": {
+            "id": "@mesalilac.chianti"
+        }
+    },
     "icons": {
         "16": "icon/16.png",
         "32": "icon/32.png",
@@ -29,18 +34,12 @@
     ],
     "background": {
         "{{chrome}}.service_worker": "src/background.ts",
-        "{{firefox}}.scripts": [
-            "src/background.ts"
-        ]
+        "{{firefox}}.scripts": ["src/background.ts"]
     },
     "content_scripts": [
         {
-            "matches": [
-                "*://*.youtube.com/*"
-            ],
-            "js": [
-                "src/content.ts"
-            ],
+            "matches": ["*://*.youtube.com/*"],
+            "js": ["src/content.ts"],
             "run_at": "document_idle"
         }
     ]
