@@ -1,7 +1,5 @@
 import browser from 'webextension-polyfill';
 
-console.log('Hello from the popup!', { id: browser.runtime.id });
-
 window.onload = () => {
     const api_connection_status = document.getElementById(
         'api-connection-status',
