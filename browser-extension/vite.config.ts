@@ -20,6 +20,7 @@ export default defineConfig({
             manifest: generateManifest,
             watchFilePaths: ['package.json', 'manifest.json'],
             browser: target,
+            disableAutoLaunch: true,
         }),
     ],
     build: {
