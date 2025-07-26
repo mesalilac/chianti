@@ -167,7 +167,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
             .get('watchedVideosCount')
             .then((storage) => {
                 if (!storage.watchedVideosCount) {
-                    browser.storage.session.set({ watchedVideosCount: 0 });
+                    browser.storage.session.set({ watchedVideosCount: 1 });
                     return;
                 }
 
@@ -176,7 +176,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                 });
             })
             .catch(() => {
-                browser.storage.session.set({ watchedVideosCount: 0 });
+                browser.storage.session.set({ watchedVideosCount: 1 });
             });
 
         browser.storage.local.get('apiURL').then((storage) => {
