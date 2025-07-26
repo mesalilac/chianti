@@ -1,5 +1,11 @@
-import { CreateWatchHistoryRequest } from '@bindings';
-import { MessageType } from './types.d';
+import browser from 'webextension-polyfill';
+
+browser.runtime.onInstalled.addListener((details) => {
+    console.log('Extension installed:', details);
+});
+
+import type { CreateWatchHistoryRequest } from '@bindings';
+import type { MessageType } from './types.d';
 
 let lastProcessedUrl: string | null = null;
 

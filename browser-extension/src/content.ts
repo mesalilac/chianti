@@ -1,9 +1,10 @@
-import {
+import type {
     CreateWatchHistoryChannel,
     CreateWatchHistoryRequest,
     CreateWatchHistoryVideo,
 } from '@bindings';
-import { Message } from './types.d';
+import browser from 'webextension-polyfill';
+import type { Message } from './types.d';
 
 let payload: CreateWatchHistoryRequest | null = null;
 let intervalId: number | null = null;
@@ -215,10 +216,7 @@ function getVideoInfo(videoId: string): CreateWatchHistoryVideo | null {
             videoDurationElement.textContent
                 .split(':')
                 .reverse()
-                .reduce(
-                    (prev, curr, i) => prev + Number(curr) * Math.pow(60, i),
-                    0,
-                ),
+                .reduce((prev, curr, i) => prev + Number(curr) * 60 ** i, 0),
         ),
         tags: [],
         published_at: videoPublishDate,

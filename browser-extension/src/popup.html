@@ -1,23 +1,13 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Chianti - Youtube watch time tracker</title>
-    <style>
-        .status-connected {
-            color: green;
-        }
-
-        .status-not-connected {
-            color: red;
-        }
-
-        body>div {
-            margin: 5px;
-        }
-    </style>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./popup.css" />
+    <script type="module" src="./popup.ts"></script>
+    <title>Popup</title>
 </head>
 
 <body>
@@ -35,7 +25,6 @@
     <div>
         <span>Videos watched this session <b><span id="watched-video-count">0</span></b></span>
     </div>
-    <script src="popup.js"></script>
 </body>
 
 </html>

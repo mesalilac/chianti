@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 window.onload = () => {
     const api_connection_status = document.getElementById(
         'api-connection-status',
