@@ -55,7 +55,7 @@ async function sendPendingData(endpoint: URL) {
         if (storage.pendingData.length === 0) return;
 
         sendData(endpoint, storage.pendingData);
-    } catch {}
+    } catch { }
 }
 
 function sendNotifications(message: string) {
@@ -157,19 +157,27 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                         if (tag) data.video.tags.push(tag);
                     });
             }
-        } catch {}
+        } catch { }
 
         data.session_end_date = Math.round(Number(Date.now() / 1000));
 
         console.dir(data);
 
-        browser.storage.session.get('watchedVideosCount').then((storage) => {
-            if (!storage) return;
+        browser.storage.session
+            .get('watchedVideosCount')
+            .then((storage) => {
+                if (!storage.watchedVideosCount) {
+                    browser.storage.session.set({ watchedVideosCount: 1 });
+                    return;
+                }
 
-            browser.storage.session.set({
-                watchedVideosCount: storage.watchedVideosCount + 1,
+                browser.storage.session.set({
+                    watchedVideosCount: storage.watchedVideosCount + 1,
+                });
+            })
+            .catch(() => {
+                browser.storage.session.set({ watchedVideosCount: 1 });
             });
-        });
 
         browser.storage.local.get('apiURL').then((storage) => {
             const apiURL = storage.apiURL;
