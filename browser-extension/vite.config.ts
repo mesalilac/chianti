@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import solidPlugin from 'vite-plugin-solid';
 import webExtension, { readJsonFile } from 'vite-plugin-web-extension';
 
 const target: string = process.env.TARGET_BROWSER || 'firefox';
@@ -16,6 +17,7 @@ function generateManifest() {
 
 export default defineConfig({
     plugins: [
+        solidPlugin(),
         webExtension({
             manifest: generateManifest,
             watchFilePaths: ['package.json', 'manifest.json'],

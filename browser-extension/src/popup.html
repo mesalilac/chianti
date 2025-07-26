@@ -2,29 +2,17 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./popup.css" />
-    <script type="module" src="./popup.ts"></script>
-    <title>Popup</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <title>Chianti popup</title>
 </head>
 
 <body>
-    <div>
-        <span>base api url</span>
-        <input id="api-url-input" type="text" />
-        <button id="save-button">Save</button>
-        <span id="api-connection-status"></span>
-    </div>
-    <div>
-        <span>Pending data <b><span id="pending-data-count">0</span></b></span>
-        <button id="clear-pending-data-button">Clear</button>
-        <button id="send-pending-data-button">send data</button>
-    </div>
-    <div>
-        <span>Videos watched this session <b><span id="watched-video-count">0</span></b></span>
-    </div>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+
+    <script type="module" src="./popup/index.tsx"></script>
 </body>
 
 </html>
