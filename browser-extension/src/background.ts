@@ -55,7 +55,7 @@ async function sendPendingData(endpoint: URL) {
         if (storage.pendingData.length === 0) return;
 
         sendData(endpoint, storage.pendingData);
-    } catch { }
+    } catch {}
 }
 
 function sendNotifications(message: string) {
@@ -157,7 +157,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                         if (tag) data.video.tags.push(tag);
                     });
             }
-        } catch { }
+        } catch {}
 
         data.session_end_date = Math.round(Number(Date.now() / 1000));
 
@@ -181,7 +181,10 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
         browser.storage.local.get('apiURL').then((storage) => {
             const apiURL = storage.apiURL;
-            if (apiURL == null) return;
+            if (apiURL == null) {
+                pendingDataAdd([data]);
+                return;
+            }
 
             const endpoint = new URL('/api/watch_history', apiURL);
 
