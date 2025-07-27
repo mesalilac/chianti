@@ -27,5 +27,8 @@ export default defineConfig({
     ],
     build: {
         outDir: target === 'firefox' ? 'firefox-dist' : 'chrome-dist',
+        watch: {
+            include: 'src/**/*',
+        },
     },
 });
