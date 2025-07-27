@@ -1,11 +1,6 @@
 import type { CreateWatchHistoryVideo } from '@bindings';
 
-import {
-    delay,
-    parseCommentsCount,
-    parseLikes,
-    parseRelativeDate,
-} from './index';
+import { parseCommentsCount, parseLikes, parseRelativeDate } from './index';
 
 export function extractVideoInfo(
     videoId: string,
