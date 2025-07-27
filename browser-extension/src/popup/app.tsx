@@ -36,7 +36,7 @@ function App() {
         browser.storage.local
             .get('apiURL')
             .then((response) => {
-                if (!response.apiURL) return;
+                if (!response.apiURL) setApiUrl('http://localhost:8080');
 
                 setApiUrl(response.apiURL);
                 checkServerStatus();
