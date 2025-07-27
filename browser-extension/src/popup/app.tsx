@@ -85,8 +85,8 @@ function App() {
 
     return (
         <>
-            <div>
-                <span>base api url</span>
+            <div id='base-api-url'>
+                <span>Base api url</span>
                 <input
                     type='text'
                     value={apiUrl() || ''}
@@ -103,10 +103,9 @@ function App() {
                     {serverStatus()}
                 </span>
             </div>
-            <div>
+            <div id='pending-data'>
                 <span>
-                    Pending data
-                    <b>{pendingDataCount()}</b>
+                    Pending data <b>{pendingDataCount()}</b>
                 </span>
                 <button onClick={clearPendingData}>Clear</button>
                 <button onClick={sendPendingData}>Send data</button>

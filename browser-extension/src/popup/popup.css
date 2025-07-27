@@ -50,3 +50,13 @@ code {
 body>div {
     margin: 5px;
 }
+
+#base-api-url {
+    display: flex;
+    gap: 5px;
+}
+
+#pending-data {
+    display: flex;
+    gap: 5px;
+}
