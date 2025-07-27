@@ -23,6 +23,11 @@ async function main() {
     console.log('[chianti] Waiting for page to load');
     await delay(8000);
 
+    window.scrollTo({ top: 200, behavior: 'smooth' });
+    await delay(100);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    await delay(1000);
+
     if (document.readyState !== 'complete') {
         console.error('[chianti] Page not fully loaded');
         return;
