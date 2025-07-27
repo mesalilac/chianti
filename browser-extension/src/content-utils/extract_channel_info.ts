@@ -1,6 +1,6 @@
 import type { CreateWatchHistoryChannel } from '@bindings';
 
-export function getChannelInfo(): CreateWatchHistoryChannel | null {
+export function extractChannelInfo(): CreateWatchHistoryChannel | null {
     const channelInfoElement = document.querySelector('#upload-info');
     if (!channelInfoElement) {
         console.error('[chianti] Channel info not found');

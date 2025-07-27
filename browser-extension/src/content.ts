@@ -4,7 +4,7 @@ import type {
     CreateWatchHistoryVideo,
 } from '@bindings';
 import browser from 'webextension-polyfill';
-import { delay, getChannelInfo, getVideoInfo } from './content-utils';
+import { delay, extractChannelInfo, extractVideoInfo } from './content-utils';
 import type { Message } from './types.d';
 
 let payload: CreateWatchHistoryRequest | null = null;
@@ -27,13 +27,13 @@ async function main() {
         console.error('[chianti] Page not fully loaded');
         return;
     }
-    const videoInfo: CreateWatchHistoryVideo | null = getVideoInfo(videoId);
+    const videoInfo: CreateWatchHistoryVideo | null = extractVideoInfo(videoId);
     if (!videoInfo) {
         console.error('[chianti] Failed to collect video info');
         return;
     }
 
-    const channelInfo: CreateWatchHistoryChannel | null = getChannelInfo();
+    const channelInfo: CreateWatchHistoryChannel | null = extractChannelInfo();
     if (!channelInfo) {
         console.error('[chianti] Failed to collect channel info');
         return;

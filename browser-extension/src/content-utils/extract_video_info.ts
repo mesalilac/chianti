@@ -2,7 +2,9 @@ import type { CreateWatchHistoryVideo } from '@bindings';
 
 import { parseCommentsCount, parseLikes, parseRelativeDate } from './index';
 
-export function getVideoInfo(videoId: string): CreateWatchHistoryVideo | null {
+export function extractVideoInfo(
+    videoId: string,
+): CreateWatchHistoryVideo | null {
     const videoTitleHeadingelement = document.querySelector(
         '#title>h1',
     ) as HTMLHeadingElement;
