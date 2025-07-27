@@ -121,85 +121,87 @@ browser.webNavigation.onHistoryStateUpdated.addListener((e) => {
     });
 });
 
-browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-    const type: MessageType = message.type;
-    const payload = message.payload;
+browser.runtime.onMessage.addListener(
+    async (message, _sender, _sendResponse) => {
+        const type: MessageType = message.type;
+        const payload = message.payload;
 
-    if (type === 'recordHistory') {
-        const data = payload as CreateWatchHistoryRequest | null;
-        if (!data) return;
+        if (type === 'recordHistory') {
+            const data = payload as CreateWatchHistoryRequest | null;
+            if (!data) return;
 
-        try {
-            const res = await fetch(
-                `https://www.youtube.com/watch?v=${data.video.id}`,
-            );
-
-            if (res.status === 200) {
-                const videoPageText = await res.text();
-                const videoPageDOM = new DOMParser().parseFromString(
-                    videoPageText,
-                    'text/html',
+            try {
+                const res = await fetch(
+                    `https://www.youtube.com/watch?v=${data.video.id}`,
                 );
 
-                const videoDescription = videoPageDOM.querySelector(
-                    "meta[property='og:description']",
-                );
+                if (res.status === 200) {
+                    const videoPageText = await res.text();
+                    const videoPageDOM = new DOMParser().parseFromString(
+                        videoPageText,
+                        'text/html',
+                    );
 
-                if (videoDescription) {
-                    data.video.description =
-                        videoDescription.getAttribute('content') || '';
+                    const videoDescription = videoPageDOM.querySelector(
+                        "meta[property='og:description']",
+                    );
+
+                    if (videoDescription) {
+                        data.video.description =
+                            videoDescription.getAttribute('content') || '';
+                    }
+
+                    videoPageDOM
+                        .querySelectorAll("meta[property='og:video:tag']")
+                        .forEach((meta) => {
+                            const tag = meta.getAttribute('content');
+                            if (tag) data.video.tags.push(tag);
+                        });
                 }
+            } catch {}
 
-                videoPageDOM
-                    .querySelectorAll("meta[property='og:video:tag']")
-                    .forEach((meta) => {
-                        const tag = meta.getAttribute('content');
-                        if (tag) data.video.tags.push(tag);
+            data.session_end_date = Math.round(Number(Date.now() / 1000));
+
+            console.dir(data);
+
+            browser.storage.session
+                .get('watchedVideosCount')
+                .then((storage) => {
+                    if (!storage.watchedVideosCount) {
+                        browser.storage.session.set({ watchedVideosCount: 1 });
+                        return;
+                    }
+
+                    browser.storage.session.set({
+                        watchedVideosCount: storage.watchedVideosCount + 1,
                     });
-            }
-        } catch {}
-
-        data.session_end_date = Math.round(Number(Date.now() / 1000));
-
-        console.dir(data);
-
-        browser.storage.session
-            .get('watchedVideosCount')
-            .then((storage) => {
-                if (!storage.watchedVideosCount) {
+                })
+                .catch(() => {
                     browser.storage.session.set({ watchedVideosCount: 1 });
+                });
+
+            browser.storage.local.get('apiURL').then((storage) => {
+                const apiURL = storage.apiURL;
+                if (apiURL == null) {
+                    pendingDataAdd([data]);
                     return;
                 }
 
-                browser.storage.session.set({
-                    watchedVideosCount: storage.watchedVideosCount + 1,
-                });
-            })
-            .catch(() => {
-                browser.storage.session.set({ watchedVideosCount: 1 });
+                const endpoint = new URL('/api/watch_history', apiURL);
+
+                sendData(endpoint, [data]);
             });
+        } else if (type === 'sendPendingData') {
+            browser.storage.local.get('apiURL').then((storage) => {
+                const apiURL = storage.apiURL;
+                if (apiURL == null) return;
 
-        browser.storage.local.get('apiURL').then((storage) => {
-            const apiURL = storage.apiURL;
-            if (apiURL == null) {
-                pendingDataAdd([data]);
-                return;
-            }
+                const endpoint = new URL('/api/watch_history', apiURL);
 
-            const endpoint = new URL('/api/watch_history', apiURL);
-
-            sendData(endpoint, [data]);
-        });
-    } else if (type === 'sendPendingData') {
-        browser.storage.local.get('apiURL').then((storage) => {
-            const apiURL = storage.apiURL;
-            if (apiURL == null) return;
-
-            const endpoint = new URL('/api/watch_history', apiURL);
-
-            sendPendingData(endpoint);
-        });
-    } else {
-        console.error('Unknown message type:', type);
-    }
-});
+                sendPendingData(endpoint);
+            });
+        } else {
+            console.error('Unknown message type:', type);
+        }
+    },
+);
