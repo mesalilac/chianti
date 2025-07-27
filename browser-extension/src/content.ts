@@ -23,10 +23,21 @@ async function main() {
     console.log('[chianti] Waiting for page to load');
     await delay(8000);
 
-    window.scrollTo({ top: 200, behavior: 'smooth' });
-    await delay(100);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    await delay(1000);
+    let retry = 1;
+    while (true) {
+        const commentsHeaderCountEle = document.querySelector(
+            '#comments>#sections>#header #count span',
+        );
+        if (commentsHeaderCountEle || retry === 10) {
+            break;
+        } else {
+            window.scrollTo({ top: retry * 1000, behavior: 'smooth' });
+        }
+
+        retry++;
+        await delay(1000);
+    }
+    window.scrollTo(0, 0);
 
     if (document.readyState !== 'complete') {
         console.error('[chianti] Page not fully loaded');
