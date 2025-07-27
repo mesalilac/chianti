@@ -20,29 +20,40 @@ async function main() {
         return;
     }
 
-    console.log('[chianti] Waiting for page to load');
-    await delay(8000);
+    {
+        let retry = 1;
+        while (true) {
+            const videoTitleHeadingelement = document.querySelector(
+                '#title>h1',
+            ) as HTMLHeadingElement;
+            if (videoTitleHeadingelement || retry === 10) {
+                console.log(`[chianti] Page loaded ${videoId}`);
+                break;
+            }
 
-    let retry = 1;
-    while (true) {
-        const commentsHeaderCountEle = document.querySelector(
-            '#comments>#sections>#header #count span',
-        );
-        if (commentsHeaderCountEle || retry === 10) {
-            break;
-        } else {
-            window.scrollTo({ top: retry * 1000, behavior: 'smooth' });
+            retry++;
+            await delay(1000);
         }
-
-        retry++;
-        await delay(1000);
     }
-    window.scrollTo(0, 0);
 
-    if (document.readyState !== 'complete') {
-        console.error('[chianti] Page not fully loaded');
-        return;
+    {
+        let retry = 1;
+        while (true) {
+            const commentsHeaderCountEle = document.querySelector(
+                '#comments>#sections>#header #count span',
+            );
+            if (commentsHeaderCountEle || retry === 10) {
+                break;
+            } else {
+                window.scrollTo({ top: retry * 1000, behavior: 'smooth' });
+            }
+
+            retry++;
+            await delay(1000);
+        }
+        window.scrollTo(0, 0);
     }
+
     const videoInfo: CreateWatchHistoryVideo | null = extractVideoInfo(videoId);
     if (!videoInfo) {
         console.error('[chianti] Failed to collect video info');
@@ -103,10 +114,11 @@ function pushPayload() {
     }
 }
 
-browser.runtime.onMessage.addListener((message: Message<undefined>) => {
+browser.runtime.onMessage.addListener(async (message: Message<undefined>) => {
     if (message.type === 'page-rendered') {
         pushPayload();
 
+        await delay(4000);
         main();
     }
 });
