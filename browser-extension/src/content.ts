@@ -73,29 +73,7 @@ async function main() {
     }, 1000);
 }
 
-browser.runtime.onMessage.addListener((message: Message<undefined>) => {
-    if (message.type === 'page-rendered') {
-        if (payload) {
-            browser.runtime.sendMessage({
-                type: 'recordHistory',
-                payload: payload,
-            });
-            if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = null;
-            }
-            payload = null;
-        }
-
-        main();
-    }
-});
-
-if (document.readyState === 'complete') {
-    main();
-}
-
-window.addEventListener('beforeunload', () => {
+function pushPayload() {
     if (payload) {
         browser.runtime.sendMessage({
             type: 'recordHistory',
@@ -107,4 +85,20 @@ window.addEventListener('beforeunload', () => {
         }
         payload = null;
     }
+}
+
+browser.runtime.onMessage.addListener((message: Message<undefined>) => {
+    if (message.type === 'page-rendered') {
+        pushPayload();
+
+        main();
+    }
+});
+
+if (document.readyState === 'complete') {
+    main();
+}
+
+window.addEventListener('beforeunload', () => {
+    pushPayload();
 });
