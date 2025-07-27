@@ -96,10 +96,10 @@ export function getChannelInfo(): CreateWatchHistoryChannel | null {
 
     return {
         id: channelID,
-        name: channelName,
+        name: channelName.trim(),
         url: `https://www.youtube.com${channelHref}`,
         is_subscribed: isSubscribed,
         subscribers_count: Math.round(subscribersCount),
-        avater_url: avaterUrl,
+        avater_url: avaterUrl.trim(),
     };
 }
