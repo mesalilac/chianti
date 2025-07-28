@@ -26,10 +26,8 @@ export function extractChannelInfo(): CreateWatchHistoryChannel | null {
     let channelID = channelHref;
 
     if (channelID.startsWith('/channel/')) {
-        console.debug('[chianti] Channel ID starts with /channel/');
         channelID = channelID.replace('/channel/', '');
     } else {
-        console.debug('[chianti] Channel ID starts with /@');
         channelID = channelID.replace('/@', '');
     }
 
