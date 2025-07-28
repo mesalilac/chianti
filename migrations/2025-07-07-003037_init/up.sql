@@ -3,9 +3,9 @@ CREATE TABLE channels (
     name                    TEXT    NOT NULL,
     url                     TEXT    NOT NULL,
     is_subscribed           BOOLEAN NOT NULL,
-    subscribers_count       BIGINT NOT NULL,
+    subscribers_count       BIGINT  NOT NULL,
 
-    added_at                BIGINT NOT NULL
+    added_at                BIGINT  NOT NULL
 );
 
 CREATE TABLE videos (
@@ -14,21 +14,21 @@ CREATE TABLE videos (
     url                     TEXT    NOT NULL,
     title                   TEXT    NOT NULL,
     description             TEXT    NOT NULL,
-    watch_counter           BIGINT NOT NULL,
-    duration_seconds        BIGINT NOT NULL,
-    likes_count             BIGINT NOT NULL,
-    view_count              BIGINT NOT NULL,
-    comments_count          BIGINT NOT NULL,
-    published_at            BIGINT NOT NULL,
+    watch_counter           BIGINT  NOT NULL,
+    duration_seconds        BIGINT  NOT NULL,
+    likes_count             BIGINT  NOT NULL,
+    view_count              BIGINT  NOT NULL,
+    comments_count          BIGINT  NOT NULL,
+    published_at            BIGINT  NOT NULL,
 
-    added_at                BIGINT NOT NULL
+    added_at                BIGINT  NOT NULL
 );
 
 CREATE TABLE tags (
     id                      TEXT    NOT NULL PRIMARY KEY,
     name                    TEXT    NOT NULL UNIQUE,
 
-    added_at                BIGINT NOT NULL
+    added_at                BIGINT  NOT NULL
 );
 
 -- Junction table
@@ -43,11 +43,11 @@ CREATE TABLE watch_history (
     id                      TEXT    NOT NULL PRIMARY KEY,
     video_id                TEXT    NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
     channel_id              TEXT    NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
-    watch_duration_seconds  BIGINT NOT NULL,
-    session_start_date      BIGINT NOT NULL,
-    session_end_date        BIGINT NOT NULL,
+    watch_duration_seconds  BIGINT  NOT NULL,
+    session_start_date      BIGINT  NOT NULL,
+    session_end_date        BIGINT  NOT NULL,
 
-    added_at                BIGINT NOT NULL
+    added_at                BIGINT  NOT NULL
 );
 
 CREATE TRIGGER increment_watch_counter
