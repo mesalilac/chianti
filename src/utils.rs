@@ -1,7 +1,8 @@
 use axum::http::StatusCode;
+use base64::{Engine as _, engine::general_purpose::URL_SAFE};
 
 pub fn cache_image_filename(filename: &String) -> String {
-    let base = base32::encode(base32::Alphabet::Crockford, filename.as_bytes());
+    let base = URL_SAFE.encode(filename.as_bytes());
 
     format!("{base}.webp")
 }
