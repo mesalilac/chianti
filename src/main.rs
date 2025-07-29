@@ -15,7 +15,8 @@ use axum::{
 use clap::Parser;
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
 use routes::{
-    create_watch_history, get_channel_avater, get_video_thumbnail, handle_404, ping, root,
+    api_routes, create_watch_history, get_channel_avater, get_video_thumbnail, handle_404, ping,
+    root,
 };
 use state::AppState;
 use std::{path::PathBuf, time::Duration};
@@ -145,10 +146,7 @@ async fn main() {
         .route("/", get(root))
         .nest_service("/stats", webui_html_file)
         .nest_service("/assets", webui_assets)
-        .route("/api/avater/{channel_id}", get(get_channel_avater))
-        .route("/api/thumbnail/{video_id}", get(get_video_thumbnail))
-        .route("/api/ping", get(ping))
-        .route("/api/watch_history", post(create_watch_history))
+        .nest("/api", api_routes())
         .fallback(handle_404)
         .with_state(app_state)
         .layer(CorsLayer::permissive())
