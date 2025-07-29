@@ -1,5 +1,5 @@
 use crate::state::AppState;
-use crate::utils::cache_image_filename;
+use crate::utils::build_cache_image_filename;
 use axum::{
     body::Body,
     extract::{Path, State},
@@ -13,7 +13,7 @@ pub async fn get_channel_avater(
 ) -> impl IntoResponse {
     let avater_file_path = state
         .channel_avaters_dir
-        .join(cache_image_filename(&channel_id));
+        .join(build_cache_image_filename(&channel_id));
 
     let Ok(file) = tokio::fs::File::open(&avater_file_path).await else {
         return (StatusCode::NOT_FOUND).into_response();
