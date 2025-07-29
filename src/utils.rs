@@ -12,6 +12,9 @@ pub fn internal_error<E>(err: E) -> (StatusCode, String)
 where
     E: std::error::Error,
 {
-    tracing::error!("Unhandled internal error: {}", err);
-    (StatusCode::INTERNAL_SERVER_ERROR, err.to_string())
+    tracing::error!("Unhandled internal error: {:#?}", err);
+    (
+        StatusCode::INTERNAL_SERVER_ERROR,
+        "Something went wrong".to_string(),
+    )
 }
