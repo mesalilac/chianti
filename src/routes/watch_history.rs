@@ -71,10 +71,10 @@ pub async fn create_watch_history(
 
     for payload in payload_list {
         let channel_avater_file_path = state
-            .channel_avaters_directory
+            .channel_avaters_dir
             .join(cache_image_filename(&payload.channel.id));
         let video_thumbnail_file_path = state
-            .video_thumbnails_directory
+            .video_thumbnails_dir
             .join(cache_image_filename(&payload.video.id));
 
         if !channel_avater_file_path.exists() {

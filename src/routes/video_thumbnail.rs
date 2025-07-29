@@ -12,7 +12,7 @@ pub async fn get_video_thumbnail(
     Path(video_id): Path<String>,
 ) -> impl IntoResponse {
     let thumbnail_file_path = state
-        .video_thumbnails_directory
+        .video_thumbnails_dir
         .join(cache_image_filename(&video_id));
 
     let Ok(file) = tokio::fs::File::open(&thumbnail_file_path).await else {

@@ -105,25 +105,25 @@ async fn main() {
 
     let images_directory = data_path.join("images");
 
-    let channel_avaters_directory = images_directory.join("channel-avatars");
-    let video_thumbnails_directory = images_directory.join("video-thumbnails");
+    let channel_avaters_dir = images_directory.join("channel-avatars");
+    let video_thumbnails_dir = images_directory.join("video-thumbnails");
 
-    if !channel_avaters_directory.exists() {
-        if let Err(e) = std::fs::create_dir_all(&channel_avaters_directory) {
+    if !channel_avaters_dir.exists() {
+        if let Err(e) = std::fs::create_dir_all(&channel_avaters_dir) {
             tracing::error!("Failed to create channel avaters directory: {}", e);
         }
     }
 
-    if !video_thumbnails_directory.exists() {
-        if let Err(e) = std::fs::create_dir_all(&video_thumbnails_directory) {
+    if !video_thumbnails_dir.exists() {
+        if let Err(e) = std::fs::create_dir_all(&video_thumbnails_dir) {
             tracing::error!("Failed to create video thumbnails directory: {}", e);
         }
     }
 
     let app_state = AppState {
         pool: database::connection::create_connection_pool(data_path),
-        channel_avaters_directory,
-        video_thumbnails_directory,
+        channel_avaters_dir,
+        video_thumbnails_dir,
     };
 
     if let Ok(mut conn) = app_state.pool.get() {

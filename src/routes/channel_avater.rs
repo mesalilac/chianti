@@ -12,7 +12,7 @@ pub async fn get_channel_avater(
     Path(channel_id): Path<String>,
 ) -> impl IntoResponse {
     let avater_file_path = state
-        .channel_avaters_directory
+        .channel_avaters_dir
         .join(cache_image_filename(&channel_id));
 
     let Ok(file) = tokio::fs::File::open(&avater_file_path).await else {
