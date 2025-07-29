@@ -10,14 +10,11 @@ use axum::{
     extract::MatchedPath,
     http::{HeaderMap, Request},
     response::Response,
-    routing::{get, get_service, post},
+    routing::{get, get_service},
 };
 use clap::Parser;
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
-use routes::{
-    api_routes, create_watch_history, get_channel_avater, get_video_thumbnail, handle_404, ping,
-    root,
-};
+use routes::{api_routes, handle_404, root};
 use state::AppState;
 use std::{path::PathBuf, time::Duration};
 use tower_http::{
