@@ -2,9 +2,9 @@ use axum::http::StatusCode;
 use base64::{Engine as _, engine::general_purpose::URL_SAFE};
 
 pub fn cache_image_filename(filename: &String) -> String {
-    let base = URL_SAFE.encode(filename.as_bytes());
+    let encoded = URL_SAFE.encode(filename.as_bytes());
 
-    format!("{base}.webp")
+    format!("{encoded}.webp")
 }
 
 /// Utility function for mapping any error into a `500 Internal Server Error`
