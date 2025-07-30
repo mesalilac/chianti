@@ -27,4 +27,4 @@ tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 ts-rs = "11.0.1"
 utoipa = { version = "5.4.0", features = ["axum_extras", "macros"] }
 utoipa-axum = "0.2.0"
-utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
+utoipa-rapidoc = { version = "6.0.0", features = ["axum"] }
