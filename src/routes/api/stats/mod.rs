@@ -1,9 +1,8 @@
 use crate::state::AppState;
-use axum::{Router, routing::get};
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod overview;
-use overview::get_overview;
 
-pub fn stats_routes() -> Router<AppState> {
-    Router::new().route("/overview", get(get_overview))
+pub fn stats_routes() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new().routes(routes!(overview::get_overview))
 }

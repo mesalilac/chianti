@@ -7,6 +7,16 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
+/// Returns channel avater
+#[utoipa::path(
+    get,
+    path = "/avater/{channel_id}",
+    tag = "Channel",
+    responses(
+        (status = OK, description = "Image was found on disk", content_type = "image/webp", body = Vec<u8>),
+        (status = NOT_FOUND, description = "Image not found on disk"),
+    )
+)]
 pub async fn get_channel_avater(
     State(state): State<AppState>,
     Path(channel_id): Path<String>,

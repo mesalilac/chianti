@@ -7,7 +7,7 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-#[derive(Serialize, Deserialize, TS)]
+#[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct OverviewResponse {
     #[ts(type = "number")]
@@ -24,6 +24,17 @@ pub struct OverviewResponse {
     pub average_watch_time_per_session_seconds: i64,
 }
 
+/// Returns stats overview
+///
+/// Quick overview of general stats
+#[utoipa::path(
+    get,
+    path = "/overview",
+    tag = "Statistics",
+    responses(
+        (status = OK, body = OverviewResponse)
+    )
+)]
 pub async fn get_overview(
     State(state): State<AppState>,
 ) -> Result<(StatusCode, Json<OverviewResponse>), (StatusCode, String)> {
