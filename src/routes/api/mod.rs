@@ -15,5 +15,5 @@ pub fn api_routes() -> OpenApiRouter<AppState> {
         .routes(routes!(channel_avater::get_channel_avater))
         .routes(routes!(video_thumbnail::get_video_thumbnail))
         .routes(routes!(watch_history::create_watch_history))
-        .nest("/stats", stats_routes())
+        .nest("/statistics", stats_routes())
 }
