@@ -149,8 +149,13 @@ async fn main() {
     contact.email = Some("mesalilac@proton.me".into());
     contact.url = Some("https://github.com/mesalilac".into());
 
+    let mut license = utoipa::openapi::License::new("GNU General Public License v3.0 only");
+    license.url = Some("https://www.gnu.org/licenses/gpl-3.0.en.html".into());
+    license.identifier = Some("GPL-3.0-only".into());
+
     api_doc.info.title = "Chianti API".to_string();
     api_doc.info.version = env!("CARGO_PKG_VERSION").to_string();
+    api_doc.info.license = Some(license);
     api_doc.info.contact = Some(contact);
     api_doc.info.description = Some(String::from(
         "Collect info about the youtube videos you watch.",
