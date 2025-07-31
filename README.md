@@ -8,7 +8,7 @@ Collect info about the youtube videos you watch and view the data in the form of
 | ----------------- | -------------------------------------------------------------- | ------------------- |
 | Server            | Recive data from browser extension and store it                | ./src               |
 | webUI             | Display data stored on the server in form of charts and tables | ./web               |
-| Browser extension | Send youtube video info to server                              | ./firefox-extension |
+| Browser extension | Send youtube video info to server                              | ./browser-extension |
 
 # How to build
 
