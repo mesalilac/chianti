@@ -15,6 +15,8 @@ RUN npm run build
 
 FROM debian:trixie-backports
 
+RUN apt-get update && apt-get install -y ca-certificates
+
 WORKDIR /app
 
 COPY --from=rust_builder /src/target/release/chianti /app/
