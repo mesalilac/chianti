@@ -144,7 +144,6 @@ async fn main() {
         .split_for_parts();
 
     let mut contact = utoipa::openapi::Contact::new();
-
     contact.name = Some("mesalilac".into());
     contact.email = Some("mesalilac@proton.me".into());
     contact.url = Some("https://github.com/mesalilac".into());
