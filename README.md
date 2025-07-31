@@ -14,7 +14,7 @@ Collect info about the youtube videos you watch and view the data in the form of
 
 ## Browser extension
 
-1. Run `./build-browser-extension.sh` with argument `firefox` or `chrome` or `all` to build the extension and package it.
+1. Run `./build-browser-extension.sh` with argument `firefox` or `chrome` or `all` to build the extension and package it
 2. Use the final `.xpi` or `.zip` file to install the extension in your browser
 
 ## Server
