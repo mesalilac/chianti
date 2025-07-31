@@ -166,7 +166,7 @@ async fn main() {
     let app = openapi_router
         .route("/", get(root))
         .merge(rapi_doc)
-        .nest_service("/stats", webui_html_file)
+        .nest_service("/web", webui_html_file)
         .nest_service("/assets", webui_assets)
         .fallback(handle_404)
         .with_state(app_state)
