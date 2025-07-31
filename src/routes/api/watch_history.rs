@@ -1,8 +1,8 @@
 use crate::database::models::{Channel, Tag, Video, VideoTags, WatchHistory};
 use crate::schema;
 use crate::state::AppState;
-use crate::utils::build_cache_image_filename;
 use crate::utils::internal_error;
+use crate::utils::{build_avater_cache_image_filename, build_thumbnail_cache_image_filename};
 use axum::{Json, extract::State, http::StatusCode};
 use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl, dsl::insert_into};
@@ -83,10 +83,10 @@ pub async fn create_watch_history(
     for payload in payload_list {
         let channel_avater_file_path = state
             .channel_avaters_dir
-            .join(build_cache_image_filename(&payload.channel.id));
+            .join(build_avater_cache_image_filename(&payload.channel.id));
         let video_thumbnail_file_path = state
             .video_thumbnails_dir
-            .join(build_cache_image_filename(&payload.video.id));
+            .join(build_thumbnail_cache_image_filename(&payload.video.id));
 
         if !channel_avater_file_path.exists() {
             tracing::info!(
