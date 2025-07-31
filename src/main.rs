@@ -5,7 +5,6 @@ mod state;
 mod utils;
 
 use axum::{
-    Router,
     body::Bytes,
     extract::MatchedPath,
     http::{HeaderMap, Request},
@@ -25,6 +24,8 @@ use tower_http::{
 };
 use tracing::{Span, info_span};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use utoipa_axum::router::OpenApiRouter;
+use utoipa_rapidoc::RapiDoc;
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
 
@@ -138,12 +139,30 @@ async fn main() {
         }
     }
 
+    let (openapi_router, mut api_doc) = OpenApiRouter::<AppState>::new()
+        .nest("/api", api_routes())
+        .split_for_parts();
+
+    let mut contact = utoipa::openapi::Contact::new();
+
+    contact.name = Some("mesalilac".into());
+    contact.url = Some("https://github.com/mesalilac".into());
+
+    api_doc.info.title = "Chianti API".to_string();
+    api_doc.info.version = env!("CARGO_PKG_VERSION").to_string();
+    api_doc.info.contact = Some(contact);
+    api_doc.info.description = Some(String::from(
+        "Collect info about the youtube videos you watch.",
+    ));
+
+    let rapi_doc = RapiDoc::with_openapi("/api-docs/openapi.json", api_doc).path("/docs");
+
     // build our application with a route
-    let app = Router::new()
+    let app = openapi_router
         .route("/", get(root))
+        .merge(rapi_doc)
         .nest_service("/stats", webui_html_file)
         .nest_service("/assets", webui_assets)
-        .nest("/api", api_routes())
         .fallback(handle_404)
         .with_state(app_state)
         .layer(CorsLayer::permissive())
