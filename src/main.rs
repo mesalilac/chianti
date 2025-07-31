@@ -146,6 +146,7 @@ async fn main() {
     let mut contact = utoipa::openapi::Contact::new();
 
     contact.name = Some("mesalilac".into());
+    contact.email = Some("mesalilac@proton.me".into());
     contact.url = Some("https://github.com/mesalilac".into());
 
     api_doc.info.title = "Chianti API".to_string();
