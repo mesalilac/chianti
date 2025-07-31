@@ -10,27 +10,39 @@ Collect info about the youtube videos you watch and view the data in the form of
 | webUI             | Display data stored on the server in form of charts and tables | ./web               |
 | Browser extension | Send youtube video info to server                              | ./browser-extension |
 
-# How to build
+# Installation
 
-- Build the docker image for the server and run it
-- Build the firefox extension and install it
+## Browser extension
 
-# Setup
+1. Run `./build-browser-extension.sh` with argument `firefox` or `chrome` or `all` to build the extension and package it.
+2. Use the final `.xpi` or `.zip` file to install the extension in your browser
 
-- Open the firefox extension and set the base url in the settings for the api to point to where the server is
+## Server
 
-## Build server docker image
+### Docker
 
-### Build docker image
+1. Build the Docker Image using `./build-image.sh`
+2. Run the Docker Image using `docker run -d --restart always -p 8080:8080 <IMAGE>` - You may add a volume to make the database persistent
 
-```bash
-./build.sh
-```
+### Local
 
-### Run docker image
+- Run `./installer.sh install` - By default the server will be installed in `${XDG_DATA_HOME}/chianti`
+                                  If `XDG_DATA_HOME` is set, otherwise it will be installed in `/usr/share/chianti`
 
-```bash
-docker run -d -p 3241:3241 <CONTAINER>
-```
+# Uninstallation
 
-Add a volume to make the database persistent
+## Browser extension
+
+- Go to installed extensions page in your browser and click remove/uninstall
+
+## Server
+
+### Docker
+
+1. Stop the Docker container
+2. Remove the Docker container
+3. Remove the Docker image
+
+### Local
+
+- Run `./installer.sh uninstall`
