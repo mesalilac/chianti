@@ -1,6 +1,16 @@
 use axum::http::StatusCode;
 
-/// check if the server is online
-pub async fn ping() -> (StatusCode, String) {
-    (StatusCode::OK, "pong".to_string())
+/// Returns server status
+///
+/// Cheap api call to check if server is online
+#[utoipa::path(
+    get,
+    path = "/ping",
+    tag = "Utility",
+    responses(
+        (status = OK, description = "Server is online", body = ())
+    )
+)]
+pub async fn ping() -> StatusCode {
+    StatusCode::OK
 }

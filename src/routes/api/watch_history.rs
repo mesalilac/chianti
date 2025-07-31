@@ -11,7 +11,7 @@ use ts_rs::TS;
 
 use crate::database::models::{NewChannelParams, NewVideoParams};
 
-#[derive(Deserialize, TS)]
+#[derive(utoipa::ToSchema, Deserialize, TS)]
 #[ts(export)]
 struct CreateWatchHistoryChannel {
     id: String,
@@ -23,7 +23,7 @@ struct CreateWatchHistoryChannel {
     subscribers_count: i64,
 }
 
-#[derive(Deserialize, TS)]
+#[derive(utoipa::ToSchema, Deserialize, TS)]
 #[ts(export)]
 pub struct CreateWatchHistoryVideo {
     id: String,
@@ -43,7 +43,7 @@ pub struct CreateWatchHistoryVideo {
     published_at: i64,
 }
 
-#[derive(Deserialize, TS)]
+#[derive(utoipa::ToSchema, Deserialize, TS)]
 #[ts(export)]
 pub struct CreateWatchHistoryRequest {
     #[ts(type = "number")]
@@ -57,6 +57,17 @@ pub struct CreateWatchHistoryRequest {
     video: CreateWatchHistoryVideo,
 }
 
+/// Create new watch history records
+///
+/// This endpoint is used to create new watch history records
+#[utoipa::path(
+    post,
+    path = "/watch_history",
+    tag = "Watch history",
+    responses(
+        (status = CREATED, description = "Watch history record created", body = ()),
+    )
+)]
 pub async fn create_watch_history(
     State(state): State<AppState>,
     Json(payload_list): Json<Vec<CreateWatchHistoryRequest>>,
