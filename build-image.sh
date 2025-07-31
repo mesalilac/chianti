@@ -32,6 +32,10 @@ fi
 
 IMAGE_TAG="mesalilac/${PROJECT_NAME}:${PROJECT_VERSION}"
 
+if [[ "$1" = "clean" ]]; then
+    docker rmi -f "${IMAGE_TAG}" || true
+fi
+
 if [[ -z "$(docker images -q "${IMAGE_TAG}" 2> /dev/null || true)" ]]; then
     docker build -t "${IMAGE_TAG}" .
 else
