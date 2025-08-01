@@ -47,7 +47,7 @@ async function main() {
     }
 
     if (isLiveStream()) {
-        console.error('[chianti] Live stream detected, skipping');
+        console.debug('[chianti] Live stream detected, skipping');
         return;
     }
 
