@@ -10,6 +10,16 @@ import type { Message, MessageType } from './types.d';
 let payload: CreateWatchHistoryRequest | null = null;
 let intervalId: number | null = null;
 
+function isLiveStream() {
+    const viewCount = document.querySelector(
+        '#view-count > yt-formatted-string:nth-child(3) > span:nth-child(1)',
+    )?.textContent;
+
+    if (!viewCount) return false;
+
+    return viewCount.toLowerCase().includes('watching now') || false;
+}
+
 async function main() {
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -34,6 +44,11 @@ async function main() {
             retry++;
             await delay(1000);
         }
+    }
+
+    if (isLiveStream()) {
+        console.error('[chianti] Live stream detected, skipping');
+        return;
     }
 
     {
