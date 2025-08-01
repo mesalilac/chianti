@@ -89,6 +89,10 @@ export function extractVideoInfo(
     }
 
     const likesCount = parseLikes(likesButtonText.textContent);
+    if (!likesCount) {
+        console.error('[chianti] failed to parse likes count');
+        return null;
+    }
 
     const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
