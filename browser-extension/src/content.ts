@@ -5,7 +5,7 @@ import type {
 } from '@bindings';
 import browser from 'webextension-polyfill';
 import { delay, extractChannelInfo, extractVideoInfo } from './content-utils';
-import type { Message } from './types.d';
+import type { Message, MessageType } from './types.d';
 
 let payload: CreateWatchHistoryRequest | null = null;
 let intervalId: number | null = null;
@@ -56,13 +56,27 @@ async function main() {
 
     const videoInfo: CreateWatchHistoryVideo | null = extractVideoInfo(videoId);
     if (!videoInfo) {
-        console.error('[chianti] Failed to collect video info');
+        const msg = '[chianti] Failed to collect video info';
+        console.error(msg);
+
+        browser.runtime.sendMessage({
+            type: 'send-notification' as MessageType,
+            payload: msg,
+        });
+
         return;
     }
 
     const channelInfo: CreateWatchHistoryChannel | null = extractChannelInfo();
     if (!channelInfo) {
-        console.error('[chianti] Failed to collect channel info');
+        const msg = '[chianti] Failed to collect channel info';
+        console.error(msg);
+
+        browser.runtime.sendMessage({
+            type: 'send-notification' as MessageType,
+            payload: msg,
+        });
+
         return;
     }
 

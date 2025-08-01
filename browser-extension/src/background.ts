@@ -200,6 +200,12 @@ browser.runtime.onMessage.addListener(
 
                 sendPendingData(endpoint);
             });
+        } else if (type === 'send-notification') {
+            const data = payload as string | null;
+
+            if (data) {
+                sendNotifications(data);
+            }
         } else {
             console.error('Unknown message type:', type);
         }
