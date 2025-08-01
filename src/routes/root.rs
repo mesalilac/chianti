@@ -1,3 +1,5 @@
-pub async fn root() -> &'static str {
-    "Hello, World!"
+use axum::response::Redirect;
+
+pub async fn root() -> Redirect {
+    Redirect::to("/docs")
 }
