@@ -1,7 +1,4 @@
-import type {
-    CreateWatchHistoryRequest,
-    CreateWatchHistoryVideo,
-} from '@bindings';
+import type { CreateWatchHistoryRequest } from '@bindings';
 import browser from 'webextension-polyfill';
 import {
     delay,
