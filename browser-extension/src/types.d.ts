@@ -4,10 +4,10 @@ export type MessageType =
     | 'sendPendingData'
     | 'send-notification';
 
-export interface Message<T> {
+export type Message<T> = {
     type: MessageType;
     payload?: T;
-}
+};
 
 export type Result<T, E> =
     | { data: T; error?: never }
