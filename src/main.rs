@@ -157,7 +157,7 @@ async fn main() {
     api_doc.info.license = Some(license);
     api_doc.info.contact = Some(contact);
     api_doc.info.description = Some(String::from(
-        "Collect info about the youtube videos you watch.",
+        "Collect info about the youtube videos you watch. Web frontend is served from [/web](/web).",
     ));
 
     let rapi_doc = RapiDoc::with_openapi("/api-docs/openapi.json", api_doc).path("/docs");
