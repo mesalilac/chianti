@@ -1,7 +1,12 @@
 import type { CreateWatchHistoryVideo } from '@bindings';
 import type { Result } from '../types';
 
-import { parseCommentsCount, parseLikes, parseRelativeDate } from './index';
+import {
+    isCommentsDisabled,
+    parseCommentsCount,
+    parseLikes,
+    parseRelativeDate,
+} from './index';
 
 export function extractVideoInfo(
     videoId: string,
@@ -88,18 +93,19 @@ export function extractVideoInfo(
 
     const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
-    const commentsHeaderCountEle = document.querySelector(
-        '#comments>#sections>#header #count span',
-    );
-    if (!commentsHeaderCountEle || !commentsHeaderCountEle.textContent) {
-        console.error('[chianti] Comments count not found');
-        return { error: 'Comments count not found' };
+    let commentsCount = 0;
+
+    if (!isCommentsDisabled()) {
+        const commentsHeaderCountEle = document.querySelector(
+            '#comments>#sections>#header #count span',
+        );
+        if (!commentsHeaderCountEle || !commentsHeaderCountEle.textContent) {
+            console.error('[chianti] Comments count not found');
+            return { error: 'Comments count not found' };
+        }
+
+        commentsCount = parseCommentsCount(commentsHeaderCountEle.textContent);
     }
-
-    const commentsCount = parseCommentsCount(
-        commentsHeaderCountEle.textContent,
-    );
-
     return {
         data: {
             id: videoId,

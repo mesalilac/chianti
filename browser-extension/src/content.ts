@@ -3,7 +3,12 @@ import type {
     CreateWatchHistoryVideo,
 } from '@bindings';
 import browser from 'webextension-polyfill';
-import { delay, extractChannelInfo, extractVideoInfo } from './content-utils';
+import {
+    delay,
+    extractChannelInfo,
+    extractVideoInfo,
+    isCommentsDisabled,
+} from './content-utils';
 import type { Message, MessageType } from './types.d';
 
 let payload: CreateWatchHistoryRequest | null = null;
@@ -50,7 +55,7 @@ async function main() {
         return;
     }
 
-    {
+    if (!isCommentsDisabled()) {
         let retry = 1;
         while (true) {
             const commentsHeaderCountEle = document.querySelector(

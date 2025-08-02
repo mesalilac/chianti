@@ -99,3 +99,13 @@ export function parseCommentsCount(str: string): number {
             return Number(chars.join(''));
     }
 }
+
+export function isCommentsDisabled() {
+    const spanElement = document.querySelector(
+        'yt-formatted-string.ytd-message-renderer:nth-child(3) > span:nth-child(1)',
+    )?.textContent;
+
+    if (!spanElement) return false;
+
+    return spanElement.trim().toLowerCase() === 'comments are turned off.';
+}
