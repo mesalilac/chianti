@@ -1,5 +1,4 @@
 import type {
-    CreateWatchHistoryChannel,
     CreateWatchHistoryRequest,
     CreateWatchHistoryVideo,
 } from '@bindings';
@@ -69,9 +68,9 @@ async function main() {
         window.scrollTo(0, 0);
     }
 
-    const videoInfo: CreateWatchHistoryVideo | null = extractVideoInfo(videoId);
-    if (!videoInfo) {
-        const msg = '[chianti] Failed to collect video info';
+    const videoInfo = extractVideoInfo(videoId);
+    if (videoInfo.error) {
+        const msg = `[chianti] Error(video info): '${videoInfo.error}'`;
         console.error(msg);
 
         browser.runtime.sendMessage({
@@ -82,9 +81,9 @@ async function main() {
         return;
     }
 
-    const channelInfo: CreateWatchHistoryChannel | null = extractChannelInfo();
-    if (!channelInfo) {
-        const msg = '[chianti] Failed to collect channel info';
+    const channelInfo = extractChannelInfo();
+    if (channelInfo.error) {
+        const msg = `[chianti] Error(channel info): '${channelInfo.error}'`;
         console.error(msg);
 
         browser.runtime.sendMessage({
@@ -100,8 +99,8 @@ async function main() {
         session_start_date: Math.round(Number(Date.now() / 1000)),
         session_end_date: Math.round(Number(Date.now() / 1000)),
 
-        channel: channelInfo,
-        video: videoInfo,
+        channel: channelInfo.data!,
+        video: videoInfo.data!,
     };
 
     console.log(payload);

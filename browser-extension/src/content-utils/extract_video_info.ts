@@ -1,37 +1,34 @@
 import type { CreateWatchHistoryVideo } from '@bindings';
+import type { Result } from '../types';
 
 import { parseCommentsCount, parseLikes, parseRelativeDate } from './index';
 
 export function extractVideoInfo(
     videoId: string,
-): CreateWatchHistoryVideo | null {
+): Result<CreateWatchHistoryVideo> {
     const videoTitleHeadingelement = document.querySelector(
         '#title>h1',
     ) as HTMLHeadingElement;
     if (!videoTitleHeadingelement.textContent) {
-        console.error('[chianti] Video title not found');
-        return null;
+        return { error: 'Video title not found' };
     }
 
     const videoDurationElement = document.querySelector('.ytp-time-duration');
     if (!videoDurationElement?.textContent) {
-        console.error('[chianti] Video duration not found');
-        return null;
+        return { error: 'Video duration not found' };
     }
 
     // Expand description
     const bottomRowElement = document.querySelector('#bottom-row');
     if (!bottomRowElement) {
-        console.error('[chianti] Bottom row not found');
-        return null;
+        return { error: 'Bottom row not found' };
     }
 
     const descriptionElement = bottomRowElement.querySelector(
         '#description',
     ) as HTMLButtonElement;
     if (!descriptionElement) {
-        console.error('[chianti] Description button not found');
-        return null;
+        return { error: 'Description button not found' };
     }
 
     descriptionElement.click();
@@ -39,8 +36,7 @@ export function extractVideoInfo(
     const descriptionInnerElement =
         document.querySelector('#description-inner');
     if (!descriptionInnerElement) {
-        console.error('[chianti] Description inner element not found');
-        return null;
+        return { error: 'Description inner element not found' };
     }
 
     const descriptionInfoContainer =
@@ -50,8 +46,7 @@ export function extractVideoInfo(
         !descriptionInfoContainer.children[0].textContent ||
         !descriptionInfoContainer.children[2].textContent
     ) {
-        console.error('[chianti] Description info not found');
-        return null;
+        return { error: 'Description info not found' };
     }
 
     const tempVideoViews = descriptionInfoContainer.children[0].textContent;
@@ -75,8 +70,7 @@ export function extractVideoInfo(
         '#collapse',
     ) as HTMLButtonElement;
     if (!collapseElement) {
-        console.error('[chianti] Collapse button not found');
-        return null;
+        return { error: 'Collapse button not found' };
     }
     collapseElement.click();
 
@@ -84,14 +78,12 @@ export function extractVideoInfo(
         'button-view-model .yt-spec-button-shape-next__button-text-content',
     );
     if (!likesButtonText?.textContent || likesButtonText.textContent === '') {
-        console.error('[chianti] Likes button text not found');
-        return null;
+        return { error: 'Likes button text not found' };
     }
 
     const likesCount = parseLikes(likesButtonText.textContent);
     if (!likesCount) {
-        console.error('[chianti] failed to parse likes count');
-        return null;
+        return { error: 'Failed to parse likes count' };
     }
 
     const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
@@ -101,7 +93,7 @@ export function extractVideoInfo(
     );
     if (!commentsHeaderCountEle || !commentsHeaderCountEle.textContent) {
         console.error('[chianti] Comments count not found');
-        return null;
+        return { error: 'Comments count not found' };
     }
 
     const commentsCount = parseCommentsCount(
@@ -109,20 +101,27 @@ export function extractVideoInfo(
     );
 
     return {
-        id: videoId,
-        title: videoTitleHeadingelement.textContent.trim(),
-        description: '',
-        duration: Number(
-            videoDurationElement.textContent
-                .split(':')
-                .reverse()
-                .reduce((prev, curr, i) => prev + Number(curr) * 60 ** i, 0),
-        ),
-        tags: [],
-        published_at: videoPublishDate,
-        likes_count: likesCount,
-        view_count: Number(tempVideoViews.split(' ')[0].replaceAll(',', '')),
-        comments_count: commentsCount,
-        thumbnail_url: thumbnailUrl,
+        data: {
+            id: videoId,
+            title: videoTitleHeadingelement.textContent.trim(),
+            description: '',
+            duration: Number(
+                videoDurationElement.textContent
+                    .split(':')
+                    .reverse()
+                    .reduce(
+                        (prev, curr, i) => prev + Number(curr) * 60 ** i,
+                        0,
+                    ),
+            ),
+            tags: [],
+            published_at: videoPublishDate,
+            likes_count: likesCount,
+            view_count: Number(
+                tempVideoViews.split(' ')[0].replaceAll(',', ''),
+            ),
+            comments_count: commentsCount,
+            thumbnail_url: thumbnailUrl,
+        },
     };
 }

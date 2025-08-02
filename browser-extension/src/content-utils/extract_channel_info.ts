@@ -1,26 +1,24 @@
 import type { CreateWatchHistoryChannel } from '@bindings';
+import type { Result } from '../types';
 
-export function extractChannelInfo(): CreateWatchHistoryChannel | null {
+export function extractChannelInfo(): Result<CreateWatchHistoryChannel> {
     const channelInfoElement = document.querySelector('#upload-info');
     if (!channelInfoElement) {
-        console.error('[chianti] Channel info not found');
-        return null;
+        return { error: 'Channel info not found' };
     }
 
     const channelATag = channelInfoElement.querySelector(
         '#text>a',
     ) as HTMLLinkElement | null;
     if (!channelATag?.textContent) {
-        console.error('[chianti] Channel name not found');
-        return null;
+        return { error: 'Channel name not found' };
     }
 
     const channelName = channelATag.textContent.trim();
 
     const channelHref = channelATag.getAttribute('href');
     if (!channelHref) {
-        console.error('[chianti] Channel href not found');
-        return null;
+        return { error: 'Channel href not found' };
     }
 
     let channelID = channelHref;
@@ -33,8 +31,7 @@ export function extractChannelInfo(): CreateWatchHistoryChannel | null {
 
     const ownerSubCount = channelInfoElement.querySelector('#owner-sub-count');
     if (!ownerSubCount?.textContent) {
-        console.error('[chianti] Channel subscribers count not found');
-        return null;
+        return { error: 'Channel subscribers count not found' };
     }
 
     const subscribersCountChars = ownerSubCount.textContent
@@ -42,8 +39,7 @@ export function extractChannelInfo(): CreateWatchHistoryChannel | null {
         .toLowerCase()
         .split('');
     if (subscribersCountChars.length === 0) {
-        console.error('[chianti] Channel subscribers count not found');
-        return null;
+        return { error: 'Channel subscribers count not found' };
     }
 
     let subscribersCount = 0;
@@ -70,20 +66,17 @@ export function extractChannelInfo(): CreateWatchHistoryChannel | null {
         '#owner #avatar #img',
     ) as HTMLImageElement | null;
     if (!avaterElement) {
-        console.error('[chianti] Channel avater not found');
-        return null;
+        return { error: 'Channel avater not found' };
     }
 
     const avaterUrl = avaterElement.src.replace('=s48', '=s280');
     if (!avaterUrl) {
-        console.error('[chianti] Channel avater URL not found');
-        return null;
+        return { error: 'Channel avater URL not found' };
     }
 
     const subscribeButton = document.querySelector('#subscribe-button-shape');
     if (!subscribeButton) {
-        console.error('[chianti] Subscribe button not found');
-        return null;
+        return { error: 'Subscribe button not found' };
     }
 
     let isSubscribed = false;
@@ -93,11 +86,13 @@ export function extractChannelInfo(): CreateWatchHistoryChannel | null {
     }
 
     return {
-        id: channelID,
-        name: channelName.trim(),
-        url: `https://www.youtube.com${channelHref}`,
-        is_subscribed: isSubscribed,
-        subscribers_count: Math.round(subscribersCount),
-        avater_url: avaterUrl.trim(),
+        data: {
+            id: channelID,
+            name: channelName.trim(),
+            url: `https://www.youtube.com${channelHref}`,
+            is_subscribed: isSubscribed,
+            subscribers_count: Math.round(subscribersCount),
+            avater_url: avaterUrl.trim(),
+        },
     };
 }
