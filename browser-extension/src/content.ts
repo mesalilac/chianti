@@ -80,7 +80,7 @@ async function main() {
 
     const videoInfo = extractVideoInfo(videoId);
     if (videoInfo.error) {
-        const msg = `[chianti] Error(video info): '${videoInfo.error}'`;
+        const msg = `[chianti] Error(video info [${videoId}]): '${videoInfo.error}'`;
         console.error(msg);
 
         browser.runtime.sendMessage({
@@ -93,7 +93,7 @@ async function main() {
 
     const channelInfo = extractChannelInfo();
     if (channelInfo.error) {
-        const msg = `[chianti] Error(channel info): '${channelInfo.error}'`;
+        const msg = `[chianti] Error(channel info [${videoId}]): '${channelInfo.error}'`;
         console.error(msg);
 
         browser.runtime.sendMessage({
