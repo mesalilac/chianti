@@ -31,6 +31,9 @@ async function main() {
         return;
     }
 
+    // Prevents extracting data twice
+    if (payload) return;
+
     {
         let retry = 1;
         while (true) {
