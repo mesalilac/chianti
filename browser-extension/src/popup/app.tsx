@@ -107,8 +107,18 @@ function App() {
                 <span>
                     Pending data <b>{pendingDataCount()}</b>
                 </span>
-                <button onClick={clearPendingData}>Clear</button>
-                <button onClick={sendPendingData}>Send data</button>
+                <button
+                    disabled={pendingDataCount() === 0}
+                    onClick={clearPendingData}
+                >
+                    Clear
+                </button>
+                <button
+                    disabled={pendingDataCount() === 0}
+                    onClick={sendPendingData}
+                >
+                    Send data
+                </button>
             </div>
             <div>
                 <span>
