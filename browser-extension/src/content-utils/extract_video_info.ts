@@ -10,7 +10,7 @@ import {
 
 export function extractVideoInfo(
     videoId: string,
-): Result<CreateWatchHistoryVideo> {
+): Result<CreateWatchHistoryVideo, string> {
     const videoTitleHeadingelement = document.querySelector(
         '#title>h1',
     ) as HTMLHeadingElement;

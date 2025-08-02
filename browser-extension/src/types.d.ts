@@ -9,14 +9,6 @@ export interface Message<T> {
     payload?: T;
 }
 
-type SuccessResult<T> = {
-    data: T;
-    error?: never;
-};
-
-type ErrorResult = {
-    data?: never;
-    error: string;
-};
-
-export type Result<T> = SuccessResult<T> | ErrorResult;
+export type Result<T, E> =
+    | { data: T; error?: never }
+    | { data?: never; error: E };

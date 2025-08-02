@@ -1,7 +1,10 @@
 import type { CreateWatchHistoryChannel } from '@bindings';
 import type { Result } from '../types';
 
-export function extractChannelInfo(): Result<CreateWatchHistoryChannel> {
+export function extractChannelInfo(): Result<
+    CreateWatchHistoryChannel,
+    string
+> {
     const channelInfoElement = document.querySelector('#upload-info');
     if (!channelInfoElement) {
         return { error: 'Channel info not found' };
