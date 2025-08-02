@@ -55,13 +55,18 @@ async function main() {
         return;
     }
 
-    if (!isCommentsDisabled()) {
+    {
         let retry = 1;
         while (true) {
             const commentsHeaderCountEle = document.querySelector(
                 '#comments>#sections>#header #count span',
             );
-            if (commentsHeaderCountEle || retry === 10) {
+
+            if (
+                isCommentsDisabled() ||
+                commentsHeaderCountEle ||
+                retry === 10
+            ) {
                 break;
             } else {
                 window.scrollTo({ top: retry * 1000, behavior: 'smooth' });
