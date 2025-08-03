@@ -10,7 +10,7 @@ use axum::{
 /// Returns video thumbnail
 #[utoipa::path(
     get,
-    path = "/thumbnail/{video_id}",
+    path = "/thumbnails/{video_id}",
     tag = "Video",
     responses(
         (status = OK, description = "Image was found on disk", content_type = "image/webp", body = Vec<u8>),

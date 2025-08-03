@@ -10,7 +10,7 @@ use axum::{
 /// Returns channel avater
 #[utoipa::path(
     get,
-    path = "/avater/{channel_id}",
+    path = "/avaters/{channel_id}",
     tag = "Channel",
     responses(
         (status = OK, description = "Image was found on disk", content_type = "image/webp", body = Vec<u8>),

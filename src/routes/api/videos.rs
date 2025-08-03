@@ -55,7 +55,7 @@ pub async fn get_videos(
             id: video.id.clone(),
             channel: channel.clone(),
             url: video.url.clone(),
-            thumbnail_url: format!("/api/thumbnail/{}", video.id),
+            thumbnail_url: format!("/api/thumbnails/{}", video.id),
             title: video.title.clone(),
             description: video.description.clone(),
             watch_counter: video.watch_counter,
