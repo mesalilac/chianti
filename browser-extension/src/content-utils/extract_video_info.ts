@@ -11,17 +11,25 @@ import {
 export function extractVideoInfo(
     videoId: string,
 ): Result<CreateWatchHistoryVideo, string> {
-    const videoTitleHeadingelement = document.querySelector(
-        '#title>h1',
-    ) as HTMLHeadingElement;
-    if (!videoTitleHeadingelement.textContent) {
+    const videoTitleHeadingelement =
+        document.querySelector('#title>h1')?.textContent;
+    if (!videoTitleHeadingelement) {
         return { error: 'Video title not found' };
     }
+    const videoTitleHeading = videoTitleHeadingelement.trim();
 
-    const videoDurationElement = document.querySelector('.ytp-time-duration');
-    if (!videoDurationElement?.textContent) {
+    const videoDurationElement =
+        document.querySelector('.ytp-time-duration')?.textContent;
+    if (!videoDurationElement) {
         return { error: 'Video duration not found' };
     }
+
+    const videoDuration = Number(
+        videoDurationElement
+            .split(':')
+            .reverse()
+            .reduce((prev, curr, i) => prev + Number(curr) * 60 ** i, 0),
+    );
 
     // Expand description
     const bottomRowElement = document.querySelector('#bottom-row');
@@ -70,6 +78,8 @@ export function extractVideoInfo(
         );
     }
 
+    const videoViews = Number(tempVideoViews.split(' ')[0].replaceAll(',', ''));
+
     // Collapse description
     const collapseElement = document.querySelector(
         '#collapse',
@@ -109,23 +119,13 @@ export function extractVideoInfo(
     return {
         data: {
             id: videoId,
-            title: videoTitleHeadingelement.textContent.trim(),
+            title: videoTitleHeading,
             description: '',
-            duration: Number(
-                videoDurationElement.textContent
-                    .split(':')
-                    .reverse()
-                    .reduce(
-                        (prev, curr, i) => prev + Number(curr) * 60 ** i,
-                        0,
-                    ),
-            ),
+            duration: videoDuration,
             tags: [],
             published_at: videoPublishDate,
             likes_count: likesCount,
-            view_count: Number(
-                tempVideoViews.split(' ')[0].replaceAll(',', ''),
-            ),
+            view_count: videoViews,
             comments_count: commentsCount,
             thumbnail_url: thumbnailUrl,
         },
