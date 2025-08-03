@@ -65,6 +65,8 @@ export function extractChannelInfo(): Result<
             break;
     }
 
+    subscribersCount = Math.round(subscribersCount);
+
     const avaterElement = document.querySelector(
         '#owner #avatar #img',
     ) as HTMLImageElement | null;
@@ -72,7 +74,7 @@ export function extractChannelInfo(): Result<
         return { error: 'Channel avater not found' };
     }
 
-    const avaterUrl = avaterElement.src.replace('=s48', '=s280');
+    const avaterUrl = avaterElement.src.replace('=s48', '=s280').trim();
     if (!avaterUrl) {
         return { error: 'Channel avater URL not found' };
     }
@@ -91,11 +93,11 @@ export function extractChannelInfo(): Result<
     return {
         data: {
             id: channelID,
-            name: channelName.trim(),
+            name: channelName,
             url: `https://www.youtube.com${channelHref}`,
             is_subscribed: isSubscribed,
-            subscribers_count: Math.round(subscribersCount),
-            avater_url: avaterUrl.trim(),
+            subscribers_count: subscribersCount,
+            avater_url: avaterUrl,
         },
     };
 }
