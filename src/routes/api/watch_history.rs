@@ -6,7 +6,7 @@ use crate::utils::{build_avater_cache_image_filename, build_thumbnail_cache_imag
 use axum::{Json, extract::State, http::StatusCode};
 use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl, dsl::insert_into};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 use crate::database::models::{NewChannelParams, NewVideoParams};
@@ -222,4 +222,58 @@ pub async fn create_watch_history(
     }
 
     Ok(StatusCode::CREATED)
+}
+
+#[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct GetWatchHistoryResponse {
+    pub id: String,
+    pub video: Video,
+    pub channel: Channel,
+    pub watch_duration_seconds: i64,
+    pub session_start_date: i64,
+    pub session_end_date: i64,
+    pub added_at: i64,
+}
+
+/// Returns watch history records
+///
+/// This endpoint is used to fetch watch history records
+#[utoipa::path(
+    get,
+    path = "/watch_history",
+    tag = "Watch history",
+    responses(
+        (status = OK, description = "List of watch history records", body = Vec<GetWatchHistoryResponse>),
+    )
+)]
+pub async fn get_watch_history(
+    State(state): State<AppState>,
+) -> Result<(StatusCode, Json<Vec<GetWatchHistoryResponse>>), (StatusCode, String)> {
+    use schema::channels::dsl as channels_dsl;
+    use schema::videos::dsl as videos_dsl;
+    use schema::watch_history::dsl as watch_history_dsl;
+
+    let mut conn = state.pool.get().map_err(internal_error)?;
+
+    let data = watch_history_dsl::watch_history
+        .inner_join(channels_dsl::channels)
+        .inner_join(videos_dsl::videos)
+        .load::<(WatchHistory, Channel, Video)>(&mut conn)
+        .map_err(internal_error)?;
+
+    let list = data
+        .iter()
+        .map(|(watch_history, channel, video)| GetWatchHistoryResponse {
+            id: watch_history.id.clone(),
+            video: video.clone(),
+            channel: channel.clone(),
+            watch_duration_seconds: watch_history.watch_duration_seconds,
+            session_start_date: watch_history.session_start_date,
+            session_end_date: watch_history.session_end_date,
+            added_at: watch_history.added_at,
+        })
+        .collect::<Vec<GetWatchHistoryResponse>>();
+
+    Ok((StatusCode::OK, Json(list)))
 }

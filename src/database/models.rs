@@ -1,8 +1,9 @@
 use crate::schema;
 use diesel::prelude::*;
 use nanoid::nanoid;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::time;
+use ts_rs::TS;
 
 pub struct NewChannelParams {
     pub id: String,
@@ -12,7 +13,9 @@ pub struct NewChannelParams {
     pub subscribers_count: i64,
 }
 
-#[derive(Queryable, Identifiable, Insertable, Serialize, Debug, Clone)]
+#[derive(
+    Queryable, Identifiable, Insertable, Serialize, Debug, Clone, utoipa::ToSchema, Deserialize, TS,
+)]
 #[diesel(table_name = schema::channels)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Channel {
@@ -54,7 +57,18 @@ pub struct NewVideoParams {
     pub published_at: i64,
 }
 
-#[derive(Queryable, Identifiable, Associations, Insertable, Serialize, Debug, Clone)]
+#[derive(
+    Queryable,
+    Identifiable,
+    Associations,
+    Insertable,
+    Serialize,
+    Debug,
+    Clone,
+    utoipa::ToSchema,
+    Deserialize,
+    TS,
+)]
 #[diesel(table_name = schema::videos)]
 #[diesel(belongs_to(Channel, foreign_key = channel_id))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
