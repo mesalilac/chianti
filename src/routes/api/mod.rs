@@ -2,6 +2,7 @@ mod channel_avater;
 mod ping;
 mod statistics;
 mod video_thumbnail;
+mod videos;
 mod watch_history;
 
 use crate::state::AppState;
@@ -18,5 +19,6 @@ pub fn api_routes() -> OpenApiRouter<AppState> {
             watch_history::get_watch_history,
             watch_history::create_watch_history
         ))
+        .routes(routes!(videos::get_videos))
         .nest("/statistics", statistics_routes())
 }
