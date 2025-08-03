@@ -80,6 +80,7 @@ function App() {
             })
             .then(() => {
                 fetchPendingDataCount();
+                setPendingDataCount(0);
             });
     }
 
