@@ -22,6 +22,7 @@ pub struct GetVideosResponse {
     pub view_count: i64,
     pub comments_count: i64,
     pub published_at: i64,
+    pub tags: Vec<String>,
     pub added_at: i64,
 }
 
@@ -40,6 +41,8 @@ pub async fn get_videos(
     State(state): State<AppState>,
 ) -> Result<(StatusCode, Json<Vec<GetVideosResponse>>), (StatusCode, String)> {
     use schema::channels::dsl as channels_dsl;
+    use schema::tags::dsl as tags_dsl;
+    use schema::video_tags::dsl as video_tags_dsl;
     use schema::videos::dsl as videos_dsl;
 
     let mut conn = state.pool.get().map_err(internal_error)?;
@@ -51,20 +54,30 @@ pub async fn get_videos(
 
     let list: Vec<GetVideosResponse> = data
         .iter()
-        .map(|(video, channel)| GetVideosResponse {
-            id: video.id.clone(),
-            channel: channel.clone(),
-            url: video.url.clone(),
-            thumbnail_url: format!("/api/thumbnails/{}", video.id),
-            title: video.title.clone(),
-            description: video.description.clone(),
-            watch_counter: video.watch_counter,
-            duration_seconds: video.duration_seconds,
-            likes_count: video.likes_count,
-            view_count: video.view_count,
-            comments_count: video.comments_count,
-            published_at: video.published_at,
-            added_at: video.added_at,
+        .map(|(video, channel)| {
+            let tags = tags_dsl::tags
+                .inner_join(video_tags_dsl::video_tags)
+                .filter(video_tags_dsl::video_id.eq(&video.id))
+                .select(tags_dsl::name)
+                .load(&mut conn)
+                .unwrap_or(Vec::new());
+
+            GetVideosResponse {
+                id: video.id.clone(),
+                channel: channel.clone(),
+                url: video.url.clone(),
+                thumbnail_url: format!("/api/thumbnails/{}", video.id),
+                title: video.title.clone(),
+                description: video.description.clone(),
+                watch_counter: video.watch_counter,
+                duration_seconds: video.duration_seconds,
+                likes_count: video.likes_count,
+                view_count: video.view_count,
+                comments_count: video.comments_count,
+                published_at: video.published_at,
+                tags,
+                added_at: video.added_at,
+            }
         })
         .collect();
 
