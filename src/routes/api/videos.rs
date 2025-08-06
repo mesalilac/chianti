@@ -35,6 +35,9 @@ pub struct VideoResponse {
 pub struct GetVideosParams {
     search: Option<String>,
     is_subscribed: Option<bool>,
+    subscribers_count: Option<i64>,
+    min_subscribers_count: Option<i64>,
+    max_subscribers_count: Option<i64>,
     tags: Option<Vec<String>>,
     watch_counter: Option<i64>,
     min_watch_counter: Option<i64>,
@@ -66,6 +69,9 @@ pub struct GetVideosParams {
     params(
         ("search" = Option<String>, description = "Search videos by title"),
         ("is_subscribed" = Option<bool>, description = "List only videos that belong to subscribed channels (is_subscribed=true)"),
+        ("subscribers_count" = Option<i64>, description = "Channel subscribers_count equal to specified value"),
+        ("min_subscribers_count" = Option<i64>, description = "Channel subscribers_count greater than specified value"),
+        ("max_subscribers_count" = Option<i64>, description = "Channel subscribers_count less than specified value"),
         ("tags" = Option<Vec<String>>, description = "List only videos that include specified tags (tags=x&tags=y&tags=z)"),
         ("watch_counter" = Option<i64>, description = "Video watch_counter equal to specified value"),
         ("min_watch_counter" = Option<i64>, description = "Video watch_counter greater than specified value"),
@@ -117,6 +123,18 @@ pub async fn get_videos(
 
     if let Some(is_subscribed) = params.is_subscribed {
         query = query.filter(channels_dsl::is_subscribed.eq(is_subscribed));
+    }
+
+    if let Some(subscribers_count) = params.subscribers_count {
+        query = query.filter(channels_dsl::subscribers_count.eq(subscribers_count));
+    }
+
+    if let Some(min_subscribers_count) = params.min_subscribers_count {
+        query = query.filter(channels_dsl::subscribers_count.gt(min_subscribers_count));
+    }
+
+    if let Some(max_subscribers_count) = params.max_subscribers_count {
+        query = query.filter(channels_dsl::subscribers_count.lt(max_subscribers_count));
     }
 
     if let Some(tags) = params.tags {
