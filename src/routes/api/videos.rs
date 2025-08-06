@@ -48,6 +48,9 @@ pub struct GetVideosParams {
     tag = "Video",
     params(
         ("tags" = Option<Vec<String>>, description = "List only videos that include specified tags (tags=x&tags=y&tags=z)"),
+        ("watch_counter" = Option<i64>, description = "Video watch_counter equal to specified value"),
+        ("min_watch_counter" = Option<i64>, description = "Video watch_counter greater than specified value"),
+        ("max_watch_counter" = Option<i64>, description = "Video watch_counter less than specified value"),
     ),
     responses(
         (status = OK, description = "List of videos", body = Vec<VideoResponse>),
