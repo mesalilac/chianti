@@ -9,9 +9,27 @@ use ts_rs::TS;
 
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct GetVideosResponse {
+pub struct VideoWithChannelResponse {
     pub id: String,
     pub channel: Channel,
+    pub url: String,
+    pub thumbnail_endpoint: String,
+    pub title: String,
+    pub description: String,
+    pub watch_counter: i64,
+    pub duration_seconds: i64,
+    pub likes_count: i64,
+    pub view_count: i64,
+    pub comments_count: i64,
+    pub published_at: i64,
+    pub tags: Vec<String>,
+    pub added_at: i64,
+}
+
+#[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct VideoWithoutChannelResponse {
+    pub id: String,
     pub url: String,
     pub thumbnail_endpoint: String,
     pub title: String,
@@ -34,12 +52,12 @@ pub struct GetVideosResponse {
     path = "/videos",
     tag = "Videos",
     responses(
-        (status = OK, description = "List of videos", body = Vec<GetVideosResponse>),
+        (status = OK, description = "List of videos", body = Vec<VideoWithChannelResponse>),
     )
 )]
 pub async fn get_videos(
     State(state): State<AppState>,
-) -> Result<(StatusCode, Json<Vec<GetVideosResponse>>), (StatusCode, String)> {
+) -> Result<(StatusCode, Json<Vec<VideoWithChannelResponse>>), (StatusCode, String)> {
     use schema::channels::dsl as channels_dsl;
     use schema::tags::dsl as tags_dsl;
     use schema::video_tags::dsl as video_tags_dsl;
@@ -52,7 +70,7 @@ pub async fn get_videos(
         .load::<(Video, Channel)>(&mut conn)
         .map_err(internal_error)?;
 
-    let list: Vec<GetVideosResponse> = data
+    let list: Vec<VideoWithChannelResponse> = data
         .iter()
         .map(|(video, channel)| {
             let tags = tags_dsl::tags
@@ -62,7 +80,7 @@ pub async fn get_videos(
                 .load(&mut conn)
                 .unwrap_or(Vec::new());
 
-            GetVideosResponse {
+            VideoWithChannelResponse {
                 id: video.id.clone(),
                 channel: channel.clone(),
                 url: video.url.clone(),
