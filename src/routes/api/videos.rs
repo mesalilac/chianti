@@ -36,7 +36,7 @@ pub struct VideoResponse {
 #[utoipa::path(
     get,
     path = "/videos",
-    tag = "Videos",
+    tag = "Video",
     responses(
         (status = OK, description = "List of videos", body = Vec<VideoResponse>),
     )
@@ -94,7 +94,7 @@ pub async fn get_videos(
 #[utoipa::path(
     get,
     path = "/videos/{id}",
-    tag = "Videos",
+    tag = "Video",
     responses(
         (status = OK, description = "One video", body = VideoResponse),
     )

@@ -25,7 +25,7 @@ pub struct ChannelWithVideosResponse {
 #[utoipa::path(
     get,
     path = "/channels",
-    tag = "Channels",
+    tag = "Channel",
     responses(
         (status = OK, description = "List of channels", body = Vec<ChannelWithVideosResponse>),
     )
