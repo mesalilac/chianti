@@ -26,24 +26,6 @@ pub struct VideoWithChannelResponse {
     pub added_at: i64,
 }
 
-#[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub struct VideoWithoutChannelResponse {
-    pub id: String,
-    pub url: String,
-    pub thumbnail_endpoint: String,
-    pub title: String,
-    pub description: String,
-    pub watch_counter: i64,
-    pub duration_seconds: i64,
-    pub likes_count: i64,
-    pub view_count: i64,
-    pub comments_count: i64,
-    pub published_at: i64,
-    pub tags: Vec<String>,
-    pub added_at: i64,
-}
-
 /// Returns videos
 ///
 /// This endpoint is used to fetch videos list
