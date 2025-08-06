@@ -23,5 +23,6 @@ pub fn api_routes() -> OpenApiRouter<AppState> {
         .routes(routes!(videos::get_videos))
         .routes(routes!(videos::get_video))
         .routes(routes!(channels::get_channels))
+        .routes(routes!(channels::get_channel))
         .nest("/statistics", statistics_routes())
 }
