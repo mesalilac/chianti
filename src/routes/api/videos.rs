@@ -35,6 +35,8 @@ pub struct VideoResponse {
 pub struct GetVideosParams {
     tags: Option<Vec<String>>,
     watch_counter: Option<i64>,
+    min_watch_counter: Option<i64>,
+    max_watch_counter: Option<i64>,
 }
 
 /// Returns videos
@@ -78,6 +80,14 @@ pub async fn get_videos(
 
     if let Some(watch_counter) = params.watch_counter {
         query = query.filter(videos_dsl::watch_counter.eq(watch_counter));
+    }
+
+    if let Some(min_watch_counter) = params.min_watch_counter {
+        query = query.filter(videos_dsl::watch_counter.gt(min_watch_counter));
+    }
+
+    if let Some(max_watch_counter) = params.max_watch_counter {
+        query = query.filter(videos_dsl::watch_counter.lt(max_watch_counter));
     }
 
     let data = query
