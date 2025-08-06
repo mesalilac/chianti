@@ -37,6 +37,9 @@ pub struct GetVideosParams {
     watch_counter: Option<i64>,
     min_watch_counter: Option<i64>,
     max_watch_counter: Option<i64>,
+    duration_seconds: Option<i64>,
+    min_duration_seconds: Option<i64>,
+    max_duration_seconds: Option<i64>,
 }
 
 /// Returns videos
@@ -51,6 +54,9 @@ pub struct GetVideosParams {
         ("watch_counter" = Option<i64>, description = "Video watch_counter equal to specified value"),
         ("min_watch_counter" = Option<i64>, description = "Video watch_counter greater than specified value"),
         ("max_watch_counter" = Option<i64>, description = "Video watch_counter less than specified value"),
+        ("duration_seconds" = Option<i64>, description = "Video duration_seconds equal to specified value"),
+        ("min_duration_seconds" = Option<i64>, description = "Video duration_seconds greater than specified value"),
+        ("max_duration_seconds" = Option<i64>, description = "Video duration_seconds less than specified value"),
     ),
     responses(
         (status = OK, description = "List of videos", body = Vec<VideoResponse>),
@@ -91,6 +97,18 @@ pub async fn get_videos(
 
     if let Some(max_watch_counter) = params.max_watch_counter {
         query = query.filter(videos_dsl::watch_counter.lt(max_watch_counter));
+    }
+
+    if let Some(duration_seconds) = params.duration_seconds {
+        query = query.filter(videos_dsl::duration_seconds.eq(duration_seconds));
+    }
+
+    if let Some(min_duration_seconds) = params.min_duration_seconds {
+        query = query.filter(videos_dsl::duration_seconds.gt(min_duration_seconds));
+    }
+
+    if let Some(max_duration_seconds) = params.max_duration_seconds {
+        query = query.filter(videos_dsl::duration_seconds.lt(max_duration_seconds));
     }
 
     let data = query
