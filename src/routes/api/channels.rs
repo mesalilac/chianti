@@ -1,5 +1,4 @@
 use crate::database::models::{Channel, Video};
-use crate::routes::api::videos::VideoWithoutChannelResponse;
 use crate::schema;
 use crate::state::AppState;
 use crate::utils::internal_error;
