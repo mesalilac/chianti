@@ -34,7 +34,7 @@ pub struct VideoResponse {
 #[derive(Deserialize, Debug)]
 pub struct GetVideosParams {
     search: Option<String>,
-    channel_name: Option<String>,
+    channel_id: Option<String>,
     is_subscribed: Option<bool>,
     subscribers_count: Option<i64>,
     min_subscribers_count: Option<i64>,
@@ -69,7 +69,7 @@ pub struct GetVideosParams {
     tag = "Video",
     params(
         ("search" = Option<String>, description = "Search videos by title"),
-        ("channel_name" = Option<String>, description = "List only videos that belong to specified channel"),
+        ("channel_id" = Option<String>, description = "List only videos that belong to specified channel"),
         ("is_subscribed" = Option<bool>, description = "List only videos that belong to subscribed channels (is_subscribed=true)"),
         ("subscribers_count" = Option<i64>, description = "Channel subscribers_count equal to specified value"),
         ("min_subscribers_count" = Option<i64>, description = "Channel subscribers_count greater than specified value"),
@@ -123,8 +123,8 @@ pub async fn get_videos(
         query = query.filter(videos_dsl::title.like(format!("%{search}%")));
     }
 
-    if let Some(channel_name) = params.channel_name {
-        query = query.filter(channels_dsl::name.eq(channel_name));
+    if let Some(channel_id) = params.channel_id {
+        query = query.filter(channels_dsl::id.eq(channel_id));
     }
 
     if let Some(is_subscribed) = params.is_subscribed {
