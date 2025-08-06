@@ -6,6 +6,7 @@ edition = "2024"
 
 [dependencies]
 axum = { version = "0.8.4", features = ["tracing"] }
+axum-extra = { version = "0.10.1", features = ["query"] }
 base64 = "0.22.1"
 clap = { version = "4.5.41", features = ["derive"] }
 diesel = { version = "2.2.11", features = [

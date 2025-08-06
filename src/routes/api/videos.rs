@@ -7,6 +7,7 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
 };
+use axum_extra::extract::Query;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -30,6 +31,11 @@ pub struct VideoResponse {
     pub added_at: i64,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct GetVideosParams {
+    tags: Option<Vec<String>>,
+}
+
 /// Returns videos
 ///
 /// This endpoint is used to fetch videos list
@@ -37,12 +43,16 @@ pub struct VideoResponse {
     get,
     path = "/videos",
     tag = "Video",
+    params(
+        ("tags" = Option<Vec<String>>, description = "List only videos that include specified tags (tags=x&tags=y&tags=z)"),
+    ),
     responses(
         (status = OK, description = "List of videos", body = Vec<VideoResponse>),
     )
 )]
 pub async fn get_videos(
     State(state): State<AppState>,
+    Query(params): Query<GetVideosParams>,
 ) -> Result<(StatusCode, Json<Vec<VideoResponse>>), (StatusCode, String)> {
     use schema::channels::dsl as channels_dsl;
     use schema::tags::dsl as tags_dsl;
@@ -51,8 +61,21 @@ pub async fn get_videos(
 
     let mut conn = state.pool.get().map_err(internal_error)?;
 
-    let data = videos_dsl::videos
+    let mut query = videos_dsl::videos
         .inner_join(channels_dsl::channels)
+        .left_join(video_tags_dsl::video_tags.inner_join(tags_dsl::tags))
+        .select((
+            videos_dsl::videos::all_columns(),
+            channels_dsl::channels::all_columns(),
+        ))
+        .distinct()
+        .into_boxed();
+
+    if let Some(tags) = params.tags {
+        query = query.filter(tags_dsl::name.eq_any(tags));
+    }
+
+    let data = query
         .load::<(Video, Channel)>(&mut conn)
         .map_err(internal_error)?;
 
