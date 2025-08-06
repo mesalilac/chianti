@@ -123,7 +123,7 @@ pub async fn get_video(
         .load(&mut conn)
         .unwrap_or(Vec::new());
 
-    let video = VideoResponse {
+    let response = VideoResponse {
         id: video.id.clone(),
         channel: channel.clone(),
         url: video.url.clone(),
@@ -140,5 +140,5 @@ pub async fn get_video(
         added_at: video.added_at,
     };
 
-    Ok((StatusCode::OK, Json(video)))
+    Ok((StatusCode::OK, Json(response)))
 }
