@@ -49,6 +49,9 @@ pub struct GetVideosParams {
     comments_count: Option<i64>,
     min_comments_count: Option<i64>,
     max_comments_count: Option<i64>,
+    published_at: Option<i64>,
+    published_before: Option<i64>,
+    published_after: Option<i64>,
 }
 
 /// Returns videos
@@ -75,6 +78,9 @@ pub struct GetVideosParams {
         ("comments_count" = Option<i64>, description = "Video comments_count equal to specified value"),
         ("min_comments_count" = Option<i64>, description = "Video comments_count greater than specified value"),
         ("max_comments_count" = Option<i64>, description = "Video comments_count less than specified value"),
+        ("published_at" = Option<i64>, description = "Video published_at equal to specified value"),
+        ("published_before" = Option<i64>, description = "Video published_at before specified value"),
+        ("published_after" = Option<i64>, description = "Video published_at after specified value"),
     ),
     responses(
         (status = OK, description = "List of videos", body = Vec<VideoResponse>),
@@ -163,6 +169,18 @@ pub async fn get_videos(
 
     if let Some(max_comments_count) = params.max_comments_count {
         query = query.filter(videos_dsl::comments_count.lt(max_comments_count));
+    }
+
+    if let Some(published_at) = params.published_at {
+        query = query.filter(videos_dsl::published_at.eq(published_at));
+    }
+
+    if let Some(published_before) = params.published_before {
+        query = query.filter(videos_dsl::published_at.lt(published_before));
+    }
+
+    if let Some(published_after) = params.published_after {
+        query = query.filter(videos_dsl::published_at.gt(published_after));
     }
 
     let data = query
