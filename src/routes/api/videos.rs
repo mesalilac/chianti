@@ -33,7 +33,31 @@ pub struct VideoResponse {
 
 #[derive(Deserialize, Debug)]
 pub struct GetVideosParams {
+    search: Option<String>,
+    channel_name: Option<String>,
+    is_subscribed: Option<bool>,
+    subscribers_count: Option<i64>,
+    min_subscribers_count: Option<i64>,
+    max_subscribers_count: Option<i64>,
     tags: Option<Vec<String>>,
+    watch_counter: Option<i64>,
+    min_watch_counter: Option<i64>,
+    max_watch_counter: Option<i64>,
+    duration_seconds: Option<i64>,
+    min_duration_seconds: Option<i64>,
+    max_duration_seconds: Option<i64>,
+    likes_count: Option<i64>,
+    min_likes_count: Option<i64>,
+    max_likes_count: Option<i64>,
+    view_count: Option<i64>,
+    min_view_count: Option<i64>,
+    max_view_count: Option<i64>,
+    comments_count: Option<i64>,
+    min_comments_count: Option<i64>,
+    max_comments_count: Option<i64>,
+    published_at: Option<i64>,
+    published_before: Option<i64>,
+    published_after: Option<i64>,
 }
 
 /// Returns videos
@@ -44,7 +68,31 @@ pub struct GetVideosParams {
     path = "/videos",
     tag = "Video",
     params(
+        ("search" = Option<String>, description = "Search videos by title"),
+        ("channel_name" = Option<String>, description = "List only videos that belong to specified channel"),
+        ("is_subscribed" = Option<bool>, description = "List only videos that belong to subscribed channels (is_subscribed=true)"),
+        ("subscribers_count" = Option<i64>, description = "Channel subscribers_count equal to specified value"),
+        ("min_subscribers_count" = Option<i64>, description = "Channel subscribers_count greater than specified value"),
+        ("max_subscribers_count" = Option<i64>, description = "Channel subscribers_count less than specified value"),
         ("tags" = Option<Vec<String>>, description = "List only videos that include specified tags (tags=x&tags=y&tags=z)"),
+        ("watch_counter" = Option<i64>, description = "Video watch_counter equal to specified value"),
+        ("min_watch_counter" = Option<i64>, description = "Video watch_counter greater than specified value"),
+        ("max_watch_counter" = Option<i64>, description = "Video watch_counter less than specified value"),
+        ("duration_seconds" = Option<i64>, description = "Video duration_seconds equal to specified value"),
+        ("min_duration_seconds" = Option<i64>, description = "Video duration_seconds greater than specified value"),
+        ("max_duration_seconds" = Option<i64>, description = "Video duration_seconds less than specified value"),
+        ("likes_count" = Option<i64>, description = "Video likes_count equal to specified value"),
+        ("min_likes_count" = Option<i64>, description = "Video likes_count greater than specified value"),
+        ("max_likes_count" = Option<i64>, description = "Video likes_count less than specified value"),
+        ("view_count" = Option<i64>, description = "Video view_count equal to specified value"),
+        ("min_view_count" = Option<i64>, description = "Video view_count greater than specified value"),
+        ("max_view_count" = Option<i64>, description = "Video view_count less than specified value"),
+        ("comments_count" = Option<i64>, description = "Video comments_count equal to specified value"),
+        ("min_comments_count" = Option<i64>, description = "Video comments_count greater than specified value"),
+        ("max_comments_count" = Option<i64>, description = "Video comments_count less than specified value"),
+        ("published_at" = Option<i64>, description = "Video published_at equal to specified value"),
+        ("published_before" = Option<i64>, description = "Video published_at before specified timestamp"),
+        ("published_after" = Option<i64>, description = "Video published_at after specified timestamp"),
     ),
     responses(
         (status = OK, description = "List of videos", body = Vec<VideoResponse>),
@@ -71,8 +119,104 @@ pub async fn get_videos(
         .distinct()
         .into_boxed();
 
+    if let Some(search) = params.search {
+        query = query.filter(videos_dsl::title.like(format!("%{search}%")));
+    }
+
+    if let Some(channel_name) = params.channel_name {
+        query = query.filter(channels_dsl::name.eq(channel_name));
+    }
+
+    if let Some(is_subscribed) = params.is_subscribed {
+        query = query.filter(channels_dsl::is_subscribed.eq(is_subscribed));
+    }
+
+    if let Some(subscribers_count) = params.subscribers_count {
+        query = query.filter(channels_dsl::subscribers_count.eq(subscribers_count));
+    }
+
+    if let Some(min_subscribers_count) = params.min_subscribers_count {
+        query = query.filter(channels_dsl::subscribers_count.gt(min_subscribers_count));
+    }
+
+    if let Some(max_subscribers_count) = params.max_subscribers_count {
+        query = query.filter(channels_dsl::subscribers_count.lt(max_subscribers_count));
+    }
+
     if let Some(tags) = params.tags {
         query = query.filter(tags_dsl::name.eq_any(tags));
+    }
+
+    if let Some(watch_counter) = params.watch_counter {
+        query = query.filter(videos_dsl::watch_counter.eq(watch_counter));
+    }
+
+    if let Some(min_watch_counter) = params.min_watch_counter {
+        query = query.filter(videos_dsl::watch_counter.gt(min_watch_counter));
+    }
+
+    if let Some(max_watch_counter) = params.max_watch_counter {
+        query = query.filter(videos_dsl::watch_counter.lt(max_watch_counter));
+    }
+
+    if let Some(duration_seconds) = params.duration_seconds {
+        query = query.filter(videos_dsl::duration_seconds.eq(duration_seconds));
+    }
+
+    if let Some(min_duration_seconds) = params.min_duration_seconds {
+        query = query.filter(videos_dsl::duration_seconds.gt(min_duration_seconds));
+    }
+
+    if let Some(max_duration_seconds) = params.max_duration_seconds {
+        query = query.filter(videos_dsl::duration_seconds.lt(max_duration_seconds));
+    }
+
+    if let Some(likes_count) = params.likes_count {
+        query = query.filter(videos_dsl::likes_count.eq(likes_count));
+    }
+
+    if let Some(min_likes_count) = params.min_likes_count {
+        query = query.filter(videos_dsl::likes_count.gt(min_likes_count));
+    }
+
+    if let Some(max_likes_count) = params.max_likes_count {
+        query = query.filter(videos_dsl::likes_count.lt(max_likes_count));
+    }
+
+    if let Some(view_count) = params.view_count {
+        query = query.filter(videos_dsl::view_count.eq(view_count));
+    }
+
+    if let Some(min_view_count) = params.min_view_count {
+        query = query.filter(videos_dsl::view_count.gt(min_view_count));
+    }
+
+    if let Some(max_view_count) = params.max_view_count {
+        query = query.filter(videos_dsl::view_count.lt(max_view_count));
+    }
+
+    if let Some(comments_count) = params.comments_count {
+        query = query.filter(videos_dsl::comments_count.eq(comments_count));
+    }
+
+    if let Some(min_comments_count) = params.min_comments_count {
+        query = query.filter(videos_dsl::comments_count.gt(min_comments_count));
+    }
+
+    if let Some(max_comments_count) = params.max_comments_count {
+        query = query.filter(videos_dsl::comments_count.lt(max_comments_count));
+    }
+
+    if let Some(published_at) = params.published_at {
+        query = query.filter(videos_dsl::published_at.eq(published_at));
+    }
+
+    if let Some(published_before) = params.published_before {
+        query = query.filter(videos_dsl::published_at.lt(published_before));
+    }
+
+    if let Some(published_after) = params.published_after {
+        query = query.filter(videos_dsl::published_at.gt(published_after));
     }
 
     let data = query
