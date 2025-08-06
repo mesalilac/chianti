@@ -113,7 +113,9 @@ impl Video {
     }
 }
 
-#[derive(Queryable, Identifiable, Insertable, Serialize, Debug, Clone)]
+#[derive(
+    Queryable, Identifiable, Insertable, Serialize, Debug, Clone, utoipa::ToSchema, Deserialize, TS,
+)]
 #[diesel(table_name = schema::tags)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Tag {
