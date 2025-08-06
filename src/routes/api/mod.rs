@@ -2,6 +2,7 @@ mod channel_avater;
 mod channels;
 mod ping;
 mod statistics;
+mod tags;
 mod video_thumbnail;
 mod videos;
 mod watch_history;
@@ -24,5 +25,7 @@ pub fn api_routes() -> OpenApiRouter<AppState> {
         .routes(routes!(videos::get_video))
         .routes(routes!(channels::get_channels))
         .routes(routes!(channels::get_channel))
+        .routes(routes!(tags::get_tags))
+        .routes(routes!(tags::get_tag))
         .nest("/statistics", statistics_routes())
 }
