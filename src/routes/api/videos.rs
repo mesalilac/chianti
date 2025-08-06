@@ -2,14 +2,18 @@ use crate::database::models::{Channel, Video};
 use crate::schema;
 use crate::state::AppState;
 use crate::utils::internal_error;
-use axum::{Json, extract::State, http::StatusCode};
+use axum::{
+    Json,
+    extract::{Path, State},
+    http::StatusCode,
+};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct VideoWithChannelResponse {
+pub struct VideoResponse {
     pub id: String,
     pub channel: Channel,
     pub url: String,
@@ -34,12 +38,12 @@ pub struct VideoWithChannelResponse {
     path = "/videos",
     tag = "Videos",
     responses(
-        (status = OK, description = "List of videos", body = Vec<VideoWithChannelResponse>),
+        (status = OK, description = "List of videos", body = Vec<VideoResponse>),
     )
 )]
 pub async fn get_videos(
     State(state): State<AppState>,
-) -> Result<(StatusCode, Json<Vec<VideoWithChannelResponse>>), (StatusCode, String)> {
+) -> Result<(StatusCode, Json<Vec<VideoResponse>>), (StatusCode, String)> {
     use schema::channels::dsl as channels_dsl;
     use schema::tags::dsl as tags_dsl;
     use schema::video_tags::dsl as video_tags_dsl;
@@ -52,7 +56,7 @@ pub async fn get_videos(
         .load::<(Video, Channel)>(&mut conn)
         .map_err(internal_error)?;
 
-    let list: Vec<VideoWithChannelResponse> = data
+    let list: Vec<VideoResponse> = data
         .iter()
         .map(|(video, channel)| {
             let tags = tags_dsl::tags
@@ -62,7 +66,7 @@ pub async fn get_videos(
                 .load(&mut conn)
                 .unwrap_or(Vec::new());
 
-            VideoWithChannelResponse {
+            VideoResponse {
                 id: video.id.clone(),
                 channel: channel.clone(),
                 url: video.url.clone(),
@@ -82,4 +86,59 @@ pub async fn get_videos(
         .collect();
 
     Ok((StatusCode::OK, Json(list)))
+}
+
+/// Returns video by id
+///
+/// This endpoint is used to fetch one video by it's id
+#[utoipa::path(
+    get,
+    path = "/videos/{id}",
+    tag = "Videos",
+    responses(
+        (status = OK, description = "One video", body = VideoResponse),
+    )
+)]
+pub async fn get_video(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> Result<(StatusCode, Json<VideoResponse>), (StatusCode, String)> {
+    use schema::channels::dsl as channels_dsl;
+    use schema::tags::dsl as tags_dsl;
+    use schema::video_tags::dsl as video_tags_dsl;
+    use schema::videos::dsl as videos_dsl;
+
+    let mut conn = state.pool.get().map_err(internal_error)?;
+
+    let (video, channel) = videos_dsl::videos
+        .filter(videos_dsl::id.eq(id))
+        .inner_join(channels_dsl::channels)
+        .get_result::<(Video, Channel)>(&mut conn)
+        .map_err(internal_error)?;
+
+    let tags = tags_dsl::tags
+        .inner_join(video_tags_dsl::video_tags)
+        .filter(video_tags_dsl::video_id.eq(&video.id))
+        .select(tags_dsl::name)
+        .load(&mut conn)
+        .unwrap_or(Vec::new());
+
+    let video = VideoResponse {
+        id: video.id.clone(),
+        channel: channel.clone(),
+        url: video.url.clone(),
+        thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
+        title: video.title.clone(),
+        description: video.description.clone(),
+        watch_counter: video.watch_counter,
+        duration_seconds: video.duration_seconds,
+        likes_count: video.likes_count,
+        view_count: video.view_count,
+        comments_count: video.comments_count,
+        published_at: video.published_at,
+        tags,
+        added_at: video.added_at,
+    };
+
+    Ok((StatusCode::OK, Json(video)))
 }

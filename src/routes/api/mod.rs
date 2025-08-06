@@ -21,6 +21,7 @@ pub fn api_routes() -> OpenApiRouter<AppState> {
             watch_history::create_watch_history
         ))
         .routes(routes!(videos::get_videos))
+        .routes(routes!(videos::get_video))
         .routes(routes!(channels::get_channels))
         .nest("/statistics", statistics_routes())
 }
