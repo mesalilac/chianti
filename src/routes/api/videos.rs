@@ -91,8 +91,8 @@ pub struct GetVideosParams {
         ("min_comments_count" = Option<i64>, description = "Video comments_count greater than specified value"),
         ("max_comments_count" = Option<i64>, description = "Video comments_count less than specified value"),
         ("published_at" = Option<i64>, description = "Video published_at equal to specified value"),
-        ("published_before" = Option<i64>, description = "Video published_at before specified value"),
-        ("published_after" = Option<i64>, description = "Video published_at after specified value"),
+        ("published_before" = Option<i64>, description = "Video published_at before specified timestamp"),
+        ("published_after" = Option<i64>, description = "Video published_at after specified timestamp"),
     ),
     responses(
         (status = OK, description = "List of videos", body = Vec<VideoResponse>),
