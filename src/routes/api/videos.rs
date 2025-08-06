@@ -33,6 +33,7 @@ pub struct VideoResponse {
 
 #[derive(Deserialize, Debug)]
 pub struct GetVideosParams {
+    search: Option<String>,
     tags: Option<Vec<String>>,
     watch_counter: Option<i64>,
     min_watch_counter: Option<i64>,
@@ -62,6 +63,7 @@ pub struct GetVideosParams {
     path = "/videos",
     tag = "Video",
     params(
+        ("search" = Option<String>, description = "Search videos by title"),
         ("tags" = Option<Vec<String>>, description = "List only videos that include specified tags (tags=x&tags=y&tags=z)"),
         ("watch_counter" = Option<i64>, description = "Video watch_counter equal to specified value"),
         ("min_watch_counter" = Option<i64>, description = "Video watch_counter greater than specified value"),
@@ -106,6 +108,10 @@ pub async fn get_videos(
         ))
         .distinct()
         .into_boxed();
+
+    if let Some(search) = params.search {
+        query = query.filter(videos_dsl::title.like(format!("%{search}%")));
+    }
 
     if let Some(tags) = params.tags {
         query = query.filter(tags_dsl::name.eq_any(tags));
