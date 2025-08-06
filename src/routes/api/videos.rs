@@ -43,6 +43,9 @@ pub struct GetVideosParams {
     likes_count: Option<i64>,
     min_likes_count: Option<i64>,
     max_likes_count: Option<i64>,
+    view_count: Option<i64>,
+    min_view_count: Option<i64>,
+    max_view_count: Option<i64>,
 }
 
 /// Returns videos
@@ -63,6 +66,9 @@ pub struct GetVideosParams {
         ("likes_count" = Option<i64>, description = "Video likes_count equal to specified value"),
         ("min_likes_count" = Option<i64>, description = "Video likes_count greater than specified value"),
         ("max_likes_count" = Option<i64>, description = "Video likes_count less than specified value"),
+        ("view_count" = Option<i64>, description = "Video view_count equal to specified value"),
+        ("min_view_count" = Option<i64>, description = "Video view_count greater than specified value"),
+        ("max_view_count" = Option<i64>, description = "Video view_count less than specified value"),
     ),
     responses(
         (status = OK, description = "List of videos", body = Vec<VideoResponse>),
@@ -127,6 +133,18 @@ pub async fn get_videos(
 
     if let Some(max_likes_count) = params.max_likes_count {
         query = query.filter(videos_dsl::likes_count.lt(max_likes_count));
+    }
+
+    if let Some(view_count) = params.view_count {
+        query = query.filter(videos_dsl::view_count.eq(view_count));
+    }
+
+    if let Some(min_view_count) = params.min_view_count {
+        query = query.filter(videos_dsl::view_count.gt(min_view_count));
+    }
+
+    if let Some(max_view_count) = params.max_view_count {
+        query = query.filter(videos_dsl::view_count.lt(max_view_count));
     }
 
     let data = query
