@@ -34,6 +34,7 @@ pub struct VideoResponse {
 #[derive(Deserialize, Debug)]
 pub struct GetVideosParams {
     tags: Option<Vec<String>>,
+    watch_counter: Option<i64>,
 }
 
 /// Returns videos
@@ -73,6 +74,10 @@ pub async fn get_videos(
 
     if let Some(tags) = params.tags {
         query = query.filter(tags_dsl::name.eq_any(tags));
+    }
+
+    if let Some(watch_counter) = params.watch_counter {
+        query = query.filter(videos_dsl::watch_counter.eq(watch_counter));
     }
 
     let data = query
