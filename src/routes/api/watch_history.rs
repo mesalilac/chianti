@@ -4,6 +4,7 @@ use crate::state::AppState;
 use crate::utils::internal_error;
 use crate::utils::{build_avater_cache_image_filename, build_thumbnail_cache_image_filename};
 use axum::{Json, extract::State, http::StatusCode};
+use axum_extra::extract::Query;
 use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl, dsl::insert_into};
 use serde::{Deserialize, Serialize};
@@ -236,6 +237,9 @@ pub struct GetWatchHistoryResponse {
     pub added_at: i64,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct GetWatchHistoryParams {}
+
 /// Returns watch history records
 ///
 /// This endpoint is used to fetch watch history records
@@ -249,6 +253,7 @@ pub struct GetWatchHistoryResponse {
 )]
 pub async fn get_watch_history(
     State(state): State<AppState>,
+    Query(params): Query<GetWatchHistoryParams>,
 ) -> Result<(StatusCode, Json<Vec<GetWatchHistoryResponse>>), (StatusCode, String)> {
     use schema::channels::dsl as channels_dsl;
     use schema::videos::dsl as videos_dsl;
