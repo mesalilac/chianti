@@ -27,6 +27,7 @@ pub struct ChannelWithVideosResponse {
 #[derive(Deserialize, Debug)]
 pub struct GetChannelsParams {
     search: Option<String>,
+    is_subscribed: Option<bool>,
 }
 
 /// Returns channels
@@ -38,6 +39,7 @@ pub struct GetChannelsParams {
     tag = "Channel",
     params(
         ("search" = Option<String>, description = "Search channels by name"),
+        ("is_subscribed" = Option<bool>, description = "List only channels that are subscribed to (is_subscribed=true)"),
     ),
     responses(
         (status = OK, description = "List of channels", body = Vec<ChannelWithVideosResponse>),
@@ -56,6 +58,10 @@ pub async fn get_channels(
 
     if let Some(search) = params.search {
         query = query.filter(channels_dsl::name.like(format!("%{search}%")));
+    }
+
+    if let Some(is_subscribed) = params.is_subscribed {
+        query = query.filter(channels_dsl::is_subscribed.eq(is_subscribed));
     }
 
     let data = query.load::<Channel>(&mut conn).map_err(internal_error)?;
