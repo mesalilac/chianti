@@ -240,6 +240,7 @@ pub struct GetWatchHistoryResponse {
 #[derive(Deserialize, Debug)]
 pub struct GetWatchHistoryParams {
     video_id: Option<String>,
+    channel_id: Option<String>,
 }
 
 /// Returns watch history records
@@ -250,7 +251,8 @@ pub struct GetWatchHistoryParams {
     path = "/watch_history",
     tag = "Watch history",
     params(
-        ("video_id" = String, Path, description = "Video id")
+        ("video_id" = String, Path, description = "Video id"),
+        ("channel_id" = String, Path, description = "Channel id")
     ),
     responses(
         (status = OK, description = "List of watch history records", body = Vec<GetWatchHistoryResponse>),
@@ -278,6 +280,10 @@ pub async fn get_watch_history(
 
     if let Some(video_id) = params.video_id {
         query = query.filter(videos_dsl::id.eq(video_id));
+    }
+
+    if let Some(channel_id) = params.channel_id {
+        query = query.filter(channels_dsl::id.eq(channel_id));
     }
 
     let data = query
