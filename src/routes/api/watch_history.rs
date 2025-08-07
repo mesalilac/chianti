@@ -238,7 +238,9 @@ pub struct GetWatchHistoryResponse {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct GetWatchHistoryParams {}
+pub struct GetWatchHistoryParams {
+    video_id: Option<String>,
+}
 
 /// Returns watch history records
 ///
@@ -247,6 +249,9 @@ pub struct GetWatchHistoryParams {}
     get,
     path = "/watch_history",
     tag = "Watch history",
+    params(
+        ("video_id" = String, Path, description = "Video id")
+    ),
     responses(
         (status = OK, description = "List of watch history records", body = Vec<GetWatchHistoryResponse>),
     )
@@ -261,9 +266,21 @@ pub async fn get_watch_history(
 
     let mut conn = state.pool.get().map_err(internal_error)?;
 
-    let data = watch_history_dsl::watch_history
+    let mut query = watch_history_dsl::watch_history
         .inner_join(channels_dsl::channels)
         .inner_join(videos_dsl::videos)
+        .select((
+            watch_history_dsl::watch_history::all_columns(),
+            channels_dsl::channels::all_columns(),
+            videos_dsl::videos::all_columns(),
+        ))
+        .into_boxed();
+
+    if let Some(video_id) = params.video_id {
+        query = query.filter(videos_dsl::id.eq(video_id));
+    }
+
+    let data = query
         .load::<(WatchHistory, Channel, Video)>(&mut conn)
         .map_err(internal_error)?;
 
