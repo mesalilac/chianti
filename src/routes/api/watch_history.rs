@@ -244,6 +244,9 @@ pub struct GetWatchHistoryParams {
     watch_duration_seconds: Option<i64>,
     min_watch_duration_seconds: Option<i64>,
     max_watch_duration_seconds: Option<i64>,
+    watched_at: Option<i64>,
+    watched_before: Option<i64>,
+    watched_after: Option<i64>,
 }
 
 /// Returns watch history records
@@ -259,6 +262,9 @@ pub struct GetWatchHistoryParams {
         ("watch_duration_seconds" = i64, Query, description = "Watch duration seconds"),
         ("min_watch_duration_seconds" = i64, Query, description = "Min watch duration seconds"),
         ("max_watch_duration_seconds" = i64, Query, description = "Max watch duration seconds"),
+        ("watched_at" = i64, Query, description = "Watched at"),
+        ("watched_before" = i64, Query, description = "Watched before"),
+        ("watched_after" = i64, Query, description = "Watched after"),
     ),
     responses(
         (status = OK, description = "List of watch history records", body = Vec<GetWatchHistoryResponse>),
@@ -304,6 +310,18 @@ pub async fn get_watch_history(
     if let Some(max_watch_duration_seconds) = params.max_watch_duration_seconds {
         query =
             query.filter(watch_history_dsl::watch_duration_seconds.lt(max_watch_duration_seconds));
+    }
+
+    if let Some(watched_at) = params.watched_at {
+        query = query.filter(watch_history_dsl::session_start_date.eq(watched_at));
+    }
+
+    if let Some(watched_before) = params.watched_before {
+        query = query.filter(watch_history_dsl::session_start_date.lt(watched_before));
+    }
+
+    if let Some(watched_after) = params.watched_after {
+        query = query.filter(watch_history_dsl::session_start_date.gt(watched_after));
     }
 
     let data = query
