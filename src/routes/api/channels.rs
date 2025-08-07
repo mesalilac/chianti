@@ -41,11 +41,11 @@ pub struct GetChannelsParams {
     path = "/channels",
     tag = "Channel",
     params(
-        ("search" = Option<String>, description = "Search channels by name"),
-        ("is_subscribed" = Option<bool>, description = "List only channels that are subscribed to (is_subscribed=true)"),
-        ("subscribers_count" = Option<i64>, description = "Channel subscribers_count equal to specified value"),
-        ("min_subscribers_count" = Option<i64>, description = "Channel subscribers_count greater than specified value"),
-        ("max_subscribers_count" = Option<i64>, description = "Channel subscribers_count less than specified value"),
+        ("search" = String, description = "Search channels by name"),
+        ("is_subscribed" = bool, description = "List only channels that are subscribed to (is_subscribed=true)"),
+        ("subscribers_count" = i64, description = "Channel subscribers_count equal to specified value"),
+        ("min_subscribers_count" = i64, description = "Channel subscribers_count greater than specified value"),
+        ("max_subscribers_count" = i64, description = "Channel subscribers_count less than specified value"),
     ),
     responses(
         (status = OK, description = "List of channels", body = Vec<ChannelWithVideosResponse>),
