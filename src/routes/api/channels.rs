@@ -28,6 +28,9 @@ pub struct ChannelWithVideosResponse {
 pub struct GetChannelsParams {
     search: Option<String>,
     is_subscribed: Option<bool>,
+    subscribers_count: Option<i64>,
+    min_subscribers_count: Option<i64>,
+    max_subscribers_count: Option<i64>,
 }
 
 /// Returns channels
@@ -40,6 +43,9 @@ pub struct GetChannelsParams {
     params(
         ("search" = Option<String>, description = "Search channels by name"),
         ("is_subscribed" = Option<bool>, description = "List only channels that are subscribed to (is_subscribed=true)"),
+        ("subscribers_count" = Option<i64>, description = "Channel subscribers_count equal to specified value"),
+        ("min_subscribers_count" = Option<i64>, description = "Channel subscribers_count greater than specified value"),
+        ("max_subscribers_count" = Option<i64>, description = "Channel subscribers_count less than specified value"),
     ),
     responses(
         (status = OK, description = "List of channels", body = Vec<ChannelWithVideosResponse>),
@@ -62,6 +68,18 @@ pub async fn get_channels(
 
     if let Some(is_subscribed) = params.is_subscribed {
         query = query.filter(channels_dsl::is_subscribed.eq(is_subscribed));
+    }
+
+    if let Some(subscribers_count) = params.subscribers_count {
+        query = query.filter(channels_dsl::subscribers_count.eq(subscribers_count));
+    }
+
+    if let Some(min_subscribers_count) = params.min_subscribers_count {
+        query = query.filter(channels_dsl::subscribers_count.gt(min_subscribers_count));
+    }
+
+    if let Some(max_subscribers_count) = params.max_subscribers_count {
+        query = query.filter(channels_dsl::subscribers_count.lt(max_subscribers_count));
     }
 
     let data = query.load::<Channel>(&mut conn).map_err(internal_error)?;
