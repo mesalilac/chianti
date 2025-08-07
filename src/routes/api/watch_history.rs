@@ -241,6 +241,9 @@ pub struct GetWatchHistoryResponse {
 pub struct GetWatchHistoryParams {
     video_id: Option<String>,
     channel_id: Option<String>,
+    watch_duration_seconds: Option<i64>,
+    min_watch_duration_seconds: Option<i64>,
+    max_watch_duration_seconds: Option<i64>,
 }
 
 /// Returns watch history records
@@ -252,7 +255,10 @@ pub struct GetWatchHistoryParams {
     tag = "Watch history",
     params(
         ("video_id" = String, Path, description = "Video id"),
-        ("channel_id" = String, Path, description = "Channel id")
+        ("channel_id" = String, Path, description = "Channel id"),
+        ("watch_duration_seconds" = i64, Query, description = "Watch duration seconds"),
+        ("min_watch_duration_seconds" = i64, Query, description = "Min watch duration seconds"),
+        ("max_watch_duration_seconds" = i64, Query, description = "Max watch duration seconds"),
     ),
     responses(
         (status = OK, description = "List of watch history records", body = Vec<GetWatchHistoryResponse>),
@@ -284,6 +290,20 @@ pub async fn get_watch_history(
 
     if let Some(channel_id) = params.channel_id {
         query = query.filter(channels_dsl::id.eq(channel_id));
+    }
+
+    if let Some(watch_duration_seconds) = params.watch_duration_seconds {
+        query = query.filter(watch_history_dsl::watch_duration_seconds.eq(watch_duration_seconds));
+    }
+
+    if let Some(min_watch_duration_seconds) = params.min_watch_duration_seconds {
+        query =
+            query.filter(watch_history_dsl::watch_duration_seconds.gt(min_watch_duration_seconds));
+    }
+
+    if let Some(max_watch_duration_seconds) = params.max_watch_duration_seconds {
+        query =
+            query.filter(watch_history_dsl::watch_duration_seconds.lt(max_watch_duration_seconds));
     }
 
     let data = query
