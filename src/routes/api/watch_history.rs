@@ -4,6 +4,7 @@ use crate::state::AppState;
 use crate::utils::internal_error;
 use crate::utils::{build_avater_cache_image_filename, build_thumbnail_cache_image_filename};
 use axum::{Json, extract::State, http::StatusCode};
+use axum_extra::extract::Query;
 use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl, dsl::insert_into};
 use serde::{Deserialize, Serialize};
@@ -236,6 +237,15 @@ pub struct GetWatchHistoryResponse {
     pub added_at: i64,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct GetWatchHistoryParams {
+    video_id: Option<String>,
+    channel_id: Option<String>,
+    watch_duration_seconds: Option<i64>,
+    min_watch_duration_seconds: Option<i64>,
+    max_watch_duration_seconds: Option<i64>,
+}
+
 /// Returns watch history records
 ///
 /// This endpoint is used to fetch watch history records
@@ -243,12 +253,20 @@ pub struct GetWatchHistoryResponse {
     get,
     path = "/watch_history",
     tag = "Watch history",
+    params(
+        ("video_id" = String, Path, description = "Video id"),
+        ("channel_id" = String, Path, description = "Channel id"),
+        ("watch_duration_seconds" = i64, Query, description = "Watch duration seconds"),
+        ("min_watch_duration_seconds" = i64, Query, description = "Min watch duration seconds"),
+        ("max_watch_duration_seconds" = i64, Query, description = "Max watch duration seconds"),
+    ),
     responses(
         (status = OK, description = "List of watch history records", body = Vec<GetWatchHistoryResponse>),
     )
 )]
 pub async fn get_watch_history(
     State(state): State<AppState>,
+    Query(params): Query<GetWatchHistoryParams>,
 ) -> Result<(StatusCode, Json<Vec<GetWatchHistoryResponse>>), (StatusCode, String)> {
     use schema::channels::dsl as channels_dsl;
     use schema::videos::dsl as videos_dsl;
@@ -256,9 +274,39 @@ pub async fn get_watch_history(
 
     let mut conn = state.pool.get().map_err(internal_error)?;
 
-    let data = watch_history_dsl::watch_history
+    let mut query = watch_history_dsl::watch_history
         .inner_join(channels_dsl::channels)
         .inner_join(videos_dsl::videos)
+        .select((
+            watch_history_dsl::watch_history::all_columns(),
+            channels_dsl::channels::all_columns(),
+            videos_dsl::videos::all_columns(),
+        ))
+        .into_boxed();
+
+    if let Some(video_id) = params.video_id {
+        query = query.filter(videos_dsl::id.eq(video_id));
+    }
+
+    if let Some(channel_id) = params.channel_id {
+        query = query.filter(channels_dsl::id.eq(channel_id));
+    }
+
+    if let Some(watch_duration_seconds) = params.watch_duration_seconds {
+        query = query.filter(watch_history_dsl::watch_duration_seconds.eq(watch_duration_seconds));
+    }
+
+    if let Some(min_watch_duration_seconds) = params.min_watch_duration_seconds {
+        query =
+            query.filter(watch_history_dsl::watch_duration_seconds.gt(min_watch_duration_seconds));
+    }
+
+    if let Some(max_watch_duration_seconds) = params.max_watch_duration_seconds {
+        query =
+            query.filter(watch_history_dsl::watch_duration_seconds.lt(max_watch_duration_seconds));
+    }
+
+    let data = query
         .load::<(WatchHistory, Channel, Video)>(&mut conn)
         .map_err(internal_error)?;
 
