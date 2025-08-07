@@ -7,6 +7,7 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
 };
+use axum_extra::extract::Query;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -23,6 +24,9 @@ pub struct ChannelWithVideosResponse {
     pub added_at: i64,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct GetChannelsParams {}
+
 /// Returns channels
 ///
 /// This endpoint is used to fetch channels list
@@ -36,6 +40,7 @@ pub struct ChannelWithVideosResponse {
 )]
 pub async fn get_channels(
     State(state): State<AppState>,
+    Query(params): Query<GetChannelsParams>,
 ) -> Result<(StatusCode, Json<Vec<ChannelWithVideosResponse>>), (StatusCode, String)> {
     use schema::channels::dsl as channels_dsl;
     use schema::videos::dsl as videos_dsl;
