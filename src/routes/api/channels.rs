@@ -25,7 +25,9 @@ pub struct ChannelWithVideosResponse {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct GetChannelsParams {}
+pub struct GetChannelsParams {
+    search: Option<String>,
+}
 
 /// Returns channels
 ///
@@ -34,6 +36,9 @@ pub struct GetChannelsParams {}
     get,
     path = "/channels",
     tag = "Channel",
+    params(
+        ("search" = Option<String>, description = "Search channels by name"),
+    ),
     responses(
         (status = OK, description = "List of channels", body = Vec<ChannelWithVideosResponse>),
     )
@@ -47,9 +52,13 @@ pub async fn get_channels(
 
     let mut conn = state.pool.get().map_err(internal_error)?;
 
-    let data = channels_dsl::channels
-        .load::<Channel>(&mut conn)
-        .map_err(internal_error)?;
+    let mut query = channels_dsl::channels.into_boxed();
+
+    if let Some(search) = params.search {
+        query = query.filter(channels_dsl::name.like(format!("%{search}%")));
+    }
+
+    let data = query.load::<Channel>(&mut conn).map_err(internal_error)?;
 
     let list: Vec<ChannelWithVideosResponse> = data
         .iter()
