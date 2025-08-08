@@ -288,7 +288,7 @@ def main() -> int:
         for _ in range(total_videos):
             video = Video(channel.id)
             total_tags = randrange(0, max_tags)
-            total_watch_history = randrange(0, max_watch_history)
+            total_watch_history = randrange(1, max_watch_history)
             print(
                 f"\tVideo(watch_history: {total_watch_history}, tags: {total_tags}) '{video.title}'"
             )
