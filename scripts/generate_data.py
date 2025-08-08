@@ -183,8 +183,8 @@ class WatchHistory:
 
     def __init__(self, video_id: str, channel_id: str) -> None:
         timestamp = int(time.time())
-        start = timestamp - fake.pyint(min_value=0, max_value=10000)
-        end = timestamp
+        start = timestamp - fake.pyint(min_value=1000, max_value=10000)
+        end = timestamp - fake.pyint(min_value=0, max_value=500)
         duration = (end - start) + fake.pyint(min_value=0, max_value=500)
 
         self.id = fake.uuid4()
