@@ -33,7 +33,7 @@ class Channel:
     def __init__(self) -> None:
         self.id = fake.uuid4()
         self.name = fake.name()
-        self.url = f"https://www.youtube.com/@{self.name}"
+        self.url = f"https://www.youtube.com/@{self.id}"
         self.is_subscribed = fake.pybool()
         self.subscribers_count = fake.pyint(min_value=10, max_value=1000000)
         self.added_at = int(time.time())
