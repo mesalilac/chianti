@@ -1,8 +1,9 @@
+mod api_prelude;
 mod database;
 mod routes;
-mod schema;
+pub mod schema;
 mod state;
-mod utils;
+pub mod utils;
 
 use axum::{
     body::Bytes,

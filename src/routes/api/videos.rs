@@ -1,22 +1,11 @@
-use crate::database::models::{Channel, Video};
-use crate::schema;
-use crate::state::AppState;
-use crate::utils::internal_error;
-use axum::{
-    Json,
-    extract::{Path, State},
-    http::StatusCode,
-};
-use axum_extra::extract::Query;
+use crate::api_prelude::*;
 use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
 
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct VideoResponse {
     pub id: String,
-    pub channel: Channel,
+    pub channel: models::Channel,
     pub url: String,
     pub thumbnail_endpoint: String,
     pub title: String,
@@ -220,7 +209,7 @@ pub async fn get_videos(
     }
 
     let data = query
-        .load::<(Video, Channel)>(&mut conn)
+        .load::<(models::Video, models::Channel)>(&mut conn)
         .map_err(internal_error)?;
 
     let list: Vec<VideoResponse> = data
@@ -280,7 +269,7 @@ pub async fn get_video(
     let (video, channel) = videos_dsl::videos
         .filter(videos_dsl::id.eq(id))
         .inner_join(channels_dsl::channels)
-        .get_result::<(Video, Channel)>(&mut conn)
+        .get_result::<(models::Video, models::Channel)>(&mut conn)
         .map_err(internal_error)?;
 
     let tags = tags_dsl::tags

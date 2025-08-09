@@ -1,11 +1,4 @@
-use crate::state::AppState;
-use crate::utils::build_thumbnail_cache_image_filename;
-use axum::{
-    body::Body,
-    extract::{Path, State},
-    http::StatusCode,
-    response::{IntoResponse, Response},
-};
+use crate::api_prelude::*;
 
 /// Returns video thumbnail
 #[utoipa::path(
@@ -23,7 +16,7 @@ pub async fn get_video_thumbnail(
 ) -> impl IntoResponse {
     let thumbnail_file_path = state
         .video_thumbnails_dir
-        .join(build_thumbnail_cache_image_filename(&video_id));
+        .join(utils::build_thumbnail_cache_image_filename(&video_id));
 
     let Ok(file) = tokio::fs::File::open(&thumbnail_file_path).await else {
         return (StatusCode::NOT_FOUND).into_response();

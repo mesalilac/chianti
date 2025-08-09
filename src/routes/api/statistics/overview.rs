@@ -1,11 +1,5 @@
-use crate::database::models::{Channel, Tag, Video};
-use crate::state::AppState;
-use crate::utils::internal_error;
-use crate::{database::models::WatchHistory, schema};
-use axum::{Json, extract::State, http::StatusCode};
+use crate::api_prelude::*;
 use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
 
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
@@ -46,19 +40,19 @@ pub async fn get_overview(
     let mut conn = state.pool.get().map_err(internal_error)?;
 
     let watch_history_list = watch_history_dsl::watch_history
-        .load::<WatchHistory>(&mut conn)
+        .load::<models::WatchHistory>(&mut conn)
         .map_err(internal_error)?;
 
     let videos_list = videos_dsl::videos
-        .load::<Video>(&mut conn)
+        .load::<models::Video>(&mut conn)
         .map_err(internal_error)?;
 
     let channels_list = channels_dsl::channels
-        .load::<Channel>(&mut conn)
+        .load::<models::Channel>(&mut conn)
         .map_err(internal_error)?;
 
     let tags_list = tags_dsl::tags
-        .load::<Tag>(&mut conn)
+        .load::<models::Tag>(&mut conn)
         .map_err(internal_error)?;
 
     let total_watch_time_seconds = watch_history_list

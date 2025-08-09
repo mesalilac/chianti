@@ -1,16 +1,6 @@
-use crate::database::models::{Channel, Tag, Video, VideoTags, WatchHistory};
-use crate::schema;
-use crate::state::AppState;
-use crate::utils::internal_error;
-use crate::utils::{build_avater_cache_image_filename, build_thumbnail_cache_image_filename};
-use axum::{Json, extract::State, http::StatusCode};
-use axum_extra::extract::Query;
+use crate::api_prelude::*;
 use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl, dsl::insert_into};
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
-
-use crate::database::models::{NewChannelParams, NewVideoParams};
 
 #[derive(utoipa::ToSchema, Deserialize, TS)]
 #[ts(export)]
@@ -82,12 +72,18 @@ pub async fn create_watch_history(
     let mut conn = state.pool.get().map_err(internal_error)?;
 
     for payload in payload_list {
-        let channel_avater_file_path = state
-            .channel_avaters_dir
-            .join(build_avater_cache_image_filename(&payload.channel.id));
-        let video_thumbnail_file_path = state
-            .video_thumbnails_dir
-            .join(build_thumbnail_cache_image_filename(&payload.video.id));
+        let channel_avater_file_path =
+            state
+                .channel_avaters_dir
+                .join(utils::build_avater_cache_image_filename(
+                    &payload.channel.id,
+                ));
+        let video_thumbnail_file_path =
+            state
+                .video_thumbnails_dir
+                .join(utils::build_thumbnail_cache_image_filename(
+                    &payload.video.id,
+                ));
 
         if !channel_avater_file_path.exists() {
             tracing::info!(
@@ -134,7 +130,7 @@ pub async fn create_watch_history(
             }
         }
 
-        let channel = Channel::new(NewChannelParams {
+        let channel = models::Channel::new(models::NewChannelParams {
             id: payload.channel.id.clone(),
             name: payload.channel.name.clone(),
             url: payload.channel.url,
@@ -154,7 +150,7 @@ pub async fn create_watch_history(
             .execute(&mut conn)
             .map_err(internal_error)?;
 
-        let video = Video::new(NewVideoParams {
+        let video = models::Video::new(models::NewVideoParams {
             id: payload.video.id,
             channel_id: payload.channel.id,
             title: payload.video.title.clone(),
@@ -182,11 +178,11 @@ pub async fn create_watch_history(
         for tag_name in payload.video.tags {
             let tag = match tags_dsl::tags
                 .filter(tags_dsl::name.eq(&tag_name))
-                .get_result::<Tag>(&mut conn)
+                .get_result::<models::Tag>(&mut conn)
             {
                 Ok(r) => r,
                 Err(_) => {
-                    let new_tag = Tag::new(tag_name);
+                    let new_tag = models::Tag::new(tag_name);
 
                     insert_into(tags_dsl::tags)
                         .values(&new_tag)
@@ -198,7 +194,7 @@ pub async fn create_watch_history(
                 }
             };
 
-            let video_tag = VideoTags::new(video.id.clone(), tag.id);
+            let video_tag = models::VideoTags::new(video.id.clone(), tag.id);
 
             insert_into(video_tags_dsl::video_tags)
                 .values(&video_tag)
@@ -207,7 +203,7 @@ pub async fn create_watch_history(
                 .map_err(internal_error)?;
         }
 
-        let new_watch_history = WatchHistory::new(
+        let new_watch_history = models::WatchHistory::new(
             video.id,
             channel.id,
             payload.watch_duration_seconds,
@@ -229,8 +225,8 @@ pub async fn create_watch_history(
 #[ts(export)]
 pub struct GetWatchHistoryResponse {
     pub id: String,
-    pub video: Video,
-    pub channel: Channel,
+    pub video: models::Video,
+    pub channel: models::Channel,
     pub watch_duration_seconds: i64,
     pub session_start_date: i64,
     pub session_end_date: i64,
@@ -325,7 +321,7 @@ pub async fn get_watch_history(
     }
 
     let data = query
-        .load::<(WatchHistory, Channel, Video)>(&mut conn)
+        .load::<(models::WatchHistory, models::Channel, models::Video)>(&mut conn)
         .map_err(internal_error)?;
 
     let list = data

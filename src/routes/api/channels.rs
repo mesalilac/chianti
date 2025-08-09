@@ -1,16 +1,5 @@
-use crate::database::models::{Channel, Video};
-use crate::schema;
-use crate::state::AppState;
-use crate::utils::internal_error;
-use axum::{
-    Json,
-    extract::{Path, State},
-    http::StatusCode,
-};
-use axum_extra::extract::Query;
+use crate::api_prelude::*;
 use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
 
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
@@ -20,7 +9,7 @@ pub struct ChannelWithVideosResponse {
     pub url: String,
     pub is_subscribed: bool,
     pub subscribers_count: i64,
-    pub videos: Vec<Video>,
+    pub videos: Vec<models::Video>,
     pub added_at: i64,
 }
 
@@ -82,14 +71,16 @@ pub async fn get_channels(
         query = query.filter(channels_dsl::subscribers_count.lt(max_subscribers_count));
     }
 
-    let data = query.load::<Channel>(&mut conn).map_err(internal_error)?;
+    let data = query
+        .load::<models::Channel>(&mut conn)
+        .map_err(internal_error)?;
 
     let list: Vec<ChannelWithVideosResponse> = data
         .iter()
         .map(|channel| {
             let videos = videos_dsl::videos
                 .filter(videos_dsl::channel_id.eq(&channel.id))
-                .load::<Video>(&mut conn)
+                .load::<models::Video>(&mut conn)
                 .unwrap_or(Vec::new());
 
             ChannelWithVideosResponse {
@@ -129,12 +120,12 @@ pub async fn get_channel(
 
     let channel = channels_dsl::channels
         .filter(channels_dsl::id.eq(id))
-        .get_result::<Channel>(&mut conn)
+        .get_result::<models::Channel>(&mut conn)
         .map_err(internal_error)?;
 
     let videos = videos_dsl::videos
         .filter(videos_dsl::channel_id.eq(&channel.id))
-        .load::<Video>(&mut conn)
+        .load::<models::Video>(&mut conn)
         .unwrap_or(Vec::new());
 
     let response = ChannelWithVideosResponse {

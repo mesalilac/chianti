@@ -1,11 +1,4 @@
-use crate::state::AppState;
-use crate::utils::build_avater_cache_image_filename;
-use axum::{
-    body::Body,
-    extract::{Path, State},
-    http::StatusCode,
-    response::{IntoResponse, Response},
-};
+use crate::api_prelude::*;
 
 /// Returns channel avater
 #[utoipa::path(
@@ -23,7 +16,7 @@ pub async fn get_channel_avater(
 ) -> impl IntoResponse {
     let avater_file_path = state
         .channel_avaters_dir
-        .join(build_avater_cache_image_filename(&channel_id));
+        .join(utils::build_avater_cache_image_filename(&channel_id));
 
     let Ok(file) = tokio::fs::File::open(&avater_file_path).await else {
         return (StatusCode::NOT_FOUND).into_response();
