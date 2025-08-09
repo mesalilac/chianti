@@ -13,30 +13,24 @@ use crate::api_prelude::*;
 pub async fn get_channel_avater(
     State(state): State<AppState>,
     Path(channel_id): Path<String>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, (StatusCode, String)> {
     let avater_file_path = state
         .channel_avaters_dir
         .join(utils::build_avater_cache_image_filename(&channel_id));
 
     let Ok(file) = tokio::fs::File::open(&avater_file_path).await else {
-        return (StatusCode::NOT_FOUND).into_response();
+        return Err((StatusCode::NOT_FOUND, "Image not found on disk".to_string()));
     };
 
-    let Some(content_type) = mime_guess::from_path(&avater_file_path).first_raw() else {
-        return (StatusCode::INTERNAL_SERVER_ERROR).into_response();
-    };
+    let content_type = mime_guess::from_path(&avater_file_path)
+        .first_raw()
+        .unwrap_or("application/octet-stream");
 
     let stream = tokio_util::io::ReaderStream::new(file);
     let body = Body::from_stream(stream);
 
-    match Response::builder()
+    Response::builder()
         .header("Content-Type", content_type)
         .body(body)
-    {
-        Ok(response) => response,
-        Err(err) => {
-            tracing::error!("Failed to create response: {err}");
-            (StatusCode::INTERNAL_SERVER_ERROR).into_response()
-        }
-    }
+        .map_err(internal_error)
 }
