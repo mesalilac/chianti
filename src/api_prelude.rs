@@ -14,3 +14,6 @@ pub use axum_extra::extract::Query;
 pub use serde::{Deserialize, Serialize};
 pub use ts_rs::TS;
 pub use utils::internal_error;
+
+pub type ApiErr = (StatusCode, String);
+pub type ApiResult<T> = Result<T, ApiErr>;

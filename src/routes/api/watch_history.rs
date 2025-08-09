@@ -62,7 +62,7 @@ pub struct CreateWatchHistoryRequest {
 pub async fn create_watch_history(
     State(state): State<AppState>,
     Json(payload_list): Json<Vec<CreateWatchHistoryRequest>>,
-) -> Result<StatusCode, (StatusCode, String)> {
+) -> ApiResult<StatusCode> {
     use schema::channels::dsl as channels_dsl;
     use schema::tags::dsl as tags_dsl;
     use schema::video_tags::dsl as video_tags_dsl;
@@ -269,7 +269,7 @@ pub struct GetWatchHistoryParams {
 pub async fn get_watch_history(
     State(state): State<AppState>,
     Query(params): Query<GetWatchHistoryParams>,
-) -> Result<(StatusCode, Json<Vec<GetWatchHistoryResponse>>), (StatusCode, String)> {
+) -> ApiResult<(StatusCode, Json<Vec<GetWatchHistoryResponse>>)> {
     use schema::channels::dsl as channels_dsl;
     use schema::videos::dsl as videos_dsl;
     use schema::watch_history::dsl as watch_history_dsl;

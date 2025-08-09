@@ -90,7 +90,7 @@ pub struct GetVideosParams {
 pub async fn get_videos(
     State(state): State<AppState>,
     Query(params): Query<GetVideosParams>,
-) -> Result<(StatusCode, Json<Vec<VideoResponse>>), (StatusCode, String)> {
+) -> ApiResult<(StatusCode, Json<Vec<VideoResponse>>)> {
     use schema::channels::dsl as channels_dsl;
     use schema::tags::dsl as tags_dsl;
     use schema::video_tags::dsl as video_tags_dsl;
@@ -258,7 +258,7 @@ pub async fn get_videos(
 pub async fn get_video(
     State(state): State<AppState>,
     Path(id): Path<String>,
-) -> Result<(StatusCode, Json<VideoResponse>), (StatusCode, String)> {
+) -> ApiResult<(StatusCode, Json<VideoResponse>)> {
     use schema::channels::dsl as channels_dsl;
     use schema::tags::dsl as tags_dsl;
     use schema::video_tags::dsl as video_tags_dsl;

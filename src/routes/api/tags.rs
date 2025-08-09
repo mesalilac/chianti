@@ -14,7 +14,7 @@ use diesel::prelude::*;
 )]
 pub async fn get_tags(
     State(state): State<AppState>,
-) -> Result<(StatusCode, Json<Vec<models::Tag>>), (StatusCode, String)> {
+) -> ApiResult<(StatusCode, Json<Vec<models::Tag>>)> {
     use schema::tags::dsl as tags_dsl;
 
     let mut conn = state.pool.get().map_err(internal_error)?;
@@ -40,7 +40,7 @@ pub async fn get_tags(
 pub async fn get_tag(
     State(state): State<AppState>,
     Path(id): Path<String>,
-) -> Result<(StatusCode, Json<models::Tag>), (StatusCode, String)> {
+) -> ApiResult<(StatusCode, Json<models::Tag>)> {
     use schema::tags::dsl as tags_dsl;
 
     let mut conn = state.pool.get().map_err(internal_error)?;

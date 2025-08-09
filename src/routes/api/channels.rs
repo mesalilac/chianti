@@ -43,7 +43,7 @@ pub struct GetChannelsParams {
 pub async fn get_channels(
     State(state): State<AppState>,
     Query(params): Query<GetChannelsParams>,
-) -> Result<(StatusCode, Json<Vec<ChannelWithVideosResponse>>), (StatusCode, String)> {
+) -> ApiResult<(StatusCode, Json<Vec<ChannelWithVideosResponse>>)> {
     use schema::channels::dsl as channels_dsl;
     use schema::videos::dsl as videos_dsl;
 
@@ -112,7 +112,7 @@ pub async fn get_channels(
 pub async fn get_channel(
     State(state): State<AppState>,
     Path(id): Path<String>,
-) -> Result<(StatusCode, Json<ChannelWithVideosResponse>), (StatusCode, String)> {
+) -> ApiResult<(StatusCode, Json<ChannelWithVideosResponse>)> {
     use schema::channels::dsl as channels_dsl;
     use schema::videos::dsl as videos_dsl;
 

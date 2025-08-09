@@ -13,7 +13,7 @@ use crate::api_prelude::*;
 pub async fn get_channel_avater(
     State(state): State<AppState>,
     Path(channel_id): Path<String>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
+) -> ApiResult<impl IntoResponse> {
     let avater_file_path = state
         .channel_avaters_dir
         .join(utils::build_avater_cache_image_filename(&channel_id));

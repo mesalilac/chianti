@@ -13,7 +13,7 @@ use crate::api_prelude::*;
 pub async fn get_video_thumbnail(
     State(state): State<AppState>,
     Path(video_id): Path<String>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
+) -> ApiResult<impl IntoResponse> {
     let thumbnail_file_path = state
         .video_thumbnails_dir
         .join(utils::build_thumbnail_cache_image_filename(&video_id));

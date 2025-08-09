@@ -31,7 +31,7 @@ pub struct OverviewResponse {
 )]
 pub async fn get_overview(
     State(state): State<AppState>,
-) -> Result<(StatusCode, Json<OverviewResponse>), (StatusCode, String)> {
+) -> ApiResult<(StatusCode, Json<OverviewResponse>)> {
     use schema::channels::dsl as channels_dsl;
     use schema::tags::dsl as tags_dsl;
     use schema::videos::dsl as videos_dsl;
