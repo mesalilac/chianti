@@ -1,4 +1,3 @@
-/// Prelude for the api routes
 pub use crate::database::models;
 pub use crate::schema;
 pub use crate::state::AppState;
