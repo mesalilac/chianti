@@ -2,4 +2,4 @@
 import type { Channel } from "./Channel";
 import type { Video } from "./Video";
 
-export type WatchHistoryResponse = { video: Video, channel: Channel, id: string, watch_duration_seconds: bigint, session_start_date: bigint, session_end_date: bigint, added_at: bigint, };
+export type WatchHistoryResponse = { video: Video, channel: Channel, id: string, watch_duration_seconds: number, session_start_date: number, session_end_date: number, added_at: number, };
