@@ -194,7 +194,7 @@ pub async fn get_videos(
         .map_err(internal_error)?;
 
     let list: Vec<VideoResponse> = data
-        .iter()
+        .into_iter()
         .map(|(video, channel)| {
             let tags = tags_dsl::tags
                 .inner_join(video_tags_dsl::video_tags)
@@ -205,9 +205,9 @@ pub async fn get_videos(
 
             VideoResponse {
                 thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
-                video: video.clone(),
+                video,
                 tags,
-                channel: Some(channel.clone()),
+                channel: Some(channel),
             }
         })
         .collect();
@@ -254,7 +254,7 @@ pub async fn get_video(
         thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
         video,
         tags,
-        channel: Some(channel.clone()),
+        channel: Some(channel),
     };
 
     Ok((StatusCode::OK, Json(response)))

@@ -66,13 +66,13 @@ pub async fn get_channels(
         .map_err(internal_error)?;
 
     let list: Vec<ChannelResponse> = data
-        .iter()
+        .into_iter()
         .map(|channel| {
             let videos: Vec<VideoResponse> = videos_dsl::videos
                 .filter(videos_dsl::channel_id.eq(&channel.id))
                 .load::<models::Video>(&mut conn)
                 .unwrap_or(Vec::new())
-                .iter()
+                .into_iter()
                 .map(|video| {
                     let tags = tags_dsl::tags
                         .inner_join(video_tags_dsl::video_tags)
@@ -83,7 +83,7 @@ pub async fn get_channels(
 
                     VideoResponse {
                         thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
-                        video: video.clone(),
+                        video,
                         channel: None,
                         tags,
                     }
@@ -91,7 +91,7 @@ pub async fn get_channels(
                 .collect();
 
             ChannelResponse {
-                channel: channel.clone(),
+                channel,
                 videos: Some(videos),
             }
         })
@@ -131,7 +131,7 @@ pub async fn get_channel(
         .filter(videos_dsl::channel_id.eq(&channel.id))
         .load::<models::Video>(&mut conn)
         .unwrap_or(Vec::new())
-        .iter()
+        .into_iter()
         .map(|video| {
             let tags = tags_dsl::tags
                 .inner_join(video_tags_dsl::video_tags)
@@ -142,7 +142,7 @@ pub async fn get_channel(
 
             VideoResponse {
                 thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
-                video: video.clone(),
+                video,
                 channel: None,
                 tags,
             }
@@ -150,8 +150,8 @@ pub async fn get_channel(
         .collect();
 
     let response = ChannelResponse {
-        channel: channel.clone(),
         videos: Some(videos),
+        channel,
     };
 
     Ok((StatusCode::OK, Json(response)))

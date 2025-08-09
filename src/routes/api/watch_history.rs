@@ -313,11 +313,11 @@ pub async fn get_watch_history(
         .map_err(internal_error)?;
 
     let list = data
-        .iter()
+        .into_iter()
         .map(|(watch_history, channel, video)| WatchHistoryResponse {
-            video: video.clone(),
-            channel: channel.clone(),
-            watch_history: watch_history.clone(),
+            video,
+            channel,
+            watch_history,
         })
         .collect::<Vec<WatchHistoryResponse>>();
 
