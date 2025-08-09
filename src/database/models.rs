@@ -23,7 +23,9 @@ pub struct Channel {
     pub name: String,
     pub url: String,
     pub is_subscribed: bool,
+    #[ts(type = "number")]
     pub subscribers_count: i64,
+    #[ts(type = "number")]
     pub added_at: i64,
 }
 
@@ -79,12 +81,19 @@ pub struct Video {
     pub url: String,
     pub title: String,
     pub description: String,
+    #[ts(type = "number")]
     pub watch_counter: i64,
+    #[ts(type = "number")]
     pub duration_seconds: i64,
+    #[ts(type = "number")]
     pub likes_count: i64,
+    #[ts(type = "number")]
     pub view_count: i64,
+    #[ts(type = "number")]
     pub comments_count: i64,
+    #[ts(type = "number")]
     pub published_at: i64,
+    #[ts(type = "number")]
     pub added_at: i64,
 }
 
@@ -122,6 +131,7 @@ impl Video {
 pub struct Tag {
     pub id: String,
     pub name: String,
+    #[ts(type = "number")]
     pub added_at: i64,
 }
 
@@ -179,9 +189,13 @@ pub struct WatchHistory {
     pub video_id: String,
     #[serde(skip)]
     pub channel_id: String,
+    #[ts(type = "number")]
     pub watch_duration_seconds: i64,
+    #[ts(type = "number")]
     pub session_start_date: i64,
+    #[ts(type = "number")]
     pub session_end_date: i64,
+    #[ts(type = "number")]
     pub added_at: i64,
 }
 
