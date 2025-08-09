@@ -1,18 +1,6 @@
 use crate::api_prelude::*;
 use diesel::prelude::*;
 
-#[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub struct ChannelWithVideosResponse {
-    pub id: String,
-    pub name: String,
-    pub url: String,
-    pub is_subscribed: bool,
-    pub subscribers_count: i64,
-    pub videos: Vec<models::Video>,
-    pub added_at: i64,
-}
-
 #[derive(Deserialize, Debug)]
 pub struct GetChannelsParams {
     search: Option<String>,
@@ -37,14 +25,16 @@ pub struct GetChannelsParams {
         ("max_subscribers_count" = i64, description = "Channel subscribers_count less than specified value"),
     ),
     responses(
-        (status = OK, description = "List of channels", body = Vec<ChannelWithVideosResponse>),
+        (status = OK, description = "List of channels", body = Vec<ChannelResponse>),
     )
 )]
 pub async fn get_channels(
     State(state): State<AppState>,
     Query(params): Query<GetChannelsParams>,
-) -> ApiResult<(StatusCode, Json<Vec<ChannelWithVideosResponse>>)> {
+) -> ApiResult<(StatusCode, Json<Vec<ChannelResponse>>)> {
     use schema::channels::dsl as channels_dsl;
+    use schema::tags::dsl as tags_dsl;
+    use schema::video_tags::dsl as video_tags_dsl;
     use schema::videos::dsl as videos_dsl;
 
     let mut conn = state.pool.get().map_err(internal_error)?;
@@ -75,22 +65,34 @@ pub async fn get_channels(
         .load::<models::Channel>(&mut conn)
         .map_err(internal_error)?;
 
-    let list: Vec<ChannelWithVideosResponse> = data
+    let list: Vec<ChannelResponse> = data
         .iter()
         .map(|channel| {
-            let videos = videos_dsl::videos
+            let videos: Vec<VideoResponse> = videos_dsl::videos
                 .filter(videos_dsl::channel_id.eq(&channel.id))
                 .load::<models::Video>(&mut conn)
-                .unwrap_or(Vec::new());
+                .unwrap_or(Vec::new())
+                .iter()
+                .map(|video| {
+                    let tags = tags_dsl::tags
+                        .inner_join(video_tags_dsl::video_tags)
+                        .filter(video_tags_dsl::video_id.eq(&video.id))
+                        .select(tags_dsl::name)
+                        .load(&mut conn)
+                        .unwrap_or(Vec::new());
 
-            ChannelWithVideosResponse {
-                id: channel.id.clone(),
-                name: channel.name.clone(),
-                url: channel.url.clone(),
-                is_subscribed: channel.is_subscribed,
-                subscribers_count: channel.subscribers_count,
-                videos,
-                added_at: channel.added_at,
+                    VideoResponse {
+                        thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
+                        video: video.clone(),
+                        channel: None,
+                        tags,
+                    }
+                })
+                .collect();
+
+            ChannelResponse {
+                channel: channel.clone(),
+                videos: Some(videos),
             }
         })
         .collect();
@@ -106,14 +108,16 @@ pub async fn get_channels(
     path = "/channels/{id}",
     tag = "Channel",
     responses(
-        (status = OK, description = "One channel", body = ChannelWithVideosResponse),
+        (status = OK, description = "One channel", body = ChannelResponse),
     )
 )]
 pub async fn get_channel(
     State(state): State<AppState>,
     Path(id): Path<String>,
-) -> ApiResult<(StatusCode, Json<ChannelWithVideosResponse>)> {
+) -> ApiResult<(StatusCode, Json<ChannelResponse>)> {
     use schema::channels::dsl as channels_dsl;
+    use schema::tags::dsl as tags_dsl;
+    use schema::video_tags::dsl as video_tags_dsl;
     use schema::videos::dsl as videos_dsl;
 
     let mut conn = state.pool.get().map_err(internal_error)?;
@@ -123,19 +127,31 @@ pub async fn get_channel(
         .get_result::<models::Channel>(&mut conn)
         .map_err(internal_error)?;
 
-    let videos = videos_dsl::videos
+    let videos: Vec<VideoResponse> = videos_dsl::videos
         .filter(videos_dsl::channel_id.eq(&channel.id))
         .load::<models::Video>(&mut conn)
-        .unwrap_or(Vec::new());
+        .unwrap_or(Vec::new())
+        .iter()
+        .map(|video| {
+            let tags = tags_dsl::tags
+                .inner_join(video_tags_dsl::video_tags)
+                .filter(video_tags_dsl::video_id.eq(&video.id))
+                .select(tags_dsl::name)
+                .load(&mut conn)
+                .unwrap_or(Vec::new());
 
-    let response = ChannelWithVideosResponse {
-        id: channel.id.clone(),
-        name: channel.name.clone(),
-        url: channel.url.clone(),
-        is_subscribed: channel.is_subscribed,
-        subscribers_count: channel.subscribers_count,
-        videos,
-        added_at: channel.added_at,
+            VideoResponse {
+                thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
+                video: video.clone(),
+                channel: None,
+                tags,
+            }
+        })
+        .collect();
+
+    let response = ChannelResponse {
+        channel: channel.clone(),
+        videos: Some(videos),
     };
 
     Ok((StatusCode::OK, Json(response)))

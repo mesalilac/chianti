@@ -17,3 +17,30 @@ pub use utils::internal_error;
 
 pub type ApiErr = (StatusCode, String);
 pub type ApiResult<T> = Result<T, ApiErr>;
+
+#[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct VideoResponse {
+    #[serde(flatten)]
+    pub video: models::Video,
+    pub thumbnail_endpoint: String,
+    pub tags: Vec<String>,
+    pub channel: Option<models::Channel>,
+}
+
+#[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct ChannelResponse {
+    #[serde(flatten)]
+    pub channel: models::Channel,
+    pub videos: Option<Vec<VideoResponse>>,
+}
+
+#[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct WatchHistoryResponse {
+    #[serde(flatten)]
+    pub watch_history: models::WatchHistory,
+    pub video: models::Video,
+    pub channel: models::Channel,
+}

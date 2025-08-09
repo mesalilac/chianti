@@ -221,18 +221,6 @@ pub async fn create_watch_history(
     Ok(StatusCode::CREATED)
 }
 
-#[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub struct GetWatchHistoryResponse {
-    pub id: String,
-    pub video: models::Video,
-    pub channel: models::Channel,
-    pub watch_duration_seconds: i64,
-    pub session_start_date: i64,
-    pub session_end_date: i64,
-    pub added_at: i64,
-}
-
 #[derive(Deserialize, Debug)]
 pub struct GetWatchHistoryParams {
     video_id: Option<String>,
@@ -263,13 +251,13 @@ pub struct GetWatchHistoryParams {
         ("watched_after" = i64, description = "Watched after"),
     ),
     responses(
-        (status = OK, description = "List of watch history records", body = Vec<GetWatchHistoryResponse>),
+        (status = OK, description = "List of watch history records", body = Vec<WatchHistoryResponse>),
     )
 )]
 pub async fn get_watch_history(
     State(state): State<AppState>,
     Query(params): Query<GetWatchHistoryParams>,
-) -> ApiResult<(StatusCode, Json<Vec<GetWatchHistoryResponse>>)> {
+) -> ApiResult<(StatusCode, Json<Vec<WatchHistoryResponse>>)> {
     use schema::channels::dsl as channels_dsl;
     use schema::videos::dsl as videos_dsl;
     use schema::watch_history::dsl as watch_history_dsl;
@@ -326,16 +314,12 @@ pub async fn get_watch_history(
 
     let list = data
         .iter()
-        .map(|(watch_history, channel, video)| GetWatchHistoryResponse {
-            id: watch_history.id.clone(),
+        .map(|(watch_history, channel, video)| WatchHistoryResponse {
             video: video.clone(),
             channel: channel.clone(),
-            watch_duration_seconds: watch_history.watch_duration_seconds,
-            session_start_date: watch_history.session_start_date,
-            session_end_date: watch_history.session_end_date,
-            added_at: watch_history.added_at,
+            watch_history: watch_history.clone(),
         })
-        .collect::<Vec<GetWatchHistoryResponse>>();
+        .collect::<Vec<WatchHistoryResponse>>();
 
     Ok((StatusCode::OK, Json(list)))
 }

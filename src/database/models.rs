@@ -74,6 +74,7 @@ pub struct NewVideoParams {
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Video {
     pub id: String,
+    #[serde(skip)]
     pub channel_id: String,
     pub url: String,
     pub title: String,
@@ -156,14 +157,27 @@ impl VideoTags {
     }
 }
 
-#[derive(Queryable, Identifiable, Associations, Insertable, Serialize, Debug, Clone)]
+#[derive(
+    Queryable,
+    Identifiable,
+    Associations,
+    Insertable,
+    Serialize,
+    Deserialize,
+    Debug,
+    Clone,
+    utoipa::ToSchema,
+    TS,
+)]
 #[diesel(table_name = schema::watch_history)]
 #[diesel(belongs_to(Video, foreign_key = video_id))]
 #[diesel(belongs_to(Channel, foreign_key = channel_id))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct WatchHistory {
     pub id: String,
+    #[serde(skip)]
     pub video_id: String,
+    #[serde(skip)]
     pub channel_id: String,
     pub watch_duration_seconds: i64,
     pub session_start_date: i64,

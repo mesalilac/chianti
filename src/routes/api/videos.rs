@@ -1,25 +1,6 @@
 use crate::api_prelude::*;
 use diesel::prelude::*;
 
-#[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub struct VideoResponse {
-    pub id: String,
-    pub channel: models::Channel,
-    pub url: String,
-    pub thumbnail_endpoint: String,
-    pub title: String,
-    pub description: String,
-    pub watch_counter: i64,
-    pub duration_seconds: i64,
-    pub likes_count: i64,
-    pub view_count: i64,
-    pub comments_count: i64,
-    pub published_at: i64,
-    pub tags: Vec<String>,
-    pub added_at: i64,
-}
-
 #[derive(Deserialize, Debug)]
 pub struct GetVideosParams {
     search: Option<String>,
@@ -223,20 +204,10 @@ pub async fn get_videos(
                 .unwrap_or(Vec::new());
 
             VideoResponse {
-                id: video.id.clone(),
-                channel: channel.clone(),
-                url: video.url.clone(),
                 thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
-                title: video.title.clone(),
-                description: video.description.clone(),
-                watch_counter: video.watch_counter,
-                duration_seconds: video.duration_seconds,
-                likes_count: video.likes_count,
-                view_count: video.view_count,
-                comments_count: video.comments_count,
-                published_at: video.published_at,
+                video: video.clone(),
                 tags,
-                added_at: video.added_at,
+                channel: Some(channel.clone()),
             }
         })
         .collect();
@@ -280,20 +251,10 @@ pub async fn get_video(
         .unwrap_or(Vec::new());
 
     let response = VideoResponse {
-        id: video.id.clone(),
-        channel: channel.clone(),
-        url: video.url.clone(),
         thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
-        title: video.title.clone(),
-        description: video.description.clone(),
-        watch_counter: video.watch_counter,
-        duration_seconds: video.duration_seconds,
-        likes_count: video.likes_count,
-        view_count: video.view_count,
-        comments_count: video.comments_count,
-        published_at: video.published_at,
+        video,
         tags,
-        added_at: video.added_at,
+        channel: Some(channel.clone()),
     };
 
     Ok((StatusCode::OK, Json(response)))
