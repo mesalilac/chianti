@@ -1,8 +1,12 @@
 use crate::api_prelude::*;
 use diesel::prelude::*;
 
+type GetVideosResponse = PaginatedResponse<VideoResponse>;
+
 #[derive(Deserialize, Debug)]
 pub struct GetVideosParams {
+    offset: Option<i64>,
+    limit: Option<i64>,
     search: Option<String>,
     channel_id: Option<String>,
     is_subscribed: Option<bool>,
@@ -38,6 +42,8 @@ pub struct GetVideosParams {
     path = "/videos",
     tag = "Video",
     params(
+        ("offset" = Option<i64>, description = "List offset"),
+        ("limit" = Option<i64>, description = "List limit"),
         ("search" = String, description = "Search videos by title"),
         ("channel_id" = String, description = "List only videos that belong to specified channel"),
         ("is_subscribed" = bool, description = "List only videos that belong to subscribed channels (is_subscribed=true)"),
@@ -65,13 +71,13 @@ pub struct GetVideosParams {
         ("published_after" = i64, description = "Video published_at after specified timestamp"),
     ),
     responses(
-        (status = OK, description = "List of videos", body = Vec<VideoResponse>),
+        (status = OK, description = "List of videos", body = GetVideosResponse),
     )
 )]
 pub async fn get_videos(
     State(state): State<AppState>,
     Query(params): Query<GetVideosParams>,
-) -> ApiResult<(StatusCode, Json<Vec<VideoResponse>>)> {
+) -> ApiResult<(StatusCode, Json<GetVideosResponse>)> {
     use schema::channels::dsl as channels_dsl;
     use schema::tags::dsl as tags_dsl;
     use schema::video_tags::dsl as video_tags_dsl;
@@ -88,6 +94,14 @@ pub async fn get_videos(
         ))
         .distinct()
         .into_boxed();
+
+    if let Some(offset) = params.offset {
+        query = query.offset(offset);
+    }
+
+    if let Some(limit) = params.limit {
+        query = query.limit(limit);
+    }
 
     if let Some(search) = params.search {
         query = query.filter(videos_dsl::title.like(format!("%{search}%")));
@@ -212,7 +226,19 @@ pub async fn get_videos(
         })
         .collect();
 
-    Ok((StatusCode::OK, Json(list)))
+    let total = videos_dsl::videos
+        .count()
+        .get_result::<i64>(&mut conn)
+        .unwrap_or(0);
+
+    let res = GetVideosResponse {
+        data: list,
+        offset: params.offset,
+        limit: params.limit,
+        total,
+    };
+
+    Ok((StatusCode::OK, Json(res)))
 }
 
 /// Returns video by id

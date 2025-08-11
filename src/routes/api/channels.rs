@@ -1,8 +1,12 @@
 use crate::api_prelude::*;
 use diesel::prelude::*;
 
+type GetChannelsResponse = PaginatedResponse<ChannelResponse>;
+
 #[derive(Deserialize, Debug)]
 pub struct GetChannelsParams {
+    offset: Option<i64>,
+    limit: Option<i64>,
     search: Option<String>,
     is_subscribed: Option<bool>,
     subscribers_count: Option<i64>,
@@ -18,6 +22,8 @@ pub struct GetChannelsParams {
     path = "/channels",
     tag = "Channel",
     params(
+        ("offset" = Option<i64>, description = "List offset"),
+        ("limit" = Option<i64>, description = "List limit"),
         ("search" = String, description = "Search channels by name"),
         ("is_subscribed" = bool, description = "List only channels that are subscribed to (is_subscribed=true)"),
         ("subscribers_count" = i64, description = "Channel subscribers_count equal to specified value"),
@@ -25,13 +31,13 @@ pub struct GetChannelsParams {
         ("max_subscribers_count" = i64, description = "Channel subscribers_count less than specified value"),
     ),
     responses(
-        (status = OK, description = "List of channels", body = Vec<ChannelResponse>),
+        (status = OK, description = "List of channels", body = GetChannelsResponse),
     )
 )]
 pub async fn get_channels(
     State(state): State<AppState>,
     Query(params): Query<GetChannelsParams>,
-) -> ApiResult<(StatusCode, Json<Vec<ChannelResponse>>)> {
+) -> ApiResult<(StatusCode, Json<GetChannelsResponse>)> {
     use schema::channels::dsl as channels_dsl;
     use schema::tags::dsl as tags_dsl;
     use schema::video_tags::dsl as video_tags_dsl;
@@ -40,6 +46,14 @@ pub async fn get_channels(
     let mut conn = state.pool.get().map_err(internal_error)?;
 
     let mut query = channels_dsl::channels.into_boxed();
+
+    if let Some(offset) = params.offset {
+        query = query.offset(offset);
+    }
+
+    if let Some(limit) = params.limit {
+        query = query.limit(limit);
+    }
 
     if let Some(search) = params.search {
         query = query.filter(channels_dsl::name.like(format!("%{search}%")));
@@ -97,7 +111,19 @@ pub async fn get_channels(
         })
         .collect();
 
-    Ok((StatusCode::OK, Json(list)))
+    let total = channels_dsl::channels
+        .count()
+        .get_result::<i64>(&mut conn)
+        .unwrap_or(0);
+
+    let res = GetChannelsResponse {
+        data: list,
+        offset: params.offset,
+        limit: params.limit,
+        total,
+    };
+
+    Ok((StatusCode::OK, Json(res)))
 }
 
 /// Returns channel by id

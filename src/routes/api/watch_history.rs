@@ -221,8 +221,12 @@ pub async fn create_watch_history(
     Ok(StatusCode::CREATED)
 }
 
+type GetWatchHistoryResponse = PaginatedResponse<WatchHistoryResponse>;
+
 #[derive(Deserialize, Debug)]
 pub struct GetWatchHistoryParams {
+    offset: Option<i64>,
+    limit: Option<i64>,
     video_id: Option<String>,
     channel_id: Option<String>,
     watch_duration_seconds: Option<i64>,
@@ -241,6 +245,8 @@ pub struct GetWatchHistoryParams {
     path = "/watch_history",
     tag = "Watch history",
     params(
+        ("offset" = Option<i64>, description = "List offset"),
+        ("limit" = Option<i64>, description = "List limit"),
         ("video_id" = String, description = "Video id"),
         ("channel_id" = String, description = "Channel id"),
         ("watch_duration_seconds" = i64, description = "Watch duration seconds"),
@@ -251,13 +257,13 @@ pub struct GetWatchHistoryParams {
         ("watched_after" = i64, description = "Watched after"),
     ),
     responses(
-        (status = OK, description = "List of watch history records", body = Vec<WatchHistoryResponse>),
+        (status = OK, description = "List of watch history records", body = GetWatchHistoryResponse),
     )
 )]
 pub async fn get_watch_history(
     State(state): State<AppState>,
     Query(params): Query<GetWatchHistoryParams>,
-) -> ApiResult<(StatusCode, Json<Vec<WatchHistoryResponse>>)> {
+) -> ApiResult<(StatusCode, Json<GetWatchHistoryResponse>)> {
     use schema::channels::dsl as channels_dsl;
     use schema::videos::dsl as videos_dsl;
     use schema::watch_history::dsl as watch_history_dsl;
@@ -273,6 +279,14 @@ pub async fn get_watch_history(
             videos_dsl::videos::all_columns(),
         ))
         .into_boxed();
+
+    if let Some(offset) = params.offset {
+        query = query.offset(offset);
+    }
+
+    if let Some(limit) = params.limit {
+        query = query.limit(limit);
+    }
 
     if let Some(video_id) = params.video_id {
         query = query.filter(videos_dsl::id.eq(video_id));
@@ -321,5 +335,17 @@ pub async fn get_watch_history(
         })
         .collect::<Vec<WatchHistoryResponse>>();
 
-    Ok((StatusCode::OK, Json(list)))
+    let total = watch_history_dsl::watch_history
+        .count()
+        .get_result::<i64>(&mut conn)
+        .unwrap_or(0);
+
+    let res = GetWatchHistoryResponse {
+        data: list,
+        offset: params.offset,
+        limit: params.limit,
+        total,
+    };
+
+    Ok((StatusCode::OK, Json(res)))
 }
