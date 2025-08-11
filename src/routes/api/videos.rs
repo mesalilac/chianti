@@ -89,7 +89,7 @@ pub struct GetVideosParams {
         GetVideosParams
     ),
     responses(
-        (status = OK, description = "List of videos", body = GetVideosResponse),
+        (status = OK, description = "List of videos", body = PaginatedResponse<VideoResponse>),
     )
 )]
 pub async fn get_videos(
