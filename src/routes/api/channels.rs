@@ -3,14 +3,21 @@ use diesel::prelude::*;
 
 type GetChannelsResponse = PaginatedResponse<ChannelResponse>;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, utoipa::IntoParams)]
 pub struct GetChannelsParams {
+    /// Data list offset
     offset: Option<i64>,
+    /// Data list limit
     limit: Option<i64>,
+    /// Search channels by name
     search: Option<String>,
+    /// List only channels that are subscribed to
     is_subscribed: Option<bool>,
+    /// Channel subscribers_count equal to specified value
     subscribers_count: Option<i64>,
+    /// Channel subscribers_count greater than specified value
     min_subscribers_count: Option<i64>,
+    /// Channel subscribers_count less than specified value
     max_subscribers_count: Option<i64>,
 }
 
@@ -22,13 +29,7 @@ pub struct GetChannelsParams {
     path = "/channels",
     tag = "Channel",
     params(
-        ("offset" = Option<i64>, description = "List offset"),
-        ("limit" = Option<i64>, description = "List limit"),
-        ("search" = String, description = "Search channels by name"),
-        ("is_subscribed" = bool, description = "List only channels that are subscribed to (is_subscribed=true)"),
-        ("subscribers_count" = i64, description = "Channel subscribers_count equal to specified value"),
-        ("min_subscribers_count" = i64, description = "Channel subscribers_count greater than specified value"),
-        ("max_subscribers_count" = i64, description = "Channel subscribers_count less than specified value"),
+        GetChannelsParams
     ),
     responses(
         (status = OK, description = "List of channels", body = GetChannelsResponse),

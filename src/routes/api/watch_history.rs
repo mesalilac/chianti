@@ -223,17 +223,27 @@ pub async fn create_watch_history(
 
 type GetWatchHistoryResponse = PaginatedResponse<WatchHistoryResponse>;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, utoipa::IntoParams)]
 pub struct GetWatchHistoryParams {
+    /// Data list offset
     offset: Option<i64>,
+    /// Data list limit
     limit: Option<i64>,
+    /// Only list records that belong to specified video
     video_id: Option<String>,
+    /// Only list records that belong to specified channel
     channel_id: Option<String>,
+    /// Only list records that have specified watch duration
     watch_duration_seconds: Option<i64>,
+    /// Only list records that have watch duration greater than specified value
     min_watch_duration_seconds: Option<i64>,
+    /// Only list records that have watch duration less than specified value
     max_watch_duration_seconds: Option<i64>,
+    /// Only list records that have been watched at specified timestamp
     watched_at: Option<i64>,
+    /// Only list records that have been watched before specified timestamp
     watched_before: Option<i64>,
+    /// Only list records that have been watched after specified timestamp
     watched_after: Option<i64>,
 }
 
@@ -245,16 +255,7 @@ pub struct GetWatchHistoryParams {
     path = "/watch_history",
     tag = "Watch history",
     params(
-        ("offset" = Option<i64>, description = "List offset"),
-        ("limit" = Option<i64>, description = "List limit"),
-        ("video_id" = String, description = "Video id"),
-        ("channel_id" = String, description = "Channel id"),
-        ("watch_duration_seconds" = i64, description = "Watch duration seconds"),
-        ("min_watch_duration_seconds" = i64, description = "Min watch duration seconds"),
-        ("max_watch_duration_seconds" = i64, description = "Max watch duration seconds"),
-        ("watched_at" = i64, description = "Watched at"),
-        ("watched_before" = i64, description = "Watched before"),
-        ("watched_after" = i64, description = "Watched after"),
+        GetWatchHistoryParams
     ),
     responses(
         (status = OK, description = "List of watch history records", body = GetWatchHistoryResponse),
