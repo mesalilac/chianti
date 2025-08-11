@@ -17,6 +17,13 @@ pub use utils::internal_error;
 pub type ApiErr = (StatusCode, String);
 pub type ApiResult<T> = Result<T, ApiErr>;
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum SortOrder {
+    Asc,
+    Desc,
+}
+
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct PaginatedResponse<T> {
