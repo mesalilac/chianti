@@ -249,6 +249,9 @@ pub async fn get_videos(
     get,
     path = "/videos/{id}",
     tag = "Video",
+    params(
+        ("id" = String, Path, description = "Video id")
+    ),
     responses(
         (status = OK, description = "One video", body = VideoResponse),
     )

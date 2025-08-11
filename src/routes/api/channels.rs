@@ -134,6 +134,9 @@ pub async fn get_channels(
     get,
     path = "/channels/{id}",
     tag = "Channel",
+    params(
+        ("id" = String, Path, description = "Channel id")
+    ),
     responses(
         (status = OK, description = "One channel", body = ChannelResponse),
     )

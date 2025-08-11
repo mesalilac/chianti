@@ -5,6 +5,9 @@ use crate::api_prelude::*;
     get,
     path = "/thumbnails/{id}",
     tag = "Images",
+    params(
+        ("id" = String, Path, description = "Video id")
+    ),
     responses(
         (status = OK, description = "Image was found on disk", content_type = "image/webp", body = Vec<u8>),
         (status = NOT_FOUND, description = "Image not found on disk"),

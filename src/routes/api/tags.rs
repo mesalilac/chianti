@@ -69,6 +69,9 @@ pub async fn get_tags(
     get,
     path = "/tags/{id}",
     tag = "Video",
+    params(
+        ("id" = String, Path, description = "Tag id")
+    ),
     responses(
         (status = OK, description = "One video tag", body = models::Tag),
     )
