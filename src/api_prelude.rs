@@ -19,6 +19,15 @@ pub type ApiResult<T> = Result<T, ApiErr>;
 
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
+pub struct PaginatedResponse<T> {
+    pub data: Vec<T>,
+    pub offset: i64,
+    pub limit: i64,
+    pub total: i64,
+}
+
+#[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
+#[ts(export)]
 pub struct VideoResponse {
     #[serde(flatten)]
     pub video: models::Video,
