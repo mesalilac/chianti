@@ -3,9 +3,11 @@ use diesel::prelude::*;
 
 type GetTagsResponse = PaginatedResponse<models::Tag>;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, utoipa::IntoParams)]
 pub struct GetTagsParams {
+    /// Data list offset
     offset: Option<i64>,
+    /// Data list limit
     limit: Option<i64>,
 }
 
@@ -17,8 +19,7 @@ pub struct GetTagsParams {
     path = "/tags",
     tag = "Video",
     params(
-        ("offset" = Option<i64>, description = "List offset"),
-        ("limit" = Option<i64>, description = "List limit"),
+        GetTagsParams
     ),
     responses(
         (status = OK, description = "List of video tags", body = GetTagsResponse),
