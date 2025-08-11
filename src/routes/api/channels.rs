@@ -3,8 +3,20 @@ use diesel::prelude::*;
 
 type GetChannelsResponse = PaginatedResponse<ChannelResponse>;
 
+#[derive(Debug, Deserialize, utoipa::ToSchema)]
+#[serde(rename_all = "snake_case")]
+enum SortBy {
+    Name,
+    IsSubscribed,
+    SubscribersCount,
+}
+
 #[derive(Deserialize, Debug, utoipa::IntoParams)]
 pub struct GetChannelsParams {
+    /// Sort order
+    sort_order: Option<SortOrder>,
+    /// Sort by specified field
+    sort_by: Option<SortBy>,
     /// Data list offset
     offset: Option<i64>,
     /// Data list limit
@@ -74,6 +86,18 @@ pub async fn get_channels(
 
     if let Some(max_subscribers_count) = params.max_subscribers_count {
         query = query.filter(channels_dsl::subscribers_count.lt(max_subscribers_count));
+    }
+
+    if let Some(sort_by) = params.sort_by {
+        query = match sort_by {
+            SortBy::Name => apply_sort!(query, channels_dsl::name, params.sort_order),
+            SortBy::IsSubscribed => {
+                apply_sort!(query, channels_dsl::is_subscribed, params.sort_order)
+            }
+            SortBy::SubscribersCount => {
+                apply_sort!(query, channels_dsl::subscribers_count, params.sort_order)
+            }
+        };
     }
 
     let data = query
