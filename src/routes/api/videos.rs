@@ -3,34 +3,61 @@ use diesel::prelude::*;
 
 type GetVideosResponse = PaginatedResponse<VideoResponse>;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, utoipa::IntoParams)]
 pub struct GetVideosParams {
+    /// Data list offset
     offset: Option<i64>,
+    /// Data list limit
     limit: Option<i64>,
+    /// Search videos by title
     search: Option<String>,
+    /// List only videos that belong to specified channel
     channel_id: Option<String>,
+    /// List only videos that are subscribed to
     is_subscribed: Option<bool>,
+    /// Video subscribers_count equal to specified value
     subscribers_count: Option<i64>,
+    /// Video subscribers_count greater than specified value
     min_subscribers_count: Option<i64>,
+    /// Video subscribers_count less than specified value
     max_subscribers_count: Option<i64>,
+    /// List only videos that have specified tags
     tags: Option<Vec<String>>,
+    /// Video watch_counter equal to specified value
     watch_counter: Option<i64>,
+    /// Video watch_counter greater than specified value
     min_watch_counter: Option<i64>,
+    /// Video watch_counter less than specified value
     max_watch_counter: Option<i64>,
+    /// Video duration_seconds equal to specified value
     duration_seconds: Option<i64>,
+    /// Video duration_seconds greater than specified value
     min_duration_seconds: Option<i64>,
+    /// Video duration_seconds less than specified value
     max_duration_seconds: Option<i64>,
+    /// Video likes_count equal to specified value
     likes_count: Option<i64>,
+    /// Video likes_count greater than specified value
     min_likes_count: Option<i64>,
+    /// Video likes_count less than specified value
     max_likes_count: Option<i64>,
+    /// Video view_count equal to specified value
     view_count: Option<i64>,
+    /// Video view_count greater than specified value
     min_view_count: Option<i64>,
+    /// Video view_count less than specified value
     max_view_count: Option<i64>,
+    /// Video comments_count equal to specified value
     comments_count: Option<i64>,
+    /// Video comments_count greater than specified value
     min_comments_count: Option<i64>,
+    /// Video comments_count less than specified value
     max_comments_count: Option<i64>,
+    /// Video published_at equal to specified value
     published_at: Option<i64>,
+    /// Video published_at before specified timestamp
     published_before: Option<i64>,
+    /// Video published_at after specified timestamp
     published_after: Option<i64>,
 }
 
@@ -42,33 +69,7 @@ pub struct GetVideosParams {
     path = "/videos",
     tag = "Video",
     params(
-        ("offset" = Option<i64>, description = "List offset"),
-        ("limit" = Option<i64>, description = "List limit"),
-        ("search" = String, description = "Search videos by title"),
-        ("channel_id" = String, description = "List only videos that belong to specified channel"),
-        ("is_subscribed" = bool, description = "List only videos that belong to subscribed channels (is_subscribed=true)"),
-        ("subscribers_count" = i64, description = "Channel subscribers_count equal to specified value"),
-        ("min_subscribers_count" = i64, description = "Channel subscribers_count greater than specified value"),
-        ("max_subscribers_count" = i64, description = "Channel subscribers_count less than specified value"),
-        ("tags" = Vec<String>, description = "List only videos that include specified tags (tags=x&tags=y&tags=z)"),
-        ("watch_counter" = i64, description = "Video watch_counter equal to specified value"),
-        ("min_watch_counter" = i64, description = "Video watch_counter greater than specified value"),
-        ("max_watch_counter" = i64, description = "Video watch_counter less than specified value"),
-        ("duration_seconds" = i64, description = "Video duration_seconds equal to specified value"),
-        ("min_duration_seconds" = i64, description = "Video duration_seconds greater than specified value"),
-        ("max_duration_seconds" = i64, description = "Video duration_seconds less than specified value"),
-        ("likes_count" = i64, description = "Video likes_count equal to specified value"),
-        ("min_likes_count" = i64, description = "Video likes_count greater than specified value"),
-        ("max_likes_count" = i64, description = "Video likes_count less than specified value"),
-        ("view_count" = i64, description = "Video view_count equal to specified value"),
-        ("min_view_count" = i64, description = "Video view_count greater than specified value"),
-        ("max_view_count" = i64, description = "Video view_count less than specified value"),
-        ("comments_count" = i64, description = "Video comments_count equal to specified value"),
-        ("min_comments_count" = i64, description = "Video comments_count greater than specified value"),
-        ("max_comments_count" = i64, description = "Video comments_count less than specified value"),
-        ("published_at" = i64, description = "Video published_at equal to specified value"),
-        ("published_before" = i64, description = "Video published_at before specified timestamp"),
-        ("published_after" = i64, description = "Video published_at after specified timestamp"),
+        GetVideosParams
     ),
     responses(
         (status = OK, description = "List of videos", body = GetVideosResponse),
