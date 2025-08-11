@@ -21,8 +21,8 @@ pub type ApiResult<T> = Result<T, ApiErr>;
 #[ts(export)]
 pub struct PaginatedResponse<T> {
     pub data: Vec<T>,
-    pub offset: i64,
-    pub limit: i64,
+    pub offset: Option<i64>,
+    pub limit: Option<i64>,
     pub total: i64,
 }
 
