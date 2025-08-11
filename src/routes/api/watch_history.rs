@@ -258,7 +258,7 @@ pub struct GetWatchHistoryParams {
         GetWatchHistoryParams
     ),
     responses(
-        (status = OK, description = "List of watch history records", body = GetWatchHistoryResponse),
+        (status = OK, description = "List of watch history records", body = PaginatedResponse<WatchHistoryResponse>),
     )
 )]
 pub async fn get_watch_history(
