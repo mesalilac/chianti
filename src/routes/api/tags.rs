@@ -1,6 +1,14 @@
 use crate::api_prelude::*;
 use diesel::prelude::*;
 
+type GetTagsResponse = PaginatedResponse<models::Tag>;
+
+#[derive(Deserialize, Debug)]
+pub struct GetTagsParams {
+    offset: Option<i64>,
+    limit: Option<i64>,
+}
+
 /// Returns Video tags
 ///
 /// This endpoint is used to fetch video tags list
@@ -8,22 +16,49 @@ use diesel::prelude::*;
     get,
     path = "/tags",
     tag = "Video",
+    params(
+        ("offset" = Option<i64>, description = "List offset"),
+        ("limit" = Option<i64>, description = "List limit"),
+    ),
     responses(
-        (status = OK, description = "List of video tags", body = Vec<models::Tag>),
+        (status = OK, description = "List of video tags", body = GetTagsResponse),
     )
 )]
 pub async fn get_tags(
     State(state): State<AppState>,
-) -> ApiResult<(StatusCode, Json<Vec<models::Tag>>)> {
+    Query(params): Query<GetTagsParams>,
+) -> ApiResult<(StatusCode, Json<GetTagsResponse>)> {
     use schema::tags::dsl as tags_dsl;
 
     let mut conn = state.pool.get().map_err(internal_error)?;
 
-    let list = tags_dsl::tags
+    let mut query = tags_dsl::tags.into_boxed();
+
+    if let Some(offset) = params.offset {
+        query = query.offset(offset);
+    }
+
+    if let Some(limit) = params.limit {
+        query = query.limit(limit);
+    }
+
+    let list = query
         .load::<models::Tag>(&mut conn)
         .map_err(internal_error)?;
 
-    Ok((StatusCode::OK, Json(list)))
+    let total = tags_dsl::tags
+        .count()
+        .get_result::<i64>(&mut conn)
+        .unwrap_or(0);
+
+    let res = GetTagsResponse {
+        data: list,
+        offset: params.offset,
+        limit: params.limit,
+        total,
+    };
+
+    Ok((StatusCode::OK, Json(res)))
 }
 
 /// Returns video tag by id
