@@ -3,7 +3,7 @@ use crate::api_prelude::*;
 /// Returns video thumbnail
 #[utoipa::path(
     get,
-    path = "/thumbnails/{video_id}",
+    path = "/thumbnails/{id}",
     tag = "Images",
     responses(
         (status = OK, description = "Image was found on disk", content_type = "image/webp", body = Vec<u8>),
@@ -12,11 +12,11 @@ use crate::api_prelude::*;
 )]
 pub async fn get_video_thumbnail(
     State(state): State<AppState>,
-    Path(video_id): Path<String>,
+    Path(id): Path<String>,
 ) -> ApiResult<impl IntoResponse> {
     let thumbnail_file_path = state
         .video_thumbnails_dir
-        .join(utils::build_thumbnail_cache_image_filename(&video_id));
+        .join(utils::build_thumbnail_cache_image_filename(&id));
 
     let Ok(file) = tokio::fs::File::open(&thumbnail_file_path).await else {
         return Err((StatusCode::NOT_FOUND, "Image not found on disk".to_string()));

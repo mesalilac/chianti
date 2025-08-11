@@ -3,7 +3,7 @@ use crate::api_prelude::*;
 /// Returns channel avater
 #[utoipa::path(
     get,
-    path = "/avaters/{channel_id}",
+    path = "/avaters/{id}",
     tag = "Images",
     responses(
         (status = OK, description = "Image was found on disk", content_type = "image/webp", body = Vec<u8>),
@@ -12,11 +12,11 @@ use crate::api_prelude::*;
 )]
 pub async fn get_channel_avater(
     State(state): State<AppState>,
-    Path(channel_id): Path<String>,
+    Path(id): Path<String>,
 ) -> ApiResult<impl IntoResponse> {
     let avater_file_path = state
         .channel_avaters_dir
-        .join(utils::build_avater_cache_image_filename(&channel_id));
+        .join(utils::build_avater_cache_image_filename(&id));
 
     let Ok(file) = tokio::fs::File::open(&avater_file_path).await else {
         return Err((StatusCode::NOT_FOUND, "Image not found on disk".to_string()));
