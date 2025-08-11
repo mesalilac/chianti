@@ -245,6 +245,8 @@ pub struct GetWatchHistoryParams {
     path = "/watch_history",
     tag = "Watch history",
     params(
+        ("offset" = Option<i64>, description = "List offset"),
+        ("limit" = Option<i64>, description = "List limit"),
         ("video_id" = String, description = "Video id"),
         ("channel_id" = String, description = "Channel id"),
         ("watch_duration_seconds" = i64, description = "Watch duration seconds"),
