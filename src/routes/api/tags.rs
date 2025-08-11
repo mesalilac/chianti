@@ -3,8 +3,18 @@ use diesel::prelude::*;
 
 type GetTagsResponse = PaginatedResponse<models::Tag>;
 
+#[derive(Debug, Deserialize, utoipa::ToSchema)]
+#[serde(rename_all = "snake_case")]
+enum SortBy {
+    Name,
+}
+
 #[derive(Deserialize, Debug, utoipa::IntoParams)]
 pub struct GetTagsParams {
+    /// Sort order
+    sort_order: Option<SortOrder>,
+    /// Sort by specified field
+    sort_by: Option<SortBy>,
     /// Data list offset
     offset: Option<i64>,
     /// Data list limit
@@ -41,6 +51,12 @@ pub async fn get_tags(
 
     if let Some(limit) = params.limit {
         query = query.limit(limit);
+    }
+
+    if let Some(sort_by) = params.sort_by {
+        query = match sort_by {
+            SortBy::Name => apply_sort!(query, tags_dsl::name, params.sort_order),
+        };
     }
 
     let list = query
