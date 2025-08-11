@@ -17,6 +17,8 @@ pub use utils::internal_error;
 pub type ApiErr = (StatusCode, String);
 pub type ApiResult<T> = Result<T, ApiErr>;
 
+pub use crate::apply_sort;
+
 #[derive(Debug, Deserialize, utoipa::ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum SortOrder {
