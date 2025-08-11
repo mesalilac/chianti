@@ -14,7 +14,7 @@ use axum::{
 };
 use clap::Parser;
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
-use routes::{api_routes, handle_404, root};
+use routes::{api, handle_404, root};
 use state::AppState;
 use std::{path::PathBuf, time::Duration};
 use tower_http::{
@@ -141,7 +141,7 @@ async fn main() {
     }
 
     let (openapi_router, mut api_doc) = OpenApiRouter::<AppState>::new()
-        .nest("/api", api_routes())
+        .nest("/api", api::routes())
         .split_for_parts();
 
     let mut contact = utoipa::openapi::Contact::new();

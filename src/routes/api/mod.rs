@@ -9,9 +9,7 @@ mod watch_history;
 use crate::state::AppState;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
-use statistics::statistics_routes;
-
-pub fn api_routes() -> OpenApiRouter<AppState> {
+pub fn routes() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(ping::ping))
         .routes(routes!(
@@ -24,6 +22,6 @@ pub fn api_routes() -> OpenApiRouter<AppState> {
         .routes(routes!(channels::get_channel))
         .routes(routes!(tags::get_tags))
         .routes(routes!(tags::get_tag))
-        .nest("/statistics", statistics_routes())
+        .nest("/statistics", statistics::routes())
         .nest("/images", images::routes())
 }
