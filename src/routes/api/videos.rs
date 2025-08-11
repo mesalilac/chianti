@@ -3,8 +3,25 @@ use diesel::prelude::*;
 
 type GetVideosResponse = PaginatedResponse<VideoResponse>;
 
+#[derive(Debug, Deserialize, utoipa::ToSchema)]
+#[serde(rename_all = "snake_case")]
+enum SortBy {
+    Title,
+    Description,
+    WatchCounter,
+    DurationSeconds,
+    LikesCount,
+    ViewCount,
+    CommentsCount,
+    PublishedAt,
+}
+
 #[derive(Deserialize, Debug, utoipa::IntoParams)]
 pub struct GetVideosParams {
+    /// Sort order
+    sort_order: Option<SortOrder>,
+    /// Sort by specified field
+    sort_by: Option<SortBy>,
     /// Data list offset
     offset: Option<i64>,
     /// Data list limit
@@ -202,6 +219,29 @@ pub async fn get_videos(
 
     if let Some(published_after) = params.published_after {
         query = query.filter(videos_dsl::published_at.gt(published_after));
+    }
+
+    if let Some(sort_by) = params.sort_by {
+        query = match sort_by {
+            SortBy::Title => apply_sort!(query, videos_dsl::title, params.sort_order),
+            SortBy::Description => {
+                apply_sort!(query, videos_dsl::description, params.sort_order)
+            }
+            SortBy::WatchCounter => {
+                apply_sort!(query, videos_dsl::watch_counter, params.sort_order)
+            }
+            SortBy::LikesCount => apply_sort!(query, videos_dsl::likes_count, params.sort_order),
+            SortBy::ViewCount => apply_sort!(query, videos_dsl::view_count, params.sort_order),
+            SortBy::CommentsCount => {
+                apply_sort!(query, videos_dsl::comments_count, params.sort_order)
+            }
+            SortBy::DurationSeconds => {
+                apply_sort!(query, videos_dsl::duration_seconds, params.sort_order)
+            }
+            SortBy::PublishedAt => {
+                apply_sort!(query, videos_dsl::published_at, params.sort_order)
+            }
+        };
     }
 
     let data = query
