@@ -4,7 +4,7 @@ use crate::api_prelude::*;
 #[utoipa::path(
     get,
     path = "/thumbnails/{video_id}",
-    tag = "Video",
+    tag = "Images",
     responses(
         (status = OK, description = "Image was found on disk", content_type = "image/webp", body = Vec<u8>),
         (status = NOT_FOUND, description = "Image not found on disk"),
