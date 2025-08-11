@@ -32,7 +32,7 @@ pub struct GetTagsParams {
         GetTagsParams
     ),
     responses(
-        (status = OK, description = "List of video tags", body = GetTagsResponse),
+        (status = OK, description = "List of video tags", body = PaginatedResponse<models::Tag>),
     )
 )]
 pub async fn get_tags(
