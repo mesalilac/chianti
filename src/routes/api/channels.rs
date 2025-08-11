@@ -44,7 +44,7 @@ pub struct GetChannelsParams {
         GetChannelsParams
     ),
     responses(
-        (status = OK, description = "List of channels", body = GetChannelsResponse),
+        (status = OK, description = "List of channels", body = PaginatedResponse<ChannelResponse>),
     )
 )]
 pub async fn get_channels(
