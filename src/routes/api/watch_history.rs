@@ -266,6 +266,8 @@ pub async fn get_watch_history(
     Query(params): Query<GetWatchHistoryParams>,
 ) -> ApiResult<(StatusCode, Json<GetWatchHistoryResponse>)> {
     use schema::channels::dsl as channels_dsl;
+    use schema::tags::dsl as tags_dsl;
+    use schema::video_tags::dsl as video_tags_dsl;
     use schema::videos::dsl as videos_dsl;
     use schema::watch_history::dsl as watch_history_dsl;
 
@@ -329,10 +331,31 @@ pub async fn get_watch_history(
 
     let list = data
         .into_iter()
-        .map(|(watch_history, channel, video)| WatchHistoryResponse {
-            video,
-            channel,
-            watch_history,
+        .map(|(watch_history, channel, video)| {
+            let tags = tags_dsl::tags
+                .inner_join(video_tags_dsl::video_tags)
+                .filter(video_tags_dsl::video_id.eq(&video.id))
+                .select(tags_dsl::name)
+                .load(&mut conn)
+                .unwrap_or(Vec::new());
+
+            let video_response = VideoResponse {
+                thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
+                video,
+                tags,
+                channel: None,
+            };
+
+            let channel_response = ChannelResponse {
+                channel,
+                videos: None,
+            };
+
+            WatchHistoryResponse {
+                video: video_response,
+                channel: channel_response,
+                watch_history,
+            }
         })
         .collect::<Vec<WatchHistoryResponse>>();
 
