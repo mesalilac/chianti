@@ -245,6 +245,12 @@ pub struct GetWatchHistoryParams {
     watched_before: Option<i64>,
     /// Only list records that have been watched after specified timestamp
     watched_after: Option<i64>,
+    /// Only list records that have been watched in specified year
+    watched_year: Option<i64>,
+    /// Only list records that have been watched in specified month
+    watched_month: Option<i64>,
+    /// Only list records that have been watched in specified day
+    watched_day: Option<i64>,
 }
 
 /// Returns watch history records
@@ -323,6 +329,22 @@ pub async fn get_watch_history(
 
     if let Some(watched_after) = params.watched_after {
         query = query.filter(watch_history_dsl::session_start_date.gt(watched_after));
+    }
+
+    if let Some(watched_year) = params.watched_year {
+        query = query
+            .filter(year_unix!(watch_history_dsl::session_start_date).eq(watched_year.to_string()));
+    }
+
+    if let Some(watched_month) = params.watched_month {
+        query = query.filter(
+            month_unix!(watch_history_dsl::session_start_date).eq(watched_month.to_string()),
+        );
+    }
+
+    if let Some(watched_day) = params.watched_day {
+        query = query
+            .filter(day_unix!(watch_history_dsl::session_start_date).eq(watched_day.to_string()));
     }
 
     let data = query
