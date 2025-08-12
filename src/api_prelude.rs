@@ -10,14 +10,25 @@ pub use axum::{
     response::{IntoResponse, Response},
 };
 pub use axum_extra::extract::Query;
+use diesel::prelude::*;
 pub use serde::{Deserialize, Serialize};
 pub use ts_rs::TS;
 pub use utils::internal_error;
+
+use diesel::sql_types::{BigInt, Text};
+
+define_sql_function! {
+    #[sql_name = "strftime"]
+    fn strftime(fmt: Text, ts: BigInt, modifier: Text) -> Text
+}
 
 pub type ApiErr = (StatusCode, String);
 pub type ApiResult<T> = Result<T, ApiErr>;
 
 pub use crate::apply_sort;
+pub use crate::day_unix;
+pub use crate::month_unix;
+pub use crate::year_unix;
 
 #[derive(Debug, Deserialize, utoipa::ToSchema)]
 #[serde(rename_all = "lowercase")]

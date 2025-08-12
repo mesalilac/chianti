@@ -4,6 +4,7 @@ mod database;
 mod routes;
 pub mod schema;
 mod state;
+mod unixepoch_macros;
 pub mod utils;
 
 use axum::{
