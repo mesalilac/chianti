@@ -70,8 +70,12 @@ pub struct GetVideosParams {
     min_comments_count: Option<i64>,
     /// Video comments_count less than specified value
     max_comments_count: Option<i64>,
-    /// Video published_at equal to specified value
-    published_at: Option<i64>,
+    /// Video published_at equal to specified year
+    published_year: Option<i64>,
+    /// Video published_at equal to specified month
+    published_month: Option<i64>,
+    /// Video published_at equal to specified day
+    published_day: Option<i64>,
     /// Video published_at before specified timestamp
     published_before: Option<i64>,
     /// Video published_at after specified timestamp
@@ -209,8 +213,16 @@ pub async fn get_videos(
         query = query.filter(videos_dsl::comments_count.lt(max_comments_count));
     }
 
-    if let Some(published_at) = params.published_at {
-        query = query.filter(videos_dsl::published_at.eq(published_at));
+    if let Some(published_year) = params.published_year {
+        query = query.filter(year_unix!(videos_dsl::published_at).eq(published_year.to_string()));
+    }
+
+    if let Some(published_month) = params.published_month {
+        query = query.filter(month_unix!(videos_dsl::published_at).eq(published_month.to_string()));
+    }
+
+    if let Some(published_day) = params.published_day {
+        query = query.filter(day_unix!(videos_dsl::published_at).eq(published_day.to_string()));
     }
 
     if let Some(published_before) = params.published_before {
