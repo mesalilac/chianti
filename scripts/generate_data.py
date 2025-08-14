@@ -9,6 +9,16 @@ from rich import print
 from dataclasses import dataclass
 
 
+TEN_YEARS = 10 * 365 * 24 * 60 * 60
+
+MIN_VIDEO_PUBLISHED_AT = int(1e4)
+MAX_VIDEO_PUBLISHED_AT = TEN_YEARS
+MIN_SESSION_START = int(1e5)
+MAX_SESSION_START = int(1e6)
+
+MIN_SESSION_END = 0
+MAX_SESSION_END = int(1e3)
+
 fake = Faker()
 SEPARATOR = "-" * 80
 
@@ -83,7 +93,7 @@ class Video:
         self.view_count = fake.pyint(min_value=0, max_value=100000)
         self.comments_count = fake.pyint(min_value=0, max_value=10000)
         self.published_at = int(time.time()) - fake.pyint(
-            min_value=100, max_value=10000
+            min_value=MIN_VIDEO_PUBLISHED_AT, max_value=MAX_VIDEO_PUBLISHED_AT
         )
         self.added_at = int(time.time())
 
@@ -181,14 +191,16 @@ class WatchHistory:
     session_end_date: int
     added_at: int
 
-    def __init__(self, video_id: str, channel_id: str) -> None:
+    def __init__(self, video: Video, channel_id: str) -> None:
         timestamp = int(time.time())
-        start = timestamp - fake.pyint(min_value=1000, max_value=10000)
-        end = timestamp - fake.pyint(min_value=0, max_value=500)
+        start = video.published_at + fake.pyint(
+            min_value=MIN_SESSION_START, max_value=MAX_SESSION_START
+        )
+        end = start + fake.pyint(min_value=MIN_SESSION_END, max_value=MAX_SESSION_END)
         duration = (end - start) + fake.pyint(min_value=0, max_value=500)
 
         self.id = fake.uuid4()
-        self.video_id = video_id
+        self.video_id = video.id
         self.channel_id = channel_id
         self.watch_duration_seconds = duration
         self.session_start_date = start
@@ -297,7 +309,7 @@ def main() -> int:
                 video.insert(cursor)
 
             for _ in range(total_watch_history):
-                watch_history = WatchHistory(video.id, channel.id)
+                watch_history = WatchHistory(video, channel.id)
 
                 if not watch_history.exists(cursor):
                     watch_history.insert(cursor)
