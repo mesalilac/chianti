@@ -192,7 +192,7 @@ class WatchHistory:
     added_at: int
 
     def __init__(self, video: Video, channel_id: str) -> None:
-        timestamp = int(time.time())
+        timestamp_now = int(time.time())
         start = video.published_at + fake.pyint(
             min_value=MIN_SESSION_START, max_value=MAX_SESSION_START
         )
@@ -205,7 +205,7 @@ class WatchHistory:
         self.watch_duration_seconds = duration
         self.session_start_date = start
         self.session_end_date = end
-        self.added_at = timestamp
+        self.added_at = timestamp_now
 
     def exists(self, cursor: sqlite3.Cursor):
         cursor.execute("SELECT id FROM watch_history WHERE id = ?", (self.id,))
