@@ -16,6 +16,8 @@ pub struct OverviewResponse {
     pub total_tags: i64,
     #[ts(type = "number")]
     pub average_watch_time_per_session_seconds: i64,
+    #[ts(type = "number")]
+    pub average_session_duration_seconds: i64,
 }
 
 /// Returns stats overview
@@ -68,6 +70,11 @@ pub async fn get_overview(
         / watch_history_list.len() as i64;
     let total_channels = channels_list.len() as i64;
     let total_tags = tags_list.len() as i64;
+    let average_session_duration_seconds = watch_history_list
+        .iter()
+        .map(|s| s.session_end_date - s.session_start_date)
+        .sum::<i64>()
+        / watch_history_list.len() as i64;
 
     Ok((
         StatusCode::OK,
@@ -78,6 +85,7 @@ pub async fn get_overview(
             total_tags,
             total_unique_videos_watched,
             average_watch_time_per_session_seconds,
+            average_session_duration_seconds,
         }),
     ))
 }
