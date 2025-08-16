@@ -368,10 +368,7 @@ pub async fn get_watch_history(
                 channel: None,
             };
 
-            let channel_response = ChannelResponse {
-                channel,
-                videos: None,
-            };
+            let channel_response = ChannelResponse { channel };
 
             WatchHistoryResponse {
                 video: video_response,
