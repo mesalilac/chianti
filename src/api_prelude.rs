@@ -51,6 +51,7 @@ pub struct PaginatedResponse<T> {
 pub struct ChannelResponse {
     #[serde(flatten)]
     pub channel: models::Channel,
+    pub avatar_endpoint: String,
 }
 
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
