@@ -92,6 +92,12 @@ pub struct ChannelWithVideosResponse {
     pub videos: Vec<VideoResponse>,
 }
 
+impl ChannelWithVideosResponse {
+    pub fn new(channel: ChannelResponse, videos: Vec<VideoResponse>) -> Self {
+        Self { channel, videos }
+    }
+}
+
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct WatchHistoryResponse {

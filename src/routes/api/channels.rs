@@ -126,10 +126,7 @@ pub async fn get_channels(
 
             let channel_response = ChannelResponse::new(channel);
 
-            ChannelWithVideosResponse {
-                channel: channel_response,
-                videos,
-            }
+            ChannelWithVideosResponse::new(channel_response, videos)
         })
         .collect();
 
@@ -197,10 +194,7 @@ pub async fn get_channel(
 
     let channel_response = ChannelResponse::new(channel);
 
-    let response = ChannelWithVideosResponse {
-        channel: channel_response,
-        videos,
-    };
+    let response = ChannelWithVideosResponse::new(channel_response, videos);
 
     Ok((StatusCode::OK, Json(response)))
 }
