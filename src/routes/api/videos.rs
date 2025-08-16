@@ -270,10 +270,7 @@ pub async fn get_videos(
                 .load(&mut conn)
                 .unwrap_or(Vec::new());
 
-            let channel_response = ChannelResponse {
-                avatar_endpoint: format!("/api/images/avatars/{}", channel.id),
-                channel,
-            };
+            let channel_response = ChannelResponse::new(channel);
 
             VideoResponse {
                 thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
@@ -337,10 +334,7 @@ pub async fn get_video(
         .load(&mut conn)
         .unwrap_or(Vec::new());
 
-    let channel_response = ChannelResponse {
-        avatar_endpoint: format!("/api/images/avatars/{}", channel.id),
-        channel,
-    };
+    let channel_response = ChannelResponse::new(channel);
 
     let response = VideoResponse {
         thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),

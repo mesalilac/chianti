@@ -129,10 +129,7 @@ pub async fn get_channels(
                 })
                 .collect();
 
-            let channel_response = ChannelResponse {
-                avatar_endpoint: format!("/api/images/avatars/{}", channel.id),
-                channel,
-            };
+            let channel_response = ChannelResponse::new(channel);
 
             ChannelWithVideosResponse {
                 channel: channel_response,
@@ -208,10 +205,7 @@ pub async fn get_channel(
         })
         .collect();
 
-    let channel_response = ChannelResponse {
-        avatar_endpoint: format!("/api/images/avatars/{}", channel.id),
-        channel,
-    };
+    let channel_response = ChannelResponse::new(channel);
 
     let response = ChannelWithVideosResponse {
         channel: channel_response,

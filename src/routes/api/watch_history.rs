@@ -361,10 +361,7 @@ pub async fn get_watch_history(
                 .load(&mut conn)
                 .unwrap_or(Vec::new());
 
-            let channel_response = ChannelResponse {
-                avatar_endpoint: format!("/api/images/avatars/{}", channel.id),
-                channel,
-            };
+            let channel_response = ChannelResponse::new(channel);
 
             let video_response = VideoResponse {
                 thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),

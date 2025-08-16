@@ -54,6 +54,15 @@ pub struct ChannelResponse {
     pub avatar_endpoint: String,
 }
 
+impl ChannelResponse {
+    pub fn new(channel: models::Channel) -> Self {
+        Self {
+            avatar_endpoint: format!("/api/images/avatars/{}", channel.id),
+            channel,
+        }
+    }
+}
+
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct VideoResponse {
