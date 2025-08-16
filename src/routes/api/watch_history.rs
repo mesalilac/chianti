@@ -361,21 +361,17 @@ pub async fn get_watch_history(
                 .load(&mut conn)
                 .unwrap_or(Vec::new());
 
+            let channel_response = ChannelResponse { channel };
+
             let video_response = VideoResponse {
                 thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
                 video,
                 tags,
-                channel: None,
-            };
-
-            let channel_response = ChannelResponse {
-                channel,
-                videos: None,
+                channel: Some(channel_response),
             };
 
             WatchHistoryResponse {
                 video: video_response,
-                channel: channel_response,
                 watch_history,
             }
         })

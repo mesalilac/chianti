@@ -48,20 +48,27 @@ pub struct PaginatedResponse<T> {
 
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
+pub struct ChannelResponse {
+    #[serde(flatten)]
+    pub channel: models::Channel,
+}
+
+#[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
+#[ts(export)]
 pub struct VideoResponse {
     #[serde(flatten)]
     pub video: models::Video,
     pub thumbnail_endpoint: String,
     pub tags: Vec<String>,
-    pub channel: Option<models::Channel>,
+    pub channel: Option<ChannelResponse>,
 }
 
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct ChannelResponse {
+pub struct ChannelWithVideosResponse {
     #[serde(flatten)]
-    pub channel: models::Channel,
-    pub videos: Option<Vec<VideoResponse>>,
+    pub channel: ChannelResponse,
+    pub videos: Vec<VideoResponse>,
 }
 
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
@@ -70,5 +77,4 @@ pub struct WatchHistoryResponse {
     #[serde(flatten)]
     pub watch_history: models::WatchHistory,
     pub video: VideoResponse,
-    pub channel: ChannelResponse,
 }
