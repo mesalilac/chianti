@@ -365,10 +365,7 @@ pub async fn get_watch_history(
 
             let video_response = VideoResponse::new(video, tags, Some(channel_response));
 
-            WatchHistoryResponse {
-                video: video_response,
-                watch_history,
-            }
+            WatchHistoryResponse::new(watch_history, video_response)
         })
         .collect::<Vec<WatchHistoryResponse>>();
 

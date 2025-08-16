@@ -105,3 +105,12 @@ pub struct WatchHistoryResponse {
     pub watch_history: models::WatchHistory,
     pub video: VideoResponse,
 }
+
+impl WatchHistoryResponse {
+    pub fn new(watch_history: models::WatchHistory, video: VideoResponse) -> Self {
+        Self {
+            watch_history,
+            video,
+        }
+    }
+}
