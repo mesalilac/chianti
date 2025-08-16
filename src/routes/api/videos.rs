@@ -270,11 +270,13 @@ pub async fn get_videos(
                 .load(&mut conn)
                 .unwrap_or(Vec::new());
 
+            let channel_response = ChannelResponse { channel };
+
             VideoResponse {
                 thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
                 video,
                 tags,
-                channel: Some(channel),
+                channel: Some(channel_response),
             }
         })
         .collect();
@@ -332,11 +334,13 @@ pub async fn get_video(
         .load(&mut conn)
         .unwrap_or(Vec::new());
 
+    let channel_response = ChannelResponse { channel };
+
     let response = VideoResponse {
         thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
         video,
         tags,
-        channel: Some(channel),
+        channel: Some(channel_response),
     };
 
     Ok((StatusCode::OK, Json(response)))
