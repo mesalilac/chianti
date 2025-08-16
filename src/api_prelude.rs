@@ -46,12 +46,32 @@ pub struct PaginatedResponse<T> {
     pub total: i64,
 }
 
+impl<T> PaginatedResponse<T> {
+    pub fn new(data: Vec<T>, offset: Option<i64>, limit: Option<i64>, total: i64) -> Self {
+        Self {
+            data,
+            offset,
+            limit,
+            total,
+        }
+    }
+}
+
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct ChannelResponse {
     #[serde(flatten)]
     pub channel: models::Channel,
     pub avatar_endpoint: String,
+}
+
+impl ChannelResponse {
+    pub fn new(channel: models::Channel) -> Self {
+        Self {
+            avatar_endpoint: format!("/api/images/avatars/{}", channel.id),
+            channel,
+        }
+    }
 }
 
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
@@ -64,6 +84,17 @@ pub struct VideoResponse {
     pub channel: Option<ChannelResponse>,
 }
 
+impl VideoResponse {
+    pub fn new(video: models::Video, tags: Vec<String>, channel: Option<ChannelResponse>) -> Self {
+        Self {
+            thumbnail_endpoint: format!("/api/images/thumbnails/{}", video.id),
+            video,
+            tags,
+            channel,
+        }
+    }
+}
+
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct ChannelWithVideosResponse {
@@ -72,10 +103,25 @@ pub struct ChannelWithVideosResponse {
     pub videos: Vec<VideoResponse>,
 }
 
+impl ChannelWithVideosResponse {
+    pub fn new(channel: ChannelResponse, videos: Vec<VideoResponse>) -> Self {
+        Self { channel, videos }
+    }
+}
+
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct WatchHistoryResponse {
     #[serde(flatten)]
     pub watch_history: models::WatchHistory,
     pub video: VideoResponse,
+}
+
+impl WatchHistoryResponse {
+    pub fn new(watch_history: models::WatchHistory, video: VideoResponse) -> Self {
+        Self {
+            watch_history,
+            video,
+        }
+    }
 }

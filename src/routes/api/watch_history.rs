@@ -361,22 +361,11 @@ pub async fn get_watch_history(
                 .load(&mut conn)
                 .unwrap_or(Vec::new());
 
-            let channel_response = ChannelResponse {
-                avatar_endpoint: format!("/api/images/avatars/{}", channel.id),
-                channel,
-            };
+            let channel_response = ChannelResponse::new(channel);
 
-            let video_response = VideoResponse {
-                thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
-                video,
-                tags,
-                channel: Some(channel_response),
-            };
+            let video_response = VideoResponse::new(video, tags, Some(channel_response));
 
-            WatchHistoryResponse {
-                video: video_response,
-                watch_history,
-            }
+            WatchHistoryResponse::new(watch_history, video_response)
         })
         .collect::<Vec<WatchHistoryResponse>>();
 
@@ -385,12 +374,7 @@ pub async fn get_watch_history(
         .get_result::<i64>(&mut conn)
         .unwrap_or(0);
 
-    let res = GetWatchHistoryResponse {
-        data: list,
-        offset: params.offset,
-        limit: params.limit,
-        total,
-    };
+    let res = GetWatchHistoryResponse::new(list, params.offset, params.limit, total);
 
     Ok((StatusCode::OK, Json(res)))
 }

@@ -270,17 +270,9 @@ pub async fn get_videos(
                 .load(&mut conn)
                 .unwrap_or(Vec::new());
 
-            let channel_response = ChannelResponse {
-                avatar_endpoint: format!("/api/images/avatars/{}", channel.id),
-                channel,
-            };
+            let channel_response = ChannelResponse::new(channel);
 
-            VideoResponse {
-                thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
-                video,
-                tags,
-                channel: Some(channel_response),
-            }
+            VideoResponse::new(video, tags, Some(channel_response))
         })
         .collect();
 
@@ -289,12 +281,7 @@ pub async fn get_videos(
         .get_result::<i64>(&mut conn)
         .unwrap_or(0);
 
-    let res = GetVideosResponse {
-        data: list,
-        offset: params.offset,
-        limit: params.limit,
-        total,
-    };
+    let res = GetVideosResponse::new(list, params.offset, params.limit, total);
 
     Ok((StatusCode::OK, Json(res)))
 }
@@ -337,17 +324,9 @@ pub async fn get_video(
         .load(&mut conn)
         .unwrap_or(Vec::new());
 
-    let channel_response = ChannelResponse {
-        avatar_endpoint: format!("/api/images/avatars/{}", channel.id),
-        channel,
-    };
+    let channel_response = ChannelResponse::new(channel);
 
-    let response = VideoResponse {
-        thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
-        video,
-        tags,
-        channel: Some(channel_response),
-    };
+    let response = VideoResponse::new(video, tags, Some(channel_response));
 
     Ok((StatusCode::OK, Json(response)))
 }

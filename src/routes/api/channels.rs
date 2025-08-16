@@ -120,24 +120,13 @@ pub async fn get_channels(
                         .load(&mut conn)
                         .unwrap_or(Vec::new());
 
-                    VideoResponse {
-                        thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
-                        video,
-                        channel: None,
-                        tags,
-                    }
+                    VideoResponse::new(video, tags, None)
                 })
                 .collect();
 
-            let channel_response = ChannelResponse {
-                avatar_endpoint: format!("/api/images/avatars/{}", channel.id),
-                channel,
-            };
+            let channel_response = ChannelResponse::new(channel);
 
-            ChannelWithVideosResponse {
-                channel: channel_response,
-                videos,
-            }
+            ChannelWithVideosResponse::new(channel_response, videos)
         })
         .collect();
 
@@ -146,12 +135,7 @@ pub async fn get_channels(
         .get_result::<i64>(&mut conn)
         .unwrap_or(0);
 
-    let res = GetChannelsResponse {
-        data: list,
-        offset: params.offset,
-        limit: params.limit,
-        total,
-    };
+    let res = GetChannelsResponse::new(list, params.offset, params.limit, total);
 
     Ok((StatusCode::OK, Json(res)))
 }
@@ -199,24 +183,13 @@ pub async fn get_channel(
                 .load(&mut conn)
                 .unwrap_or(Vec::new());
 
-            VideoResponse {
-                thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
-                video,
-                channel: None,
-                tags,
-            }
+            VideoResponse::new(video, tags, None)
         })
         .collect();
 
-    let channel_response = ChannelResponse {
-        avatar_endpoint: format!("/api/images/avatars/{}", channel.id),
-        channel,
-    };
+    let channel_response = ChannelResponse::new(channel);
 
-    let response = ChannelWithVideosResponse {
-        channel: channel_response,
-        videos,
-    };
+    let response = ChannelWithVideosResponse::new(channel_response, videos);
 
     Ok((StatusCode::OK, Json(response)))
 }
