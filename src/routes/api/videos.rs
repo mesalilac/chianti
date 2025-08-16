@@ -272,12 +272,7 @@ pub async fn get_videos(
 
             let channel_response = ChannelResponse::new(channel);
 
-            VideoResponse {
-                thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
-                video,
-                tags,
-                channel: Some(channel_response),
-            }
+            VideoResponse::new(video, tags, Some(channel_response))
         })
         .collect();
 
@@ -336,12 +331,7 @@ pub async fn get_video(
 
     let channel_response = ChannelResponse::new(channel);
 
-    let response = VideoResponse {
-        thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
-        video,
-        tags,
-        channel: Some(channel_response),
-    };
+    let response = VideoResponse::new(video, tags, Some(channel_response));
 
     Ok((StatusCode::OK, Json(response)))
 }

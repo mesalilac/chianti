@@ -73,6 +73,17 @@ pub struct VideoResponse {
     pub channel: Option<ChannelResponse>,
 }
 
+impl VideoResponse {
+    pub fn new(video: models::Video, tags: Vec<String>, channel: Option<ChannelResponse>) -> Self {
+        Self {
+            thumbnail_endpoint: format!("/api/images/thumbnails/{}", video.id),
+            video,
+            tags,
+            channel,
+        }
+    }
+}
+
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct ChannelWithVideosResponse {

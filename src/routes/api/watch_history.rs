@@ -363,12 +363,7 @@ pub async fn get_watch_history(
 
             let channel_response = ChannelResponse::new(channel);
 
-            let video_response = VideoResponse {
-                thumbnail_endpoint: format!("/api/thumbnails/{}", video.id),
-                video,
-                tags,
-                channel: Some(channel_response),
-            };
+            let video_response = VideoResponse::new(video, tags, Some(channel_response));
 
             WatchHistoryResponse {
                 video: video_response,
