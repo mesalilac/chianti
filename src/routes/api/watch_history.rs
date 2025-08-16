@@ -374,12 +374,7 @@ pub async fn get_watch_history(
         .get_result::<i64>(&mut conn)
         .unwrap_or(0);
 
-    let res = GetWatchHistoryResponse {
-        data: list,
-        offset: params.offset,
-        limit: params.limit,
-        total,
-    };
+    let res = GetWatchHistoryResponse::new(list, params.offset, params.limit, total);
 
     Ok((StatusCode::OK, Json(res)))
 }

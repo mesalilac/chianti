@@ -68,12 +68,7 @@ pub async fn get_tags(
         .get_result::<i64>(&mut conn)
         .unwrap_or(0);
 
-    let res = GetTagsResponse {
-        data: list,
-        offset: params.offset,
-        limit: params.limit,
-        total,
-    };
+    let res = GetTagsResponse::new(list, params.offset, params.limit, total);
 
     Ok((StatusCode::OK, Json(res)))
 }

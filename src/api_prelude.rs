@@ -46,6 +46,17 @@ pub struct PaginatedResponse<T> {
     pub total: i64,
 }
 
+impl<T> PaginatedResponse<T> {
+    pub fn new(data: Vec<T>, offset: Option<i64>, limit: Option<i64>, total: i64) -> Self {
+        Self {
+            data,
+            offset,
+            limit,
+            total,
+        }
+    }
+}
+
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct ChannelResponse {

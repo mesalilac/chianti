@@ -281,12 +281,7 @@ pub async fn get_videos(
         .get_result::<i64>(&mut conn)
         .unwrap_or(0);
 
-    let res = GetVideosResponse {
-        data: list,
-        offset: params.offset,
-        limit: params.limit,
-        total,
-    };
+    let res = GetVideosResponse::new(list, params.offset, params.limit, total);
 
     Ok((StatusCode::OK, Json(res)))
 }
