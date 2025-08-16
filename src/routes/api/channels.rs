@@ -1,7 +1,7 @@
 use crate::api_prelude::*;
 use diesel::prelude::*;
 
-type GetChannelsResponse = PaginatedResponse<ChannelResponse>;
+type GetChannelsResponse = PaginatedResponse<ChannelWithVideosResponse>;
 
 #[derive(Debug, Deserialize, utoipa::ToSchema)]
 #[serde(rename_all = "snake_case")]
@@ -44,7 +44,7 @@ pub struct GetChannelsParams {
         GetChannelsParams
     ),
     responses(
-        (status = OK, description = "List of channels", body = PaginatedResponse<ChannelResponse>),
+        (status = OK, description = "List of channels", body = PaginatedResponse<ChannelWithVideosResponse>),
     )
 )]
 pub async fn get_channels(
@@ -104,7 +104,7 @@ pub async fn get_channels(
         .load::<models::Channel>(&mut conn)
         .map_err(internal_error)?;
 
-    let list: Vec<ChannelResponse> = data
+    let list: Vec<ChannelWithVideosResponse> = data
         .into_iter()
         .map(|channel| {
             let videos: Vec<VideoResponse> = videos_dsl::videos
@@ -129,9 +129,11 @@ pub async fn get_channels(
                 })
                 .collect();
 
-            ChannelResponse {
-                channel,
-                videos: Some(videos),
+            let channel_response = ChannelResponse { channel };
+
+            ChannelWithVideosResponse {
+                channel: channel_response,
+                videos,
             }
         })
         .collect();
@@ -162,13 +164,13 @@ pub async fn get_channels(
         ("id" = String, Path, description = "Channel id")
     ),
     responses(
-        (status = OK, description = "One channel", body = ChannelResponse),
+        (status = OK, description = "One channel", body = ChannelWithVideosResponse),
     )
 )]
 pub async fn get_channel(
     State(state): State<AppState>,
     Path(id): Path<String>,
-) -> ApiResult<(StatusCode, Json<ChannelResponse>)> {
+) -> ApiResult<(StatusCode, Json<ChannelWithVideosResponse>)> {
     use schema::channels::dsl as channels_dsl;
     use schema::tags::dsl as tags_dsl;
     use schema::video_tags::dsl as video_tags_dsl;
@@ -203,9 +205,11 @@ pub async fn get_channel(
         })
         .collect();
 
-    let response = ChannelResponse {
-        videos: Some(videos),
-        channel,
+    let channel_response = ChannelResponse { channel };
+
+    let response = ChannelWithVideosResponse {
+        channel: channel_response,
+        videos,
     };
 
     Ok((StatusCode::OK, Json(response)))
