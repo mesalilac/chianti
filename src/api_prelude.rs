@@ -68,7 +68,7 @@ pub struct VideoResponse {
 pub struct ChannelWithVideosResponse {
     #[serde(flatten)]
     pub channel: ChannelResponse,
-    pub videos: Option<Vec<VideoResponse>>,
+    pub videos: Vec<VideoResponse>,
 }
 
 #[derive(utoipa::ToSchema, Serialize, Deserialize, TS)]
