@@ -77,5 +77,4 @@ pub struct WatchHistoryResponse {
     #[serde(flatten)]
     pub watch_history: models::WatchHistory,
     pub video: VideoResponse,
-    pub channel: ChannelResponse,
 }
