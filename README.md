@@ -4,7 +4,7 @@ Collect info about the youtube videos you watch and view the data in the form of
 
 # Chianti Components
 
-| Component         | Description                                                    | Code location       |
+| Component         | Description                                                    | Path                |
 | ----------------- | -------------------------------------------------------------- | ------------------- |
 | Server            | Recive data from browser extension and store it                | ./src               |
 | web               | Display data stored on the server in form of charts and tables | ./web               |
