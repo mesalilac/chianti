@@ -2,6 +2,11 @@
 
 set -eo pipefail
 
+if [[ ! -d "./scripts/" ]]; then
+    echo "ERROR: Script running in the wrong directory '(${PWD})'"
+    exit 1
+fi
+
 EXTENSION_PATH="${PWD}"/browser-extension
 FIREFOX_TARGET="${PWD}"/chianti-firefox.xpi
 CHROME_TARGET="${PWD}"/chianti-chrome.zip

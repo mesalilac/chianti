@@ -2,6 +2,11 @@
 
 set -eo pipefail
 
+if [[ ! -d "./scripts/" ]]; then
+    echo "ERROR: Script running in the wrong directory '(${PWD})'"
+    exit 1
+fi
+
 if [[ -n "${XDG_DATA_HOME}" ]]; then
     CHIANTI_DIR="${XDG_DATA_HOME}/chianti"
 else

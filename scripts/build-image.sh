@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+if [[ ! -d "./scripts/" ]]; then
+    echo "ERROR: Script running in the wrong directory '(${PWD})'"
+    exit 1
+fi
+
 if ! command -v cargo >/dev/null 2>&1; then
     echo "Cargo is not installed"
     exit 1
